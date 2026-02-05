@@ -46,6 +46,9 @@ Se adopta el siguiente stack tecnológico:
     - Backoffice privado.
   - Permite renderizado híbrido (SSR / SSG / CSR) según necesidades de SEO y UX.
   - No contiene lógica de dominio ni reglas de negocio.
+- **TypeScript** - JavaScript con tipado seguro
+- **Tailwind CSS v4** - Framework CSS utility-first
+- **Sentry** - Seguimiento de errores y monitoreo
 
 ### Backend
 
@@ -60,6 +63,16 @@ Se adopta el siguiente stack tecnológico:
     - Application
     - Infrastructure
     - Interfaces
+- **Pydantic** - Validación de datos
+- **Uvicorn** - Servidor ASGI
+
+### Testing y Calidad
+
+- **Vitest** - Testing unitario y de integración
+- **Testing Library** - Testing de componentes React
+- **Playwright** - Testing end-to-end
+- **ESLint** - Linting con SonarJS y jsx-a11y
+- **Husky** - Git hooks para verificaciones de calidad
 
 ### Base de datos
 

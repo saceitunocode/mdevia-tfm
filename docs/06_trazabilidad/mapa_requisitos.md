@@ -37,10 +37,12 @@ Este documento establece la **trazabilidad completa** entre:
 | PRD | Épica | User Story | Pantallas | Entidad Dominio | Tabla BD |
 |-----|-------|------------|-----------|-----------------|----------|
 | §4 Usuarios y Roles | EP-0 | US-0.1 Usuario admin inicial | N/A (Setup) | User | `users` |
+| §4 Usuarios y Roles | EP-0 | US-0.1 (Tech) Seed Script | N/A (Infra) | User | `users` |
 | §4 Usuarios y Roles | EP-0 | US-0.2 Autenticación | Login | User | `users` |
 | §4 Usuarios y Roles | EP-0 | US-0.3 Separación escaparate | N/A (Arquitectura) | N/A | N/A |
 | §4.2 Roles | EP-1 | US-1.1 Crear agentes | Admin: Gestión Usuarios | User | `users` |
 | §4.2 Roles | EP-1 | US-1.2 Permisos por rol | N/A (Lógica) | User | `users` |
+| N/A (Tech) | M0 | TFM-42/43/44 UX Transversal | Error/Toast/Skeleton | N/A | N/A |
 
 **Wireframes:** Login no detallado (pantalla estándar)
 
