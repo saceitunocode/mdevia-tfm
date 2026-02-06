@@ -13,10 +13,10 @@ install: ## Instala dependencias de Frontend y Backend
 	@cd backend && python3 -m venv venv && . venv/bin/activate && pip install -r requirements.txt
 
 db-up: ## Levanta la base de datos con Docker
-	@docker-compose up -d db
+	@docker compose up -d db
 
 db-down: ## Detiene la base de datos
-	@docker-compose stop db
+	@docker compose stop db
 
 check: ## Ejecuta comprobaciones de calidad (Lint, Tests) - Placeholder
 	@echo "🚧 Pendiente de configurar herramientas de calidad (TFM-51)"
