@@ -1,15 +1,20 @@
 from fastapi import FastAPI
+from app.core.config import settings
+from app.infrastructure.api.api_v1.api import api_router
 
 app = FastAPI(
-    title="CRM Inmobiliario API",
-    description="Backend del CRM Inmobiliario Familiar (TFM)",
-    version="0.1.0"
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-@app.get("/")
-def read_root():
-    return {"message": "Welcome to CRM API", "status": "ok"}
+# Integración de rutas
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
+@app.get("/")
+def root():
+    return {
+        "message": "Welcome to mdevia-tfm CRM API",
+        "docs": f"{settings.API_V1_STR}/docs",
+        "version": settings.VERSION
+    }
