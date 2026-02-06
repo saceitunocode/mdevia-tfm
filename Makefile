@@ -4,7 +4,7 @@ help: ## Muestra esta ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 dev: ## Arranca el servidor de desarrollo unificado (Front + Back)
-	@./dev.sh
+	@./scripts/dev.sh
 
 install: ## Instala dependencias de Frontend y Backend
 	@echo "📦 Instalando dependencias de Frontend..."
