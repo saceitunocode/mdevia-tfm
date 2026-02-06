@@ -5,6 +5,8 @@ GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 NC='\033[0m' # No Color
+# Asegurar que estamos en la raíz del proyecto
+cd "$(dirname "$0")/.." || exit 1
 
 echo -e "${BLUE}🚀 Iniciando entorno de desarrollo para MDEVIA-TFM...${NC}"
 
