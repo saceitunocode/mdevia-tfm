@@ -18,7 +18,8 @@ def login_access_token(
     db: Session = Depends(get_db)
 ) -> Token:
     """
-    OAuth2 compatible token login, get an access token for future requests
+    OAuth2 compatible token login, get an access token for future requests.
+    Note: The 'username' field expects the user's email.
     """
     repo = UserRepository()
     user = repo.get_by_email(db, email=form_data.username)

@@ -11,6 +11,7 @@ def read_user_me(current_user: CurrentUser):
     return {
         "id": str(current_user.id),
         "email": current_user.email,
+        "full_name": current_user.full_name,
         "role": current_user.role,
         "is_active": current_user.is_active
     }
