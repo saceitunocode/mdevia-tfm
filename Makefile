@@ -1,4 +1,4 @@
-.PHONY: help dev install check db-up db-down
+.PHONY: help dev install check db-up db-down test-e2e
 
 help: ## Muestra esta ayuda
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -18,5 +18,14 @@ db-up: ## Levanta la base de datos con Docker
 db-down: ## Detiene la base de datos
 	@docker compose stop db
 
-check: ## Ejecuta comprobaciones de calidad (Lint, Tests) - Placeholder
-	@echo "🚧 Pendiente de configurar herramientas de calidad (TFM-51)"
+check: ## Ejecuta comprobaciones de calidad (Lint + Tests Unitarios)
+	@echo "🧹 Ejecutando Linting Frontend..."
+	@cd frontend && pnpm lint
+	@echo "🧪 Ejecutando Tests de Frontend..."
+	@cd frontend && pnpm test
+	@echo "🐍 Ejecutando Tests de Backend..."
+	@cd backend && . venv/bin/activate && pytest
+
+test-e2e: ## Ejecuta tests E2E con Playwright
+	@echo "🎭 Ejecutando Tests E2E..."
+	@cd frontend && pnpm test:e2e
