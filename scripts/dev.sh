@@ -19,7 +19,41 @@ cleanup() {
 }
 
 # Atrapar señal SIGINT (Ctrl+C)
+# Atrapar señal SIGINT (Ctrl+C)
 trap cleanup SIGINT EXIT
+
+# Función de limpieza preventiva
+# Función de limpieza preventiva
+pre_cleanup() {
+    echo -e "${BLUE}🧹 Verificando estado del entorno...${NC}"
+    
+    # 1. Matar procesos en puertos clave
+    if fuser 8000/tcp >/dev/null 2>&1 || fuser 3000/tcp >/dev/null 2>&1; then
+        echo "   Matando procesos ocupando puertos 3000/8000..."
+        fuser -k -TERM 8000/tcp >/dev/null 2>&1
+        fuser -k -TERM 3000/tcp >/dev/null 2>&1
+        sleep 2 # Dar tiempo más generoso para cierre ordenado
+    fi
+
+    # 2. Verificar si siguen vivos y forzar si es necesario
+    if fuser 8000/tcp >/dev/null 2>&1 || fuser 3000/tcp >/dev/null 2>&1; then
+         echo "   Forzando cierre..."
+         fuser -k -KILL 8000/tcp >/dev/null 2>&1
+         fuser -k -KILL 3000/tcp >/dev/null 2>&1
+         sleep 1
+    fi
+
+    # 3. Limpiar lock file de Next.js (Causa del error 'Unable to acquire lock')
+    if [ -f "frontend/.next/dev/lock" ]; then
+        echo "   🔓 Eliminando lock file huérfano de Next.js..."
+        rm -f "frontend/.next/dev/lock"
+    fi
+    
+    echo -e "${GREEN}♻️  Entorno limpio y listo.${NC}"
+}
+
+# Ejecutar limpieza antes de empezar
+pre_cleanup
 
 # 1. Arrancar Backend
 echo -e "${GREEN}🐍 Arrancando Backend (FastAPI)...${NC}"
