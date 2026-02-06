@@ -12,6 +12,11 @@ class Settings(BaseSettings):
     POSTGRES_DB: str = "mdevia_tfm"
     POSTGRES_HOST: str = "localhost"
     POSTGRES_PORT: int = 5432
+
+    # Security
+    SECRET_KEY: str = "changeme"  # Should be changed in production
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     
     @property
     def DATABASE_URL(self) -> str:

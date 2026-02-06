@@ -18,7 +18,7 @@
       "vitest related --run"
     ],
     "../backend/**/*.py": [
-      "cd ../backend && . venv/bin/activate && pytest"
+      "bash -c 'cd ../backend && . venv/bin/activate && pytest'"
     ]
   },
   "dependencies": {
