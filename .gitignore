@@ -13,3 +13,11 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Environment Variables (Root level)
+.env
+.env.*
+!.env.example
+
+# Docker persistence
+docker-data/
