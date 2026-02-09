@@ -32,3 +32,4 @@ class Operation(Base):
     
     status_history = relationship("OperationStatusHistory", back_populates="operation", cascade="all, delete-orphan", order_by="OperationStatusHistory.changed_at")
     notes = relationship("OperationNote", back_populates="operation", cascade="all, delete-orphan", order_by="OperationNote.created_at")
+    calendar_events = relationship("CalendarEvent", back_populates="operation")

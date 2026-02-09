@@ -28,3 +28,7 @@ class User(Base):
     managed_operations = relationship("Operation", back_populates="agent")
     status_changes_made = relationship("OperationStatusHistory", back_populates="changed_by_user")
     operation_notes = relationship("OperationNote", back_populates="author")
+    
+    # Agenda and Visits
+    visits_conducted = relationship("Visit", back_populates="agent")
+    calendar_events = relationship("CalendarEvent", back_populates="agent", cascade="all, delete-orphan")
