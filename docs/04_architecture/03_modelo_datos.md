@@ -313,7 +313,7 @@ Observaciones libres y auditables para cualquier entidad.
 
 **Notas**
 
-* Si se quiere máxima integridad referencial, alternativa: tablas de observaciones por entidad (más verbose, más estrictas).
+* **Decisión de Implementación:** Se opta por la **Opción B: Tablas de observaciones por entidad** (`property_notes`, `client_notes`, `operation_notes`) para garantizar la máxima integridad referencial (Foreign Keys reales) y facilitar consultas específicas.
 
 ---
 
