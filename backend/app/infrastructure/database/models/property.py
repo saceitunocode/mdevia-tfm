@@ -42,3 +42,4 @@ class Property(Base):
     owner_client = relationship("Client", back_populates="owned_properties")
     captor_agent = relationship("User", back_populates="captured_properties")
     images = relationship("PropertyImage", back_populates="property", cascade="all, delete-orphan", order_by="PropertyImage.position")
+    operations = relationship("Operation", back_populates="property")

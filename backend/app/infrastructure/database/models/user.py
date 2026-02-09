@@ -20,5 +20,11 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Relationships
+    # Relationships
     responsible_for_clients = relationship("Client", back_populates="responsible_agent")
     captured_properties = relationship("Property", back_populates="captor_agent")
+    
+    # Operation related
+    managed_operations = relationship("Operation", back_populates="agent")
+    status_changes_made = relationship("OperationStatusHistory", back_populates="changed_by_user")
+    operation_notes = relationship("OperationNote", back_populates="author")

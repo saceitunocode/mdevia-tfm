@@ -20,5 +20,7 @@ class Client(Base):
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Relationships
+    # Relationships
     responsible_agent = relationship("User", back_populates="responsible_for_clients")
-    owned_properties = relationship("Property", back_populates="owner_client")
+    owned_properties = relationship("Property", back_populates="owner_client", cascade="all, delete-orphan")
+    operations = relationship("Operation", back_populates="client")
