@@ -24,7 +24,7 @@ check: ## Ejecuta comprobaciones de calidad (Lint + Tests Unitarios)
 	@echo "🧪 Ejecutando Tests de Frontend..."
 	@cd frontend && pnpm test
 	@echo "🐍 Ejecutando Tests de Backend..."
-	@cd backend && . venv/bin/activate && pytest
+	@cd backend && . venv/bin/activate && export PYTHONPATH=$$PYTHONPATH:. && pytest
 
 test-e2e: ## Ejecuta tests E2E con Playwright
 	@echo "🎭 Ejecutando Tests E2E..."
