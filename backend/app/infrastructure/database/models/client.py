@@ -10,9 +10,9 @@ class Client(Base):
     __tablename__ = "clients"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    full_name = Column(String, nullable=False)
-    phone = Column(String, nullable=True)
-    email = Column(String, nullable=True)
+    full_name = Column(String, nullable=False, index=True)
+    phone = Column(String, nullable=True, index=True)
+    email = Column(String, nullable=True, index=True)
     type = Column(SqlEnum(ClientType), nullable=False, index=True)
     responsible_agent_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
     is_active = Column(Boolean, default=True, nullable=False, index=True)
