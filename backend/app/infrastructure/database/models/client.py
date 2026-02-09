@@ -26,3 +26,4 @@ class Client(Base):
     operations = relationship("Operation", back_populates="client")
     visits = relationship("Visit", back_populates="client")
     calendar_events = relationship("CalendarEvent", back_populates="client")
+    notes = relationship("ClientNote", back_populates="client", cascade="all, delete-orphan", order_by="desc(ClientNote.created_at)")

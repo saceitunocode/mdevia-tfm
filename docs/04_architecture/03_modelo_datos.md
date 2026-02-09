@@ -246,7 +246,7 @@ Visitas registradas (evento central).
 * `agent_id` uuid FK -> users(id) not null
 * `scheduled_at` timestamptz not null
 * `status` visit_status not null default 'PENDING'
-* `post_visit_notes` text null
+* `status` visit_status not null default 'PENDING'
 * `created_at`, `updated_at`
 
 **Índices**
@@ -313,7 +313,7 @@ Observaciones libres y auditables para cualquier entidad.
 
 **Notas**
 
-* **Decisión de Implementación:** Se opta por la **Opción B: Tablas de observaciones por entidad** (`property_notes`, `client_notes`, `operation_notes`) para garantizar la máxima integridad referencial (Foreign Keys reales) y facilitar consultas específicas.
+* **Decisión de Implementación:** Se opta por la **Opción B: Tablas de observaciones por entidad** (`property_notes`, `client_notes`, `operation_notes`, `visit_notes`) para garantizar la máxima integridad referencial (Foreign Keys reales) y facilitar consultas específicas.
 
 ---
 

@@ -19,7 +19,7 @@ class Visit(Base):
     # Details
     scheduled_at = Column(DateTime(timezone=True), nullable=False)
     status = Column(SqlEnum(VisitStatus), default=VisitStatus.PENDING, nullable=False, index=True)
-    post_visit_notes = Column(Text, nullable=True)
+    # post_visit_notes removed in favor of VisitNote table
     
     # Timestamps
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
@@ -32,3 +32,4 @@ class Visit(Base):
     
     # Backref to CalendarEvent (One-to-One)
     calendar_event = relationship("CalendarEvent", back_populates="visit", uselist=False, cascade="all, delete-orphan")
+    notes = relationship("VisitNote", back_populates="visit", cascade="all, delete-orphan", order_by="desc(VisitNote.created_at)")
