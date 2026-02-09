@@ -32,3 +32,9 @@ class User(Base):
     # Agenda and Visits
     visits_conducted = relationship("Visit", back_populates="agent")
     calendar_events = relationship("CalendarEvent", back_populates="agent", cascade="all, delete-orphan")
+    
+    # Audit and Transversal
+    client_notes = relationship("ClientNote", back_populates="author")
+    property_notes = relationship("PropertyNote", back_populates="author")
+    visit_notes = relationship("VisitNote", back_populates="author")
+    domain_events_triggered = relationship("DomainEvent", back_populates="actor")

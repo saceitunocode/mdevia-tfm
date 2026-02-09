@@ -7,3 +7,7 @@ from app.infrastructure.database.models.operation_status_history import Operatio
 from app.infrastructure.database.models.operation_note import OperationNote
 from app.infrastructure.database.models.calendar_event import CalendarEvent
 from app.infrastructure.database.models.visit import Visit
+from app.infrastructure.database.models.domain_event import DomainEvent
+from app.infrastructure.database.models.client_note import ClientNote
+from app.infrastructure.database.models.property_note import PropertyNote
+from app.infrastructure.database.models.visit_note import VisitNote

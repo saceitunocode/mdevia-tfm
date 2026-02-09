@@ -45,3 +45,4 @@ class Property(Base):
     operations = relationship("Operation", back_populates="property")
     visits = relationship("Visit", back_populates="property")
     calendar_events = relationship("CalendarEvent", back_populates="property")
+    notes = relationship("PropertyNote", back_populates="property", cascade="all, delete-orphan", order_by="desc(PropertyNote.created_at)")
