@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import uuid
-from sqlalchemy import Column, DateTime, ForeignKey, Text, Enum as SqlEnum, CheckConstraint
+from sqlalchemy import Column, DateTime, ForeignKey, Text, Enum as SqlEnum, CheckConstraint, Index
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.infrastructure.database.base import Base
@@ -32,9 +32,10 @@ class CalendarEvent(Base):
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
-    # Constraints
+    # Constraints and Indexes
     __table_args__ = (
         CheckConstraint('starts_at < ends_at', name='check_starts_before_ends'),
+        Index('ix_calendar_events_agent_starts_at', 'agent_id', 'starts_at'),
     )
 
     # Relationships
