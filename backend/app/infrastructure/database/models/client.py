@@ -24,3 +24,5 @@ class Client(Base):
     responsible_agent = relationship("User", back_populates="responsible_for_clients")
     owned_properties = relationship("Property", back_populates="owner_client", cascade="all, delete-orphan")
     operations = relationship("Operation", back_populates="client")
+    visits = relationship("Visit", back_populates="client")
+    calendar_events = relationship("CalendarEvent", back_populates="client")
