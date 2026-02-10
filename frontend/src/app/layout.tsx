@@ -13,6 +13,7 @@ const outfit = Outfit({
 });
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { OfflineBanner } from "@/components/common/OfflineBanner";
 
 export const metadata: Metadata = {
   title: "FR Inmobiliaria - Gestión Inmobiliaria",
@@ -35,6 +36,7 @@ export default function RootLayout({
           enableSystem={false}
           storageKey="fr-theme"
         >
+          <OfflineBanner />
           {children}
         </ThemeProvider>
       </body>
