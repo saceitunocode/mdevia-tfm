@@ -21,3 +21,4 @@ Thumbs.db
 
 # Docker persistence
 docker-data/
+backend/storage/
