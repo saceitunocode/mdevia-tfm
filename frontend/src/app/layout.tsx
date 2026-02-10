@@ -33,7 +33,7 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="light"
           enableSystem={false}
-          storageKey="mdevia-theme"
+          storageKey="fr-theme"
         >
           {children}
         </ThemeProvider>
