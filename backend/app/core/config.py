@@ -17,7 +17,12 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "changeme"  # Should be changed in production
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    
+
+    # Storage Settings
+    STORAGE_TYPE: str = "local" # local | s3
+    STORAGE_LOCAL_PATH: str = "storage" # Relative to backend root
+    STORAGE_BASE_URL: str = "http://localhost:8000/static" # Base URL for public access
+
     @property
     def DATABASE_URL(self) -> str:
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
