@@ -1,9 +1,10 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { getAuthData, logout } from "@/lib/auth";
+import { getAuthData, logout, type DecodedToken } from "@/lib/auth";
 import {
   LayoutDashboard,
   Home,
@@ -15,15 +16,25 @@ import {
 
 export function AdminSidebar() {
   const pathname = usePathname();
-  const authData = getAuthData();
+  const [authData, setAuthData] = React.useState<DecodedToken | null>(null);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setAuthData(getAuthData());
+    setMounted(true);
+  }, []);
 
   const menuItems = [
     { name: "Dashboard", href: "/oficina/panel", icon: LayoutDashboard, roles: ["ADMIN"] },
-    { name: "Propiedades", href: "/oficina/propiedades", icon: Home, roles: ["ADMIN", "AGENT"] },
-    { name: "Clientes", href: "/oficina/clientes", icon: Users, roles: ["ADMIN", "AGENT"] },
     { name: "Agenda", href: "/oficina/agenda", icon: Calendar, roles: ["ADMIN", "AGENT"] },
+    { name: "Clientes", href: "/oficina/clientes", icon: Users, roles: ["ADMIN", "AGENT"] },
+    { name: "Propiedades", href: "/oficina/propiedades", icon: Home, roles: ["ADMIN", "AGENT"] },
     { name: "Operaciones", href: "/oficina/operaciones", icon: ClipboardList, roles: ["ADMIN", "AGENT"] },
-  ].filter(item => !item.roles || (authData && item.roles.includes(authData.role)));
+  ].filter(item => {
+    if (!mounted || !authData) return false;
+    const userRole = authData.role?.toUpperCase() || "";
+    return !item.roles || item.roles.includes(userRole);
+  });
 
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
