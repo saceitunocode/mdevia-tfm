@@ -1,6 +1,7 @@
-from typing import Any, List
+from typing import Any, List, Optional
+from decimal import Decimal
 import uuid
-from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form, Query
 from sqlalchemy.orm import Session
 from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin, get_storage_service
 from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema
@@ -21,6 +22,45 @@ def get_property_image_use_case(
     repository: PropertyImageRepository = Depends(PropertyImageRepository)
 ) -> PropertyImageUseCase:
     return PropertyImageUseCase(storage_service, repository)
+
+
+# ─────────────────────────────────────────────────────────────
+# PUBLIC SHOWCASE ENDPOINT (No auth required)
+# ─────────────────────────────────────────────────────────────
+
+@router.get("/public", response_model=List[Property])
+def list_public_properties(
+    city: Optional[str] = Query(None, description="Filter by city (case-insensitive)"),
+    price_min: Optional[Decimal] = Query(None, ge=0, description="Minimum price"),
+    price_max: Optional[Decimal] = Query(None, ge=0, description="Maximum price"),
+    sqm_min: Optional[int] = Query(None, ge=0, description="Minimum square meters"),
+    sqm_max: Optional[int] = Query(None, ge=0, description="Maximum square meters"),
+    rooms: Optional[int] = Query(None, ge=1, description="Exact number of rooms"),
+    limit: int = Query(50, ge=1, le=100, description="Max results per page"),
+    offset: int = Query(0, ge=0, description="Number of results to skip"),
+    db: Session = Depends(get_db),
+    repo: PropertyRepository = Depends(get_property_repository),
+) -> Any:
+    """
+    Public showcase: list available properties with optional filters.
+    No authentication required.
+    """
+    return repo.list_published(
+        db=db,
+        city=city,
+        price_min=price_min,
+        price_max=price_max,
+        sqm_min=sqm_min,
+        sqm_max=sqm_max,
+        rooms=rooms,
+        offset=offset,
+        limit=limit,
+    )
+
+
+# ─────────────────────────────────────────────────────────────
+# AUTHENTICATED BACKOFFICE ENDPOINTS
+# ─────────────────────────────────────────────────────────────
 
 @router.get("/", response_model=List[Property])
 def read_properties(
