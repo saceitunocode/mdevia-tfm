@@ -85,7 +85,7 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                     className="h-11"
                     {...register("title")}
                   />
-                  {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
+                  {errors.title && <p className="text-sm text-red-700 font-medium">{errors.title.message}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -97,7 +97,7 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                       className="h-11"
                       {...register("address_line1")}
                     />
-                    {errors.address_line1 && <p className="text-sm text-destructive">{errors.address_line1.message}</p>}
+                    {errors.address_line1 && <p className="text-sm text-red-700 font-medium">{errors.address_line1.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="city">Ciudad</Label>
@@ -107,7 +107,7 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                       className="h-11"
                       {...register("city")}
                     />
-                    {errors.city && <p className="text-sm text-destructive">{errors.city.message}</p>}
+                    {errors.city && <p className="text-sm text-red-700 font-medium">{errors.city.message}</p>}
                   </div>
                 </div>
 
@@ -120,7 +120,7 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                       className="h-11"
                       {...register("sqm")}
                     />
-                    {errors.sqm && <p className="text-sm text-destructive">{errors.sqm.message}</p>}
+                    {errors.sqm && <p className="text-sm text-red-700 font-medium">{errors.sqm.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="rooms">Habitaciones</Label>
@@ -130,7 +130,7 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                       className="h-11"
                       {...register("rooms")}
                     />
-                    {errors.rooms && <p className="text-sm text-destructive">{errors.rooms.message}</p>}
+                    {errors.rooms && <p className="text-sm text-red-700 font-medium">{errors.rooms.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="price_amount">Precio (€)</Label>
@@ -140,7 +140,7 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                       className="h-11 font-bold text-primary"
                       {...register("price_amount")}
                     />
-                    {errors.price_amount && <p className="text-sm text-destructive">{errors.price_amount.message}</p>}
+                    {errors.price_amount && <p className="text-sm text-red-700 font-medium">{errors.price_amount.message}</p>}
                   </div>
                 </div>
 
@@ -152,7 +152,7 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                       <option value="SOLD">Vendido</option>
                       <option value="RENTED">Alquilado</option>
                     </Select>
-                    {errors.status && <p className="text-sm text-destructive">{errors.status.message}</p>}
+                    {errors.status && <p className="text-sm text-red-700 font-medium">{errors.status.message}</p>}
                   </div>
                   <div className="flex items-center space-x-2 pt-8">
                     <input
@@ -177,7 +177,7 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                       </option>
                     ))}
                   </Select>
-                  {errors.owner_client_id && <p className="text-sm text-destructive">{errors.owner_client_id.message}</p>}
+                  {errors.owner_client_id && <p className="text-sm text-red-700 font-medium">{errors.owner_client_id.message}</p>}
                 </div>
 
                 <div className="space-y-2">
