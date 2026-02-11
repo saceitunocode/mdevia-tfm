@@ -8,10 +8,13 @@ import { cn } from "@/lib/utils";
 interface ImageUploadProps {
   onImagesSelected: (files: File[]) => void;
   maxFiles?: number;
+  initialImages?: { id: string; url: string }[];
 }
 
-export function ImageUpload({ onImagesSelected, maxFiles = 10 }: ImageUploadProps) {
-  const [previews, setPreviews] = useState<{ id: string; url: string; file: File }[]>([]);
+export function ImageUpload({ onImagesSelected, maxFiles = 10, initialImages = [] }: ImageUploadProps) {
+  const [previews, setPreviews] = useState<{ id: string; url: string; file?: File }[]>(
+    initialImages.map(img => ({ id: img.id, url: img.url }))
+  );
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFiles = useCallback((files: FileList | null) => {
@@ -27,7 +30,8 @@ export function ImageUpload({ onImagesSelected, maxFiles = 10 }: ImageUploadProp
 
     setPreviews(prev => {
       const combined = [...prev, ...newPreviews].slice(0, maxFiles);
-      onImagesSelected(combined.map(p => p.file));
+      const filesOnly = combined.map(p => p.file).filter((f): f is File => f !== undefined);
+      onImagesSelected(filesOnly);
       return combined;
     });
   }, [maxFiles, onImagesSelected]);
@@ -35,7 +39,8 @@ export function ImageUpload({ onImagesSelected, maxFiles = 10 }: ImageUploadProp
   const removeImage = (id: string) => {
     setPreviews(prev => {
       const filtered = prev.filter(p => p.id !== id);
-      onImagesSelected(filtered.map(p => p.file));
+      const filesOnly = filtered.map(p => p.file).filter((f): f is File => f !== undefined);
+      onImagesSelected(filesOnly);
       return filtered;
     });
   };

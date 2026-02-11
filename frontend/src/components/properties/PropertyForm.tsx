@@ -31,10 +31,11 @@ interface PropertyFormProps {
   onSubmit: (values: PropertyFormValues, images: File[]) => Promise<void>;
   isLoading?: boolean;
   initialValues?: Partial<PropertyFormValues>;
+  initialImages?: { id: string; url: string }[];
   isEditMode?: boolean;
 }
 
-export function PropertyForm({ clients, onSubmit, isLoading, initialValues, isEditMode = false }: PropertyFormProps) {
+export function PropertyForm({ clients, onSubmit, isLoading, initialValues, initialImages = [], isEditMode = false }: PropertyFormProps) {
   const [selectedImages, setSelectedImages] = React.useState<File[]>([]);
   const {
     register,
@@ -187,7 +188,10 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, isEd
                     Mín. 1 foto recomendada
                   </span>
                 </div>
-                <ImageUpload onImagesSelected={setSelectedImages} />
+                <ImageUpload 
+                  onImagesSelected={setSelectedImages} 
+                  initialImages={initialImages}
+                />
                 <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     <strong className="text-primary italic">Tip:</strong> La primera imagen que subas será utilizada como portada en el listado público.

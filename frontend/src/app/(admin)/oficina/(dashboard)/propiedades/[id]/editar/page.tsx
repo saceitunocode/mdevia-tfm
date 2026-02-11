@@ -18,6 +18,11 @@ interface Property {
   public_description?: string;
   internal_notes?: string;
   owner_client_id: string;
+  images?: {
+    id: string;
+    public_url: string;
+    is_cover: boolean;
+  }[];
 }
 
 export default function EditPropertyPage() {
@@ -116,8 +121,9 @@ export default function EditPropertyPage() {
             price_amount: property.price_amount,
             owner_client_id: property.owner_client_id,
             public_description: property.public_description,
-            internal_notes: property.internal_notes
+            internal_notes: property.internal_notes || undefined,
         }}
+        initialImages={property.images?.map(img => ({ id: img.id, url: img.public_url })) || []}
         isEditMode={true}
       />
     </div>
