@@ -4,6 +4,7 @@ from decimal import Decimal
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from app.domain.enums import PropertyStatus
+from app.domain.schemas.property_image import PropertyImage
 
 class PropertyBase(BaseModel):
     title: str
@@ -42,8 +43,6 @@ class PropertyUpdate(BaseModel):
     internal_notes: Optional[str] = None
     is_published: Optional[bool] = None
     owner_client_id: Optional[uuid.UUID] = None
-
-from app.domain.schemas.property_image import PropertyImage
 
 class Property(PropertyBase):
     id: uuid.UUID

@@ -8,6 +8,7 @@ from app.domain.schemas.property import Property, PropertyCreate, PropertyUpdate
 from app.application.use_cases.property_images import PropertyImageUseCase
 from app.infrastructure.repositories.property_image_repository import PropertyImageRepository
 from app.infrastructure.repositories.property_repository import PropertyRepository
+from app.infrastructure.database.models.property import Property as PropertyModel
 from app.domain.services.storage_service import StorageService
 
 router = APIRouter()
@@ -46,16 +47,12 @@ def create_property(
     """
     Create new property.
     """
-    from app.infrastructure.database.models.property import Property as PropertyModel
+    # Create the property object with the captor agent assigned to current user
+    property_obj = PropertyModel(
+        **property_in.model_dump(),
+        captor_agent_id=current_user.id
+    )
     
-    # Check if user is agent or admin to assign responsible
-    # For now we just create the object
-    property_data = property_in.model_dump()
-    property_obj = PropertyModel(**property_data)
-    
-    if hasattr(current_user, 'id'):
-         property_obj.captor_agent_id = current_user.id
-         
     property = repo.create(db=db, property_obj=property_obj)
     return property
 
