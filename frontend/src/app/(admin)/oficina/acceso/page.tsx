@@ -12,15 +12,43 @@ export default function AccesoPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    // Simular retraso de red
-    setTimeout(() => {
-      setIsLoading(false);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    try {
+      // OAuth2PasswordRequestForm espera application/x-www-form-urlencoded
+      const body = new URLSearchParams();
+      body.append("username", email);
+      body.append("password", password);
+
+      const response = await fetch("http://localhost:8000/api/v1/login/access-token", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: body.toString(),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.detail || "Error al iniciar sesión");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.access_token);
+      
       router.push("/oficina/panel");
-    }, 1200);
+    } catch (error) {
+      console.error("Login error:", error);
+      alert(error instanceof Error ? error.message : "Credenciales inválidas");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -40,6 +68,7 @@ export default function AccesoPage() {
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none font-sans">Email</label>
               <Input 
+                name="email"
                 type="email" 
                 placeholder="agente@frinmobiliarias.es" 
                 required 
@@ -49,6 +78,7 @@ export default function AccesoPage() {
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none font-sans">Contraseña</label>
               <Input 
+                name="password"
                 type="password" 
                 placeholder="••••••••" 
                 required 
