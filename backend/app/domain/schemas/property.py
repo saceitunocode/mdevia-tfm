@@ -44,6 +44,24 @@ class PropertyUpdate(BaseModel):
     is_published: Optional[bool] = None
     owner_client_id: Optional[uuid.UUID] = None
 
+class PropertyPublic(BaseModel):
+    id: uuid.UUID
+    title: str
+    city: str
+    sqm: int
+    rooms: int
+    floor: Optional[int] = None
+    has_elevator: bool = False
+    status: PropertyStatus
+    price_amount: Optional[Decimal] = None
+    price_currency: str
+    public_description: Optional[str] = None
+    images: List[PropertyImage] = []
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
 class Property(PropertyBase):
     id: uuid.UUID
     captor_agent_id: uuid.UUID
