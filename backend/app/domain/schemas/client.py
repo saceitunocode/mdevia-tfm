@@ -28,3 +28,22 @@ class Client(ClientBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class ClientNoteBase(BaseModel):
+    text: str
+
+class ClientNoteCreate(ClientNoteBase):
+    pass
+
+class ClientNote(ClientNoteBase):
+    id: uuid.UUID
+    client_id: uuid.UUID
+    author_user_id: uuid.UUID
+    created_at: datetime
+    
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ClientDetail(Client):
+    notes: List[ClientNote] = []
+
