@@ -5,12 +5,13 @@ from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form, Q
 from sqlalchemy.orm import Session
 from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin, get_storage_service
 from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema
-from app.domain.schemas.property import Property, PropertyCreate, PropertyUpdate
+from app.domain.schemas.property import Property, PropertyCreate, PropertyUpdate, PropertyPublic
 from app.application.use_cases.property_images import PropertyImageUseCase
 from app.infrastructure.repositories.property_image_repository import PropertyImageRepository
 from app.infrastructure.repositories.property_repository import PropertyRepository
 from app.infrastructure.database.models.property import Property as PropertyModel
 from app.domain.services.storage_service import StorageService
+from app.domain.enums import PropertyStatus
 
 router = APIRouter()
 
@@ -28,7 +29,7 @@ def get_property_image_use_case(
 # PUBLIC SHOWCASE ENDPOINT (No auth required)
 # ─────────────────────────────────────────────────────────────
 
-@router.get("/public", response_model=List[Property])
+@router.get("/public", response_model=List[PropertyPublic])
 def list_public_properties(
     city: Optional[str] = Query(None, description="Filter by city (case-insensitive)"),
     price_min: Optional[Decimal] = Query(None, ge=0, description="Minimum price"),
@@ -56,6 +57,23 @@ def list_public_properties(
         offset=offset,
         limit=limit,
     )
+
+@router.get("/public/{id}", response_model=PropertyPublic)
+def get_public_property(
+    *,
+    db: Session = Depends(get_db),
+    id: uuid.UUID,
+    repo: PropertyRepository = Depends(get_property_repository),
+) -> Any:
+    """
+    Get public property details by ID.
+    No authentication required.
+    Only returns if is_published=True and status=AVAILABLE.
+    """
+    property = repo.get_by_id(db=db, property_id=id)
+    if not property or not property.is_published or property.status != PropertyStatus.AVAILABLE:
+        raise HTTPException(status_code=404, detail="Property not found or not available")
+    return property
 
 
 # ─────────────────────────────────────────────────────────────
