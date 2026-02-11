@@ -88,6 +88,7 @@ export function ImageUpload({ onImagesSelected, maxFiles = 10, initialImages = [
                 fill
                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
                 className="object-cover"
+                unoptimized={preview.url.startsWith("http://localhost") || preview.url.startsWith("http://127.0.0.1")}
               />
               <button
                 type="button"

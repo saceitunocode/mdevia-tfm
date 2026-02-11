@@ -126,6 +126,7 @@ export default function PropertyDetailPage() {
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                         sizes="(max-width: 1200px) 100vw, 66vw"
                         priority
+                        unoptimized={coverImage.public_url.startsWith("http://localhost") || coverImage.public_url.startsWith("http://127.0.0.1")}
                     />
                 ) : (
                     <div className="flex items-center justify-center h-full text-muted-foreground/30">
@@ -145,6 +146,7 @@ export default function PropertyDetailPage() {
                                 fill
                                 className="object-cover"
                                 sizes="(max-width: 768px) 25vw, 15vw"
+                                unoptimized={img.public_url.startsWith("http://localhost") || img.public_url.startsWith("http://127.0.0.1")}
                             />
                         </div>
                     ))}
