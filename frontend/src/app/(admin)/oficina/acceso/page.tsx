@@ -1,16 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import Link from "next/link";
 import { Lock, Loader2 } from "lucide-react";
+import { getAuthData, DecodedToken } from "@/lib/auth";
+import { jwtDecode } from "jwt-decode";
 
 export default function AccesoPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const authData = getAuthData();
+    if (authData) {
+      if (authData.role === "ADMIN") {
+        router.replace("/oficina/panel");
+      } else {
+        router.replace("/oficina/agenda");
+      }
+    }
+  }, [router]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,7 +55,12 @@ export default function AccesoPage() {
       const data = await response.json();
       localStorage.setItem("token", data.access_token);
       
-      router.push("/oficina/panel");
+      const decoded = jwtDecode<DecodedToken>(data.access_token);
+      if (decoded.role === "ADMIN") {
+        router.push("/oficina/panel");
+      } else {
+        router.push("/oficina/agenda");
+      }
     } catch (error) {
       console.error("Login error:", error);
       alert(error instanceof Error ? error.message : "Credenciales inválidas");
