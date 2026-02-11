@@ -30,9 +30,11 @@ interface PropertyFormProps {
   clients: { id: string; full_name: string }[];
   onSubmit: (values: PropertyFormValues, images: File[]) => Promise<void>;
   isLoading?: boolean;
+  initialValues?: Partial<PropertyFormValues>;
+  isEditMode?: boolean;
 }
 
-export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps) {
+export function PropertyForm({ clients, onSubmit, isLoading, initialValues, isEditMode = false }: PropertyFormProps) {
   const [selectedImages, setSelectedImages] = React.useState<File[]>([]);
   const {
     register,
@@ -49,6 +51,7 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
       address_line1: "",
       city: "",
       owner_client_id: "",
+      ...initialValues,
     },
   });
 
@@ -59,7 +62,9 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
   return (
     <Card className="w-full max-w-6xl mx-auto shadow-xl border-none">
       <CardHeader className="border-b border-border/50 bg-muted/5">
-        <CardTitle className="text-2xl font-heading">Datos de la Propiedad</CardTitle>
+        <CardTitle className="text-2xl font-heading">
+          {isEditMode ? "Editar Propiedad" : "Datos de la Propiedad"}
+        </CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit(onFormSubmit)}>
         <CardContent className="p-8">
@@ -207,7 +212,7 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
             className="px-8 shadow-lg shadow-primary/20"
             isLoading={isLoading}
           >
-            Dar de Alta Propiedad
+            {isEditMode ? "Guardar Cambios" : "Dar de Alta Propiedad"}
           </Button>
         </CardFooter>
       </form>

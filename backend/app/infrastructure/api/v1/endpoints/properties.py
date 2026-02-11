@@ -72,6 +72,25 @@ def read_property(
         raise HTTPException(status_code=404, detail="Property not found")
     return property
 
+@router.put("/{id}", response_model=Property)
+def update_property(
+    *,
+    db: Session = Depends(get_db),
+    id: uuid.UUID,
+    property_in: PropertyUpdate,
+    repo: PropertyRepository = Depends(get_property_repository),
+    current_user: CurrentUser
+) -> Any:
+    """
+    Update a property.
+    """
+    property = repo.get_by_id(db=db, property_id=id)
+    if not property:
+        raise HTTPException(status_code=404, detail="Property not found")
+        
+    property = repo.update(db=db, property_obj=property, property_in=property_in)
+    return property
+
 @router.post("/{property_id}/images", response_model=PropertyImageSchema)
 async def upload_property_image(
     *,
