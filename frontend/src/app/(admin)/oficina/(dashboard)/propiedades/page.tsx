@@ -1,9 +1,8 @@
-<<<<<<< Updated upstream
-=======
 "use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Plus, Building2, MapPin, Ruler, Home } from "lucide-react";
@@ -27,17 +26,38 @@ interface Property {
   images: PropertyImage[];
 }
 
->>>>>>> Stashed changes
 export default function AdminPropiedadesPage() {
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const data = await apiRequest("/properties/") as Property[];
+        setProperties(data);
+      } catch (error) {
+        console.error("Error al cargar propiedades:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProperties();
+  }, []);
+
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl font-heading font-bold">Gestión de Propiedades</h1>
-      <p className="text-muted-foreground">Aquí podrás dar de alta, editar y borrar propiedades del catálogo.</p>
-      <div className="h-64 border-2 border-dashed border-muted rounded-lg flex items-center justify-center text-muted-foreground italic">
-        Listado de propiedades (Gestión)
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-heading font-bold">Gestión de Propiedades</h1>
+          <p className="text-muted-foreground font-medium">Aquí podrás dar de alta, editar y borrar propiedades del catálogo.</p>
+        </div>
+        <Link href="/oficina/propiedades/nueva">
+          <Button className="shadow-lg hover:shadow-xl transition-all duration-300">
+            <Plus className="mr-2 h-4 w-4" /> Nueva Propiedad
+          </Button>
+        </Link>
       </div>
-<<<<<<< Updated upstream
-=======
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -52,7 +72,7 @@ export default function AdminPropiedadesPage() {
               <Building2 size={24} />
             </div>
             <div className="space-y-1">
-              <p className="font-semibold">No hay propiedades registradas</p>
+              <p className="font-semibold text-lg">No hay propiedades registradas</p>
               <p className="text-sm text-muted-foreground">Empieza por añadir la primera propiedad al sistema.</p>
             </div>
             <Link href="/oficina/propiedades/nueva">
@@ -67,12 +87,14 @@ export default function AdminPropiedadesPage() {
             
             return (
               <Card key={property.id} className="group hover:shadow-xl transition-all duration-500 border-none bg-card overflow-hidden flex flex-col">
-                <div className="h-48 relative overflow-hidden bg-muted">
+                <div className="h-48 relative overflow-hidden bg-muted font-heading">
                   {coverImage ? (
-                    <img 
+                    <Image 
                       src={coverImage.public_url} 
                       alt={property.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
@@ -114,7 +136,6 @@ export default function AdminPropiedadesPage() {
           })}
         </div>
       )}
->>>>>>> Stashed changes
     </div>
   );
 }

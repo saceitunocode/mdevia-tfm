@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
+import Image from "next/image";
 import { Upload, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -76,20 +77,22 @@ export function ImageUpload({ onImagesSelected, maxFiles = 10 }: ImageUploadProp
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {previews.map((preview) => (
             <div key={preview.id} className="relative aspect-square rounded-md overflow-hidden group border border-border">
-              <img
+              <Image
                 src={preview.url}
                 alt="Preview"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+                className="object-cover"
               />
               <button
                 type="button"
                 onClick={(e) => { e.stopPropagation(); removeImage(preview.id); }}
-                className="absolute top-1 right-1 bg-destructive text-destructive-foreground p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-1 right-1 bg-destructive text-destructive-foreground p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10"
               >
                 <X size={14} />
               </button>
               {preview.id.includes("uploading") && (
-                <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
                   <Loader2 className="animate-spin text-primary" />
                 </div>
               )}
