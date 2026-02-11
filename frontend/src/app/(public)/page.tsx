@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Home, MapPin, Key } from "lucide-react";
@@ -16,9 +17,11 @@ export default function HomePage() {
             Más de 20 años conectando familias con sus sueños. Confianza total en cada gestión.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-            <Button size="lg" className="bg-accent hover:bg-accent/90 text-white border-none shadow-xl w-full sm:w-auto">
-              Ver Propiedades
-            </Button>
+            <Link href="/propiedades">
+              <Button size="lg" className="bg-accent hover:bg-accent/90 text-white border-none shadow-xl w-full sm:w-auto">
+                Ver Propiedades
+              </Button>
+            </Link>
             <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white/10 w-full sm:w-auto">
               Contactar
             </Button>
