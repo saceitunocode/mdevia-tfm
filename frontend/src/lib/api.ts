@@ -14,13 +14,22 @@ export async function apiRequest<T>(
     headers.set("Content-Type", "application/json");
   }
 
+  console.log(`📡 API Request: ${options.method || "GET"} ${endpoint}`);
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ detail: "Unknown error" }));
+    const errorData = await response.json().catch(() => ({ detail: "Error desconocido" }));
+    console.error(`❌ API Error [${response.status}]:`, errorData);
+    
+    // Si es 401, limpiar token inválido
+    if (response.status === 401 && typeof window !== "undefined") {
+      localStorage.removeItem("token");
+    }
+
     throw new Error(errorData.detail || `Error: ${response.status}`);
   }
 
