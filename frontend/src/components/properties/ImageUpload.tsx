@@ -17,32 +17,32 @@ export function ImageUpload({ onImagesSelected, maxFiles = 10, initialImages = [
   );
   const [isDragging, setIsDragging] = useState(false);
 
+  /* Sync files with parent whenever previews change */
+  React.useEffect(() => {
+    const files = previews
+      .map(p => p.file)
+      .filter((f): f is File => f !== undefined);
+    onImagesSelected(files);
+  }, [previews, onImagesSelected]);
+
   const handleFiles = useCallback((files: FileList | null) => {
     if (!files) return;
 
     const newFiles = Array.from(files).filter(file => file.type.startsWith("image/"));
     
-    const newPreviews = newFiles.map(file => ({
+    const newItems = newFiles.map(file => ({
       id: Math.random().toString(36).substring(7),
       url: URL.createObjectURL(file),
       file
     }));
 
     setPreviews(prev => {
-      const combined = [...prev, ...newPreviews].slice(0, maxFiles);
-      const filesOnly = combined.map(p => p.file).filter((f): f is File => f !== undefined);
-      onImagesSelected(filesOnly);
-      return combined;
+      return [...prev, ...newItems].slice(0, maxFiles);
     });
-  }, [maxFiles, onImagesSelected]);
+  }, [maxFiles]);
 
   const removeImage = (id: string) => {
-    setPreviews(prev => {
-      const filtered = prev.filter(p => p.id !== id);
-      const filesOnly = filtered.map(p => p.file).filter((f): f is File => f !== undefined);
-      onImagesSelected(filesOnly);
-      return filtered;
-    });
+    setPreviews(prev => prev.filter(p => p.id !== id));
   };
 
   return (
