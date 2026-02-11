@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { getAuthData, logout } from "@/lib/auth";
 import {
   LayoutDashboard,
   Home,
@@ -14,14 +15,20 @@ import {
 
 export function AdminSidebar() {
   const pathname = usePathname();
+  const authData = getAuthData();
 
   const menuItems = [
-    { name: "Dashboard", href: "/oficina/panel", icon: LayoutDashboard },
-    { name: "Propiedades", href: "/oficina/propiedades", icon: Home },
-    { name: "Clientes", href: "/oficina/clientes", icon: Users },
-    { name: "Agenda", href: "/oficina/agenda", icon: Calendar },
-    { name: "Operaciones", href: "/oficina/operaciones", icon: ClipboardList },
-  ];
+    { name: "Dashboard", href: "/oficina/panel", icon: LayoutDashboard, roles: ["ADMIN"] },
+    { name: "Propiedades", href: "/oficina/propiedades", icon: Home, roles: ["ADMIN", "AGENT"] },
+    { name: "Clientes", href: "/oficina/clientes", icon: Users, roles: ["ADMIN", "AGENT"] },
+    { name: "Agenda", href: "/oficina/agenda", icon: Calendar, roles: ["ADMIN", "AGENT"] },
+    { name: "Operaciones", href: "/oficina/operaciones", icon: ClipboardList, roles: ["ADMIN", "AGENT"] },
+  ].filter(item => !item.roles || (authData && item.roles.includes(authData.role)));
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    logout();
+  };
 
   return (
     <div className="flex flex-col w-64 border-r border-border bg-card h-screen sticky top-0">
@@ -59,13 +66,13 @@ export function AdminSidebar() {
 
       {/* Footer / Logout */}
       <div className="p-4 border-t border-border">
-        <Link
-          href="/"
-          className="flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-destructive transition-all group"
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium text-muted-foreground hover:bg-muted hover:text-destructive transition-all group"
         >
           <LogOut className="h-5 w-5 group-hover:text-destructive" />
           <span>Cerrar Sesión</span>
-        </Link>
+        </button>
       </div>
     </div>
   );
