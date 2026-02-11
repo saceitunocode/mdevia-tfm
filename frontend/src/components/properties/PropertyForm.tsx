@@ -20,6 +20,8 @@ const propertySchema = z.object({
   rooms: z.coerce.number().int().nonnegative(),
   price_amount: z.coerce.number().positive("El precio debe ser positivo"),
   owner_client_id: z.string().uuid("Debes seleccionar un propietario"),
+  status: z.enum(["AVAILABLE", "SOLD", "RENTED"]),
+  is_published: z.boolean().default(true),
   public_description: z.string().optional(),
   internal_notes: z.string().optional(),
 });
@@ -52,6 +54,8 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
       address_line1: "",
       city: "",
       owner_client_id: "",
+      status: "AVAILABLE",
+      is_published: true,
       ...initialValues,
     },
   });
@@ -137,6 +141,29 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                       {...register("price_amount")}
                     />
                     {errors.price_amount && <p className="text-sm text-destructive">{errors.price_amount.message}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Estado</Label>
+                    <Select id="status" className="h-11" {...register("status")}>
+                      <option value="AVAILABLE">Disponible</option>
+                      <option value="SOLD">Vendido</option>
+                      <option value="RENTED">Alquilado</option>
+                    </Select>
+                    {errors.status && <p className="text-sm text-destructive">{errors.status.message}</p>}
+                  </div>
+                  <div className="flex items-center space-x-2 pt-8">
+                    <input
+                        type="checkbox"
+                        id="is_published"
+                        className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                        {...register("is_published")}
+                    />
+                    <Label htmlFor="is_published" className="cursor-pointer font-medium">
+                        Publicar en el sitio web
+                    </Label>
                   </div>
                 </div>
 
