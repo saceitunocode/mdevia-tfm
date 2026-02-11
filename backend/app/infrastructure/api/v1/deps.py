@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app.core import security
 from app.core.config import settings
 from app.domain.schemas.token import TokenPayload
+from app.domain.enums import UserRole
 from app.infrastructure.database.models.user import User
 from app.infrastructure.database.session import get_db
 from app.infrastructure.repositories.user_repository import UserRepository
@@ -38,4 +39,27 @@ def get_current_user(
         raise HTTPException(status_code=400, detail="Inactive user")
     return user
 
+def get_current_active_admin(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user doesn't have enough privileges"
+        )
+    return current_user
+
+def get_current_active_agent(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    # Admin inherits agent permissions
+    if current_user.role not in [UserRole.AGENT, UserRole.ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="The user doesn't have enough privileges"
+        )
+    return current_user
+
 CurrentUser = Annotated[User, Depends(get_current_user)]
+CurrentAdmin = Annotated[User, Depends(get_current_active_admin)]
+CurrentAgent = Annotated[User, Depends(get_current_active_agent)]

@@ -2,7 +2,7 @@ from typing import Any, List
 import uuid
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form
 from sqlalchemy.orm import Session
-from app.infrastructure.api.v1.deps import get_db, CurrentUser
+from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin
 from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema
 from app.application.use_cases.property_images import PropertyImageUseCase
 from app.infrastructure.storage.deps import get_storage_service
@@ -55,7 +55,7 @@ async def delete_property_image(
     *,
     db: Session = Depends(get_db),
     image_id: uuid.UUID,
-    current_user: CurrentUser,
+    current_admin: CurrentAdmin,
     use_case: PropertyImageUseCase = Depends(get_property_image_use_case)
 ) -> Any:
     """
