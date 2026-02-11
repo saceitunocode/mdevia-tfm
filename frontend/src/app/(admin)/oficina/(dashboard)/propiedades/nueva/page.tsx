@@ -22,14 +22,30 @@ export default function NuevaPropiedadPage() {
     fetchClients();
   }, []);
 
-  const handleSubmit = async (values: PropertyFormValues) => {
+  const handleSubmit = async (values: PropertyFormValues, images: File[]) => {
     setIsLoading(true);
     try {
-      await apiRequest("/properties/", {
+      // 1. Crear la propiedad
+      const property = await apiRequest<{ id: string }>("/properties/", {
         method: "POST",
         body: JSON.stringify(values),
       });
-      alert("Propiedad guardada correctamente");
+
+      // 2. Subir imágenes si existen
+      if (images.length > 0) {
+        for (const [index, imageFile] of images.entries()) {
+          const formData = new FormData();
+          formData.append("file", imageFile);
+          formData.append("is_cover", index === 0 ? "true" : "false");
+          
+          await apiRequest(`/properties/${property.id}/images`, {
+            method: "POST",
+            body: formData,
+          });
+        }
+      }
+
+      alert("Propiedad guardada correctamente con sus fotos");
       router.push("/oficina/propiedades");
     } catch (error) {
       console.error("Error al guardar:", error);

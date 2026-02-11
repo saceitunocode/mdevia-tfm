@@ -4,6 +4,7 @@ from decimal import Decimal
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from app.domain.enums import PropertyStatus
+from app.domain.schemas.property_image import PropertyImage
 
 class PropertyBase(BaseModel):
     title: str
@@ -47,6 +48,7 @@ class Property(PropertyBase):
     id: uuid.UUID
     captor_agent_id: uuid.UUID
     owner_client_id: uuid.UUID
+    images: List[PropertyImage] = []
     is_active: bool
     created_at: datetime
     updated_at: datetime
