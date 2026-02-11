@@ -20,6 +20,8 @@ const propertySchema = z.object({
   rooms: z.coerce.number().int().nonnegative(),
   price_amount: z.coerce.number().positive("El precio debe ser positivo"),
   owner_client_id: z.string().uuid("Debes seleccionar un propietario"),
+  status: z.enum(["AVAILABLE", "SOLD", "RENTED"]),
+  is_published: z.boolean().default(true),
   public_description: z.string().optional(),
   internal_notes: z.string().optional(),
 });
@@ -30,9 +32,12 @@ interface PropertyFormProps {
   clients: { id: string; full_name: string }[];
   onSubmit: (values: PropertyFormValues, images: File[]) => Promise<void>;
   isLoading?: boolean;
+  initialValues?: Partial<PropertyFormValues>;
+  initialImages?: { id: string; url: string }[];
+  isEditMode?: boolean;
 }
 
-export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps) {
+export function PropertyForm({ clients, onSubmit, isLoading, initialValues, initialImages = [], isEditMode = false }: PropertyFormProps) {
   const [selectedImages, setSelectedImages] = React.useState<File[]>([]);
   const {
     register,
@@ -49,6 +54,9 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
       address_line1: "",
       city: "",
       owner_client_id: "",
+      status: "AVAILABLE",
+      is_published: true,
+      ...initialValues,
     },
   });
 
@@ -59,7 +67,9 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
   return (
     <Card className="w-full max-w-6xl mx-auto shadow-xl border-none">
       <CardHeader className="border-b border-border/50 bg-muted/5">
-        <CardTitle className="text-2xl font-heading">Datos de la Propiedad</CardTitle>
+        <CardTitle className="text-2xl font-heading">
+          {isEditMode ? "Editar Propiedad" : "Datos de la Propiedad"}
+        </CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit(onFormSubmit)}>
         <CardContent className="p-8">
@@ -75,7 +85,7 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
                     className="h-11"
                     {...register("title")}
                   />
-                  {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
+                  {errors.title && <p className="text-sm text-red-700 font-medium">{errors.title.message}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -87,7 +97,7 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
                       className="h-11"
                       {...register("address_line1")}
                     />
-                    {errors.address_line1 && <p className="text-sm text-destructive">{errors.address_line1.message}</p>}
+                    {errors.address_line1 && <p className="text-sm text-red-700 font-medium">{errors.address_line1.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="city">Ciudad</Label>
@@ -97,7 +107,7 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
                       className="h-11"
                       {...register("city")}
                     />
-                    {errors.city && <p className="text-sm text-destructive">{errors.city.message}</p>}
+                    {errors.city && <p className="text-sm text-red-700 font-medium">{errors.city.message}</p>}
                   </div>
                 </div>
 
@@ -110,7 +120,7 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
                       className="h-11"
                       {...register("sqm")}
                     />
-                    {errors.sqm && <p className="text-sm text-destructive">{errors.sqm.message}</p>}
+                    {errors.sqm && <p className="text-sm text-red-700 font-medium">{errors.sqm.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="rooms">Habitaciones</Label>
@@ -120,7 +130,7 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
                       className="h-11"
                       {...register("rooms")}
                     />
-                    {errors.rooms && <p className="text-sm text-destructive">{errors.rooms.message}</p>}
+                    {errors.rooms && <p className="text-sm text-red-700 font-medium">{errors.rooms.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="price_amount">Precio (€)</Label>
@@ -130,7 +140,30 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
                       className="h-11 font-bold text-primary"
                       {...register("price_amount")}
                     />
-                    {errors.price_amount && <p className="text-sm text-destructive">{errors.price_amount.message}</p>}
+                    {errors.price_amount && <p className="text-sm text-red-700 font-medium">{errors.price_amount.message}</p>}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Estado</Label>
+                    <Select id="status" className="h-11" {...register("status")}>
+                      <option value="AVAILABLE">Disponible</option>
+                      <option value="SOLD">Vendido</option>
+                      <option value="RENTED">Alquilado</option>
+                    </Select>
+                    {errors.status && <p className="text-sm text-red-700 font-medium">{errors.status.message}</p>}
+                  </div>
+                  <div className="flex items-center space-x-2 pt-8">
+                    <input
+                        type="checkbox"
+                        id="is_published"
+                        className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                        {...register("is_published")}
+                    />
+                    <Label htmlFor="is_published" className="cursor-pointer font-medium">
+                        Publicar en el sitio web
+                    </Label>
                   </div>
                 </div>
 
@@ -144,7 +177,7 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
                       </option>
                     ))}
                   </Select>
-                  {errors.owner_client_id && <p className="text-sm text-destructive">{errors.owner_client_id.message}</p>}
+                  {errors.owner_client_id && <p className="text-sm text-red-700 font-medium">{errors.owner_client_id.message}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -182,7 +215,10 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
                     Mín. 1 foto recomendada
                   </span>
                 </div>
-                <ImageUpload onImagesSelected={setSelectedImages} />
+                <ImageUpload 
+                  onImagesSelected={setSelectedImages} 
+                  initialImages={initialImages}
+                />
                 <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     <strong className="text-primary italic">Tip:</strong> La primera imagen que subas será utilizada como portada en el listado público.
@@ -207,7 +243,7 @@ export function PropertyForm({ clients, onSubmit, isLoading }: PropertyFormProps
             className="px-8 shadow-lg shadow-primary/20"
             isLoading={isLoading}
           >
-            Dar de Alta Propiedad
+            {isEditMode ? "Guardar Cambios" : "Dar de Alta Propiedad"}
           </Button>
         </CardFooter>
       </form>

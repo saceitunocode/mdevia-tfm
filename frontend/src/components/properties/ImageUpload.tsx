@@ -8,36 +8,41 @@ import { cn } from "@/lib/utils";
 interface ImageUploadProps {
   onImagesSelected: (files: File[]) => void;
   maxFiles?: number;
+  initialImages?: { id: string; url: string }[];
 }
 
-export function ImageUpload({ onImagesSelected, maxFiles = 10 }: ImageUploadProps) {
-  const [previews, setPreviews] = useState<{ id: string; url: string; file: File }[]>([]);
+export function ImageUpload({ onImagesSelected, maxFiles = 10, initialImages = [] }: ImageUploadProps) {
+  const [previews, setPreviews] = useState<{ id: string; url: string; file?: File }[]>(
+    initialImages.map(img => ({ id: img.id, url: img.url }))
+  );
   const [isDragging, setIsDragging] = useState(false);
+
+  /* Sync files with parent whenever previews change */
+  React.useEffect(() => {
+    const files = previews
+      .map(p => p.file)
+      .filter((f): f is File => f !== undefined);
+    onImagesSelected(files);
+  }, [previews, onImagesSelected]);
 
   const handleFiles = useCallback((files: FileList | null) => {
     if (!files) return;
 
     const newFiles = Array.from(files).filter(file => file.type.startsWith("image/"));
     
-    const newPreviews = newFiles.map(file => ({
+    const newItems = newFiles.map(file => ({
       id: Math.random().toString(36).substring(7),
       url: URL.createObjectURL(file),
       file
     }));
 
     setPreviews(prev => {
-      const combined = [...prev, ...newPreviews].slice(0, maxFiles);
-      onImagesSelected(combined.map(p => p.file));
-      return combined;
+      return [...prev, ...newItems].slice(0, maxFiles);
     });
-  }, [maxFiles, onImagesSelected]);
+  }, [maxFiles]);
 
   const removeImage = (id: string) => {
-    setPreviews(prev => {
-      const filtered = prev.filter(p => p.id !== id);
-      onImagesSelected(filtered.map(p => p.file));
-      return filtered;
-    });
+    setPreviews(prev => prev.filter(p => p.id !== id));
   };
 
   return (
@@ -83,6 +88,7 @@ export function ImageUpload({ onImagesSelected, maxFiles = 10 }: ImageUploadProp
                 fill
                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
                 className="object-cover"
+                unoptimized={preview.url.startsWith("http://localhost") || preview.url.startsWith("http://127.0.0.1")}
               />
               <button
                 type="button"
