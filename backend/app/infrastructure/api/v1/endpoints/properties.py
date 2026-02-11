@@ -4,9 +4,12 @@ from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form
 from sqlalchemy.orm import Session
 from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin
 from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema
+from app.domain.schemas.property import Property as PropertySchema, PropertyCreate
 from app.application.use_cases.property_images import PropertyImageUseCase
 from app.infrastructure.storage.deps import get_storage_service
 from app.infrastructure.repositories.property_image_repository import PropertyImageRepository
+from app.infrastructure.repositories.property_repository import PropertyRepository
+from app.infrastructure.database.models.property import Property as PropertyModel
 from app.domain.services.storage_service import StorageService
 
 router = APIRouter()
@@ -16,6 +19,36 @@ def get_property_image_use_case(
     repository: PropertyImageRepository = Depends(PropertyImageRepository)
 ) -> PropertyImageUseCase:
     return PropertyImageUseCase(storage_service, repository)
+
+@router.post("/", response_model=PropertySchema)
+def create_property(
+    *,
+    db: Session = Depends(get_db),
+    property_in: PropertyCreate,
+    current_user: CurrentUser
+) -> Any:
+    """
+    Create new property.
+    """
+    repo = PropertyRepository()
+    property_obj = PropertyModel(
+        **property_in.model_dump(),
+        captor_agent_id=current_user.id
+    )
+    return repo.create(db, property_obj)
+
+@router.get("/", response_model=List[PropertySchema])
+def read_properties(
+    current_user: CurrentUser,
+    db: Session = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100
+) -> Any:
+    """
+    Retrieve properties.
+    """
+    repo = PropertyRepository()
+    return repo.list_all(db, skip=skip, limit=limit)
 
 @router.post("/{property_id}/images", response_model=PropertyImageSchema)
 async def upload_property_image(
