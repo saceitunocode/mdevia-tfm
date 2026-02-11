@@ -60,6 +60,16 @@ def get_current_active_agent(
         )
     return current_user
 
+from app.domain.services.storage_service import StorageService
+from app.infrastructure.storage.local_storage import LocalStorageService
+
+def get_storage_service() -> StorageService:
+    if settings.STORAGE_TYPE == "cloudinary":
+        from app.infrastructure.storage.cloudinary_storage import CloudinaryStorageService
+        return CloudinaryStorageService()
+    return LocalStorageService()
+
 CurrentUser = Annotated[User, Depends(get_current_user)]
 CurrentAdmin = Annotated[User, Depends(get_current_active_admin)]
 CurrentAgent = Annotated[User, Depends(get_current_active_agent)]
+Storage = Annotated[StorageService, Depends(get_storage_service)]

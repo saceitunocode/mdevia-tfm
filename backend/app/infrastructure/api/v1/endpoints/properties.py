@@ -2,10 +2,9 @@ from typing import Any, List
 import uuid
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form
 from sqlalchemy.orm import Session
-from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin
+from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin, get_storage_service
 from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema
 from app.application.use_cases.property_images import PropertyImageUseCase
-from app.infrastructure.storage.deps import get_storage_service
 from app.infrastructure.repositories.property_image_repository import PropertyImageRepository
 from app.domain.services.storage_service import StorageService
 
