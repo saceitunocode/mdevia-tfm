@@ -6,10 +6,11 @@ import { es } from "date-fns/locale";
 import { ChevronLeft, ChevronRight, Filter, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { CalendarEvent, EventType, EventStatus } from "@/types/calendar";
+import { CalendarEvent, EventType, EventStatus, CalendarEventCreate } from "@/types/calendar";
 import { calendarService } from "@/services/calendarService";
 import { useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/utils";
+import { CreateEventDialog } from "@/components/calendar/CreateEventDialog";
 
 // --- Types & Constants ---
 interface CalendarHeaderProps {
@@ -25,23 +26,6 @@ const EVENT_TYPE_COLORS: Record<EventType, string> = {
   [EventType.CAPTATION]: "bg-purple-100 text-purple-700 border-purple-200",
   [EventType.REMINDER]: "bg-gray-100 text-gray-700 border-gray-200",
 };
-
-// --- Mock Data ---
-// const mockEvents: CalendarEvent[] = [
-//   {
-//       id: "1", title: "Visita Penthouse", type: EventType.VISIT, status: EventStatus.ACTIVE,
-//       starts_at: new Date(2026, 1, 15, 10, 0).toISOString(),
-//       ends_at: new Date(2026, 1, 15, 11, 0).toISOString(),
-//       agent_id: "agent-1",
-//   },
-//   {
-//       id: "2", title: "Captación Cliente Nuevo", type: EventType.CAPTATION, status: EventStatus.ACTIVE,
-//       starts_at: new Date(2026, 1, 18, 16, 0).toISOString(),
-//       ends_at: new Date(2026, 1, 18, 17, 30).toISOString(),
-//       agent_id: "agent-1",
-//   },
-// ];
-
 
 // --- Components ---
 
@@ -72,16 +56,7 @@ function CalendarHeader({ currentDate, onPrevMonth, onNextMonth, onToday }: Cale
         </Button>
       </div>
       
-      <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" className="gap-2">
-            <Filter className="h-4 w-4" />
-            Filtros
-        </Button>
-        <Button size="sm" className="gap-2">
-            <Plus className="h-4 w-4" />
-            Nuevo Evento
-        </Button>
-      </div>
+      {/* Removed duplicate filter and empty buttons */}
     </div>
   );
 }
@@ -91,6 +66,10 @@ export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Dialog State
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
 
   // Month Navigation
   const handlePrevMonth = () => setCurrentDate(subMonths(currentDate, 1));
@@ -98,8 +77,7 @@ export default function CalendarPage() {
   const handleToday = () => setCurrentDate(new Date());
 
   // Data Fetching
-  useEffect(() => {
-    const fetchEvents = async () => {
+  const fetchEvents = React.useCallback(async () => {
         if (!token) return;
 
         setIsLoading(true);
@@ -107,9 +85,6 @@ export default function CalendarPage() {
             const start = startOfMonth(currentDate).toISOString();
             const end = endOfMonth(currentDate).toISOString();
             
-            // Backend expects ISO strings for date range filtering
-            // For now, let's fetch ALL events for the agent to simplify, or add date range filtering to params
-            // The service supports start_date/end_date query params
             const evs = await calendarService.getEvents({
                 start_date: start,
                 end_date: end,
@@ -120,10 +95,35 @@ export default function CalendarPage() {
         } finally {
             setIsLoading(false);
         }
-    };
-    
+    }, [currentDate, token]);
+
+  useEffect(() => {
     fetchEvents();
-  }, [currentDate, token]);
+  }, [fetchEvents]);
+
+  // Handlers
+  const handleCreateEvent = async (data: CalendarEventCreate) => {
+      if (!token) return;
+      try {
+          await calendarService.createEvent(data, token);
+          // Refresh events
+          fetchEvents();
+      } catch (error) {
+          console.error("Error creating event:", error);
+          alert("Error al crear el evento");
+          throw error;
+      }
+  };
+
+  const handleDayClick = (day: Date) => {
+      setSelectedDate(day);
+      setIsDialogOpen(true);
+  };
+  
+  const handleNewEventClick = () => {
+      setSelectedDate(new Date());
+      setIsDialogOpen(true);
+  };
 
   // Calendar Grid Generation
   const monthStart = startOfMonth(currentDate);
@@ -160,9 +160,21 @@ export default function CalendarPage() {
                 onToday={handleToday}
             />
 
+            {/* Toolbar */}
+             <div className="flex justify-end mb-4 gap-2">
+                <Button variant="outline" size="sm" className="gap-2">
+                    <Filter className="h-4 w-4" />
+                    Filtros
+                </Button>
+                <Button size="sm" className="gap-2" onClick={handleNewEventClick}>
+                    <Plus className="h-4 w-4" />
+                    Nuevo Evento
+                </Button>
+            </div>
+
             {/* Days Header */}
             <div className="grid grid-cols-7 mb-2">
-                {["Lunz", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((day) => (
+                {["Luns", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map((day) => (
                     <div key={day} className="text-center text-sm font-medium text-muted-foreground py-2 uppercase tracking-wider text-[10px]">
                         {day}
                     </div>
@@ -178,6 +190,7 @@ export default function CalendarPage() {
                     return (
                         <div 
                             key={day.toString()} 
+                            onClick={() => handleDayClick(day)}
                             className={cn(
                                 "min-h-[120px] bg-background p-2 transition-colors hover:bg-muted/50 cursor-pointer flex flex-col gap-1",
                                 !isCurrentMonth && "bg-muted/20 text-muted-foreground",
@@ -203,6 +216,11 @@ export default function CalendarPage() {
                                             EVENT_TYPE_COLORS[event.type]
                                         )}
                                         title={event.title}
+                                        onClick={(e) => {
+                                            e.stopPropagation(); // Prevent triggering day click
+                                            // TODO: Edit event
+                                            alert(`Evento: ${event.title}`);
+                                        }}
                                     >
                                         <span className={cn("w-1.5 h-1.5 rounded-full shrink-0", 
                                             event.status === EventStatus.COMPLETED ? "bg-green-500" : "bg-current"
@@ -216,6 +234,13 @@ export default function CalendarPage() {
                 })}
             </div>
         </Card>
+
+        <CreateEventDialog 
+            isOpen={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            onSubmit={handleCreateEvent}
+            defaultDate={selectedDate}
+        />
     </div>
   );
 }
