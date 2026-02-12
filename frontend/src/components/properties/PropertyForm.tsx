@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Select } from "@/components/ui/Select";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { ImageUpload } from "./ImageUpload";
+import { PropertyGalleryManager } from "./PropertyGalleryManager";
 
 const propertySchema = z.object({
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
@@ -29,16 +30,18 @@ const propertySchema = z.object({
 export type PropertyFormValues = z.infer<typeof propertySchema>;
 
 interface PropertyFormProps {
+  propertyId?: string;
   clients: { id: string; full_name: string }[];
   onSubmit: (values: PropertyFormValues, images: File[]) => Promise<void>;
   isLoading?: boolean;
   initialValues?: Partial<PropertyFormValues>;
-  initialImages?: { id: string; url: string }[];
+  initialImages?: { id: string; url: string; is_cover: boolean; position: number }[];
   isEditMode?: boolean;
 }
 
-export function PropertyForm({ clients, onSubmit, isLoading, initialValues, initialImages = [], isEditMode = false }: PropertyFormProps) {
+export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initialValues, initialImages = [], isEditMode = false }: PropertyFormProps) {
   const [selectedImages, setSelectedImages] = React.useState<File[]>([]);
+  const [currentImages, setCurrentImages] = React.useState(initialImages);
   const {
     register,
     handleSubmit,
@@ -215,10 +218,33 @@ export function PropertyForm({ clients, onSubmit, isLoading, initialValues, init
                     Mín. 1 foto recomendada
                   </span>
                 </div>
-                <ImageUpload 
-                  onImagesSelected={setSelectedImages} 
-                  initialImages={initialImages}
-                />
+                
+                {isEditMode && propertyId && currentImages.length > 0 && (
+                  <div className="mb-8 p-4 bg-background/50 rounded-xl border border-border/50">
+                    <PropertyGalleryManager 
+                      propertyId={propertyId}
+                      initialImages={currentImages.map(img => ({
+                        id: img.id,
+                        public_url: img.url,
+                        is_cover: img.is_cover,
+                        position: img.position
+                      }))}
+                      onImagesChange={(imgs) => setCurrentImages(imgs.map(i => ({ id: i.id, url: i.public_url, is_cover: i.is_cover, position: i.position })))}
+                    />
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  {isEditMode && (
+                    <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
+                      Añadir Nuevas Fotos
+                    </h4>
+                  )}
+                  <ImageUpload 
+                    onImagesSelected={setSelectedImages} 
+                    initialImages={isEditMode ? [] : initialImages.map(img => ({ id: img.id, url: img.url }))}
+                  />
+                </div>
                 <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     <strong className="text-primary italic">Tip:</strong> La primera imagen que subas será utilizada como portada en el listado público.

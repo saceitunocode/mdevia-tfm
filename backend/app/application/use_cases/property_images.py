@@ -59,3 +59,17 @@ class PropertyImageUseCase:
         # We might keep the file in storage for safety (soft-delete principle)
         # or delete it. For now, let's keep the file but mark DB as inactive.
         return True
+
+    async def set_cover_image(self, db: Session, property_id: uuid.UUID, image_id: uuid.UUID):
+        image = self.repository.get_by_id(db, image_id)
+        if not image or image.property_id != property_id:
+            return False
+        
+        self.repository.set_as_cover(db, property_id, image_id)
+        return True
+
+    async def reorder_images(self, db: Session, property_id: uuid.UUID, image_ids: list[uuid.UUID]):
+        # Just simple sequential update based on the list order
+        for idx, img_id in enumerate(image_ids):
+            self.repository.update_position(db, img_id, idx)
+        return True

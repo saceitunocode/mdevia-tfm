@@ -4,7 +4,7 @@ import uuid
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form, Query
 from sqlalchemy.orm import Session
 from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin, get_storage_service
-from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema
+from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema, ReorderImages
 from app.domain.schemas.property import Property, PropertyCreate, PropertyUpdate, PropertyPublic
 from app.application.use_cases.property_images import PropertyImageUseCase
 from app.infrastructure.repositories.property_image_repository import PropertyImageRepository
@@ -197,3 +197,35 @@ async def delete_property_image(
     if not success:
         raise HTTPException(status_code=404, detail="Image not found")
     return {"message": "Image deleted successfully"}
+
+@router.patch("/{property_id}/images/reorder")
+async def reorder_property_images(
+    *,
+    db: Session = Depends(get_db),
+    property_id: uuid.UUID,
+    reorder_in: ReorderImages,
+    current_user: CurrentUser,
+    use_case: PropertyImageUseCase = Depends(get_property_image_use_case)
+) -> Any:
+    """
+    Reorder property images.
+    """
+    await use_case.reorder_images(db, property_id, reorder_in.image_ids)
+    return {"message": "Images reordered successfully"}
+
+@router.patch("/{property_id}/images/{image_id}/set-main")
+async def set_property_main_image(
+    *,
+    db: Session = Depends(get_db),
+    property_id: uuid.UUID,
+    image_id: uuid.UUID,
+    current_user: CurrentUser,
+    use_case: PropertyImageUseCase = Depends(get_property_image_use_case)
+) -> Any:
+    """
+    Set an image as the main cover for a property.
+    """
+    success = await use_case.set_cover_image(db, property_id, image_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Image not found or doesn't belong to property")
+    return {"message": "Main image updated successfully"}
