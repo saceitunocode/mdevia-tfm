@@ -13,6 +13,7 @@ const outfit = Outfit({
 });
 
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
+import { AuthProvider } from "@/context/auth-context";
 import { OfflineBanner } from "@/components/common/OfflineBanner";
 
 export const metadata: Metadata = {
@@ -36,8 +37,10 @@ export default function RootLayout({
           enableSystem={false}
           storageKey="fr-theme"
         >
-          <OfflineBanner />
-          {children}
+          <AuthProvider>
+            <OfflineBanner />
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
