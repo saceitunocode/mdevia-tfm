@@ -28,6 +28,8 @@
     "@hookform/resolvers": "^5.2.2",
     "@sentry/nextjs": "^10.38.0",
     "clsx": "^2.1.1",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "framer-motion": "^12.34.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.563.0",
