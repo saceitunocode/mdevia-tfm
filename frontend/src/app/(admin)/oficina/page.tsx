@@ -20,13 +20,8 @@ export default function OficinaPage() {
       return;
     }
 
-    // 2. Logueado -> Por rol
-    if (authData.role === "ADMIN") {
-      router.replace("/oficina/panel");
-    } else {
-      // AGENT -> A la agenda
-      router.replace("/oficina/agenda");
-    }
+    // 2. Logueado -> Todos a la Agenda (Centro del sistema)
+    router.replace("/oficina/agenda");
   }, [router]);
 
   return (

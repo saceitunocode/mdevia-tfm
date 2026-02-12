@@ -7,8 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Input } from "@/components/ui/Input";
 import Link from "next/link";
 import { Lock, Loader2 } from "lucide-react";
-import { getAuthData, DecodedToken } from "@/lib/auth";
-import { jwtDecode } from "jwt-decode";
+import { getAuthData } from "@/lib/auth";
+// import { jwtDecode } from "jwt-decode";
 
 export default function AccesoPage() {
   const router = useRouter();
@@ -17,11 +17,7 @@ export default function AccesoPage() {
   useEffect(() => {
     const authData = getAuthData();
     if (authData) {
-      if (authData.role === "ADMIN") {
-        router.replace("/oficina/panel");
-      } else {
-        router.replace("/oficina/agenda");
-      }
+      router.replace("/oficina/agenda");
     }
   }, [router]);
 
@@ -55,12 +51,9 @@ export default function AccesoPage() {
       const data = await response.json();
       localStorage.setItem("token", data.access_token);
       
-      const decoded = jwtDecode<DecodedToken>(data.access_token);
-      if (decoded.role === "ADMIN") {
-        router.push("/oficina/panel");
-      } else {
-        router.push("/oficina/agenda");
-      }
+      // Agenda is now the center of gravity
+      // US-5.1: Post-login redirects to /oficina/agenda
+      router.push("/oficina/agenda");
     } catch (error) {
       console.error("Login error:", error);
       alert(error instanceof Error ? error.message : "Credenciales inválidas");
