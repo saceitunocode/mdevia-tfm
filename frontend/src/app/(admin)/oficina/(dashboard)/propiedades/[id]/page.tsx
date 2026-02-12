@@ -6,9 +6,9 @@ import { apiRequest } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Loader2, ArrowLeft, Edit, MapPin, Ruler, Home, BedDouble, Tag, User } from "lucide-react";
-import Image from "next/image";
+import { Loader2, ArrowLeft, Edit, MapPin, Ruler, BedDouble, Tag, User } from "lucide-react";
 import Link from "next/link";
+import { PropertyGallery } from "@/components/public/PropertyGallery";
 
 interface PropertyImage {
   id: string;
@@ -79,9 +79,7 @@ export default function PropertyDetailPage() {
     );
   }
 
-  const sortedImages = property.images?.sort((a, b) => (b.is_cover ? 1 : -1)) || [];
-  const coverImage = sortedImages.find((img) => img.is_cover) || sortedImages[0];
-  const galleryImages = sortedImages.filter((img) => img.id !== coverImage?.id);
+
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -116,42 +114,7 @@ export default function PropertyDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Gallery & Description */}
         <div className="lg:col-span-2 space-y-6">
-            {/* Main Cover Image */}
-            <div className="relative aspect-video rounded-xl overflow-hidden bg-muted shadow-sm group">
-                {coverImage ? (
-                    <Image
-                        src={coverImage.public_url}
-                        alt="Portada"
-                        fill
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        sizes="(max-width: 1200px) 100vw, 66vw"
-                        priority
-                        unoptimized={coverImage.public_url.startsWith("http://localhost") || coverImage.public_url.startsWith("http://127.0.0.1")}
-                    />
-                ) : (
-                    <div className="flex items-center justify-center h-full text-muted-foreground/30">
-                        <Home className="h-24 w-24" />
-                    </div>
-                )}
-            </div>
-
-            {/* Gallery Grid */}
-            {galleryImages.length > 0 && (
-                <div className="grid grid-cols-4 gap-4">
-                    {galleryImages.map((img) => (
-                        <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer hover:opacity-90 transition-opacity border border-border">
-                            <Image
-                                src={img.public_url}
-                                alt="Galería"
-                                fill
-                                className="object-cover"
-                                sizes="(max-width: 768px) 25vw, 15vw"
-                                unoptimized={img.public_url.startsWith("http://localhost") || img.public_url.startsWith("http://127.0.0.1")}
-                            />
-                        </div>
-                    ))}
-                </div>
-            )}
+            <PropertyGallery images={property.images || []} />
 
             {/* Description */}
             <Card className="border-none shadow-sm">
