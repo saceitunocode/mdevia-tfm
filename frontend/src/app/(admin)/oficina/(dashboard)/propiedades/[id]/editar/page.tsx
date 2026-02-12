@@ -22,6 +22,7 @@ interface Property {
     id: string;
     public_url: string;
     is_cover: boolean;
+    position: number;
   }[];
 }
 
@@ -109,6 +110,7 @@ export default function EditPropertyPage() {
       </div>
       
       <PropertyForm 
+        propertyId={property.id}
         clients={clients} 
         onSubmit={handleSubmit} 
         isLoading={isLoading}
@@ -122,8 +124,14 @@ export default function EditPropertyPage() {
             owner_client_id: property.owner_client_id,
             public_description: property.public_description,
             internal_notes: property.internal_notes || undefined,
+            status: property.status as "AVAILABLE" | "SOLD" | "RENTED",
         }}
-        initialImages={property.images?.map(img => ({ id: img.id, url: img.public_url })) || []}
+        initialImages={property.images?.map(img => ({ 
+          id: img.id, 
+          url: img.public_url,
+          is_cover: img.is_cover,
+          position: img.position
+        })) || []}
         isEditMode={true}
       />
     </div>

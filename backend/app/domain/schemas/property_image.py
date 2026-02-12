@@ -15,6 +15,9 @@ class PropertyImageCreate(PropertyImageBase):
 class PropertyImageUpdate(PropertyImageBase):
     pass
 
+class ReorderImages(BaseModel):
+    image_ids: list[uuid.UUID]
+
 class PropertyImage(PropertyImageBase):
     id: uuid.UUID
     property_id: uuid.UUID
