@@ -19,7 +19,7 @@ import {
   useSortable
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Star, Trash2, GripVertical, CheckCircle2 } from "lucide-react";
+import { Star, Trash2, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiRequest } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
@@ -124,11 +124,7 @@ function SortableImageCard({ image, onDelete, onSetMain }: SortableItemProps) {
         </Button>
       </div>
 
-      <div className="absolute bottom-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="bg-background/40 backdrop-blur-sm p-1.5 rounded-lg border border-white/20">
-            <GripVertical className="h-4 w-4 text-white" />
-        </div>
-      </div>
+
       
       {/* Selection Overlay */}
       <div className={cn(
@@ -226,9 +222,14 @@ export function PropertyGalleryManager({ propertyId, initialImages, onImagesChan
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-            Orden de la Galería
-        </h4>
+        <div className="flex items-center gap-2">
+            <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+                Orden de la Galería
+            </h4>
+            <span className="text-[10px] text-muted-foreground/60 font-medium normal-case">
+                (Arrastra las fotos para cambiar el orden)
+            </span>
+        </div>
         {isUpdating && (
             <div className="flex items-center gap-2 text-xs text-primary animate-pulse">
                 <CheckCircle2 className="h-3 w-3" /> Sincronizando...
