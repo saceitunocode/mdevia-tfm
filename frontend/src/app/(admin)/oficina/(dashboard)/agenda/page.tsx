@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/Button";
 import { CalendarEvent, CalendarEventCreate, CalendarEventUpdate } from "@/types/calendar";
 import { calendarService } from "@/services/calendarService";
 import { useAuth } from "@/context/auth-context";
+import { visitService } from "@/services/visitService";
+import { EventType as CalendarEventType } from "@/types/calendar";
 import { cn } from "@/lib/utils";
 import { CreateEventDialog } from "@/components/calendar/CreateEventDialog";
 import { EditEventDialog } from "@/components/calendar/EditEventDialog";
@@ -225,7 +227,7 @@ function CalendarPageContent() {
           break;
       }
 
-      const evs = await calendarService.getEvents({ start_date: start, end_date: end }, token);
+      const evs = await calendarService.getEvents({ start_date: start, end_date: end });
       setEvents(evs);
     } catch (error) {
       console.error("Failed to fetch events", error);
@@ -243,7 +245,18 @@ function CalendarPageContent() {
   const handleCreateEvent = async (data: CalendarEventCreate) => {
     if (!token) return;
     try {
-      await calendarService.createEvent(data, token);
+      if (data.type === CalendarEventType.VISIT && data.client_id && data.property_id) {
+        // Para visitas, usamos el servicio de visitas que crea tanto la visita como el evento
+        await visitService.createVisit({
+          client_id: data.client_id,
+          property_id: data.property_id,
+          scheduled_at: data.starts_at,
+          note: data.description
+        });
+      } else {
+        // Otros eventos siguen el flujo normal
+        await calendarService.createEvent(data);
+      }
       fetchEvents();
     } catch (error) {
       console.error("Error creating event:", error);
@@ -254,7 +267,18 @@ function CalendarPageContent() {
   const handleUpdateEvent = async (id: string, data: CalendarEventUpdate) => {
     if (!token) return;
     try {
-      await calendarService.updateEvent(id, data, token);
+      if (selectedEvent?.visit_id) {
+        // Si el evento está vinculado a una visita, usamos el servicio de visitas
+        // Esto asegura que se actualice tanto la visita como el evento sincronizado
+        await visitService.updateVisit(selectedEvent.visit_id, {
+          scheduled_at: data.starts_at,
+          note: data.description,
+          // Nota: El backend de VisitUpdate actualmente no soporta cambiar cliente/propiedad
+          // pero al menos sincronizamos la fecha y descripción.
+        });
+      } else {
+        await calendarService.updateEvent(id, data);
+      }
       fetchEvents();
       setIsEditOpen(false);
     } catch (error) {
@@ -266,7 +290,12 @@ function CalendarPageContent() {
   const handleDeleteEvent = async (id: string) => {
     if (!token) return;
     try {
-      await calendarService.deleteEvent(id, token);
+      if (selectedEvent?.visit_id) {
+        // Si el evento es una visita, eliminamos la visita (esto borrará el evento por cascada)
+        await visitService.deleteVisit(selectedEvent.visit_id);
+      } else {
+        await calendarService.deleteEvent(id);
+      }
       fetchEvents();
       setIsEditOpen(false);
     } catch (error) {

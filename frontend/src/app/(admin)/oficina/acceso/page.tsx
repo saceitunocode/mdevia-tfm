@@ -8,16 +8,23 @@ import { Input } from "@/components/ui/Input";
 import Link from "next/link";
 import { Lock, Loader2 } from "lucide-react";
 import { getAuthData } from "@/lib/auth";
-// import { jwtDecode } from "jwt-decode";
+import { useAuth } from "@/context/auth-context";
+import { jwtDecode } from "jwt-decode";
+import { DecodedToken } from "@/lib/auth";
 
 export default function AccesoPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const authData = getAuthData();
     if (authData) {
-      router.replace("/oficina/agenda");
+      if (authData.role === "ADMIN") {
+        router.replace("/oficina/panel");
+      } else {
+        router.replace("/oficina/agenda");
+      }
     }
   }, [router]);
 
@@ -49,11 +56,18 @@ export default function AccesoPage() {
       }
 
       const data = await response.json();
-      localStorage.setItem("token", data.access_token);
+      const accessToken = data.access_token;
       
-      // Agenda is now the center of gravity
-      // US-5.1: Post-login redirects to /oficina/agenda
-      router.push("/oficina/agenda");
+      // Update global auth state
+      login(accessToken);
+      
+      // Determine redirection based on role
+      const decoded = jwtDecode<DecodedToken>(accessToken);
+      if (decoded.role === "ADMIN") {
+        router.push("/oficina/panel");
+      } else {
+        router.push("/oficina/agenda");
+      }
     } catch (error) {
       console.error("Login error:", error);
       alert(error instanceof Error ? error.message : "Credenciales inválidas");

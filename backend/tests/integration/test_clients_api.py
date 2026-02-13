@@ -35,11 +35,12 @@ def test_read_clients_api(client: TestClient, db: Session):
     # 2. Create a test client
     test_client = Client(
         id=uuid.uuid4(),
-        full_name="Real Client Test",
+        full_name="AAA Real Client Test", # Prefix to ensure it appears at the top (pagination)
         email=f"client-{uuid.uuid4()}@example.com",
         phone="555-5555",
         type=ClientType.OWNER,
-        responsible_agent_id=agent.id
+        responsible_agent_id=agent.id,
+        is_active=True  # Explicitly set active to ensure it appears in list
     )
     db.add(test_client)
     db.commit()
@@ -54,7 +55,7 @@ def test_read_clients_api(client: TestClient, db: Session):
     assert response.status_code == 200
     data = response.json()
     assert len(data) >= 1
-    assert any(c["full_name"] == "Real Client Test" for c in data)
+    assert any(c["full_name"] == "AAA Real Client Test" for c in data)
 
     # Cleanup
     db.delete(test_client)
