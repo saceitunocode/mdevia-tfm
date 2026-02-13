@@ -7,7 +7,7 @@ from app.domain.enums import ClientType
 class ClientBase(BaseModel):
     full_name: str
     email: Optional[str] = None
-    phone: str
+    phone: Optional[str] = None
     type: ClientType
     is_active: bool = True
 
@@ -46,4 +46,14 @@ class ClientNote(ClientNoteBase):
 
 class ClientDetail(Client):
     notes: List[ClientNote] = []
+    visits: List["VisitPublic"] = []
+    operations: List["OperationPublic"] = []
+    owned_properties: List["Property"] = []
+
+# For late evaluation
+from app.domain.schemas.visit import VisitPublic
+from app.domain.schemas.operation import OperationPublic
+from app.domain.schemas.property import Property
+
+ClientDetail.model_rebuild()
 

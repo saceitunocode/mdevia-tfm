@@ -6,7 +6,7 @@ from app.main import app
 from app.infrastructure.database.session import SessionLocal
 from app.infrastructure.database.models import (
     User, Client, Property, Visit, Operation, CalendarEvent,
-    PropertyImage, ClientNote, OperationNote, OperationStatusHistory, VisitNote
+    PropertyImage, ClientNote, OperationNote, OperationStatusHistory, VisitNote, PropertyNote
 )
 from app.domain.enums import UserRole, ClientType
 from app.core import security
@@ -35,6 +35,7 @@ def clean_clients_db(db: Session):
         db.query(OperationNote).delete()
         db.query(OperationStatusHistory).delete()
         db.query(VisitNote).delete()
+        db.query(PropertyNote).delete()
         
         # 2. Activities
         db.query(CalendarEvent).delete()

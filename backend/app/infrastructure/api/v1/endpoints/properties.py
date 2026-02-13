@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form, Q
 from sqlalchemy.orm import Session
 from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin, get_storage_service
 from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema, ReorderImages
-from app.domain.schemas.property import Property, PropertyCreate, PropertyUpdate, PropertyPublic
+from app.domain.schemas.property import Property, PropertyCreate, PropertyUpdate, PropertyPublic, PropertyNote, PropertyNoteCreate
 from app.application.use_cases.property_images import PropertyImageUseCase
 from app.infrastructure.repositories.property_image_repository import PropertyImageRepository
 from app.infrastructure.repositories.property_repository import PropertyRepository
@@ -148,6 +148,25 @@ def update_property(
         
     property = repo.update(db=db, property_obj=property, property_in=property_in)
     return property
+
+@router.post("/{id}/notes", response_model=PropertyNote)
+def create_property_note(
+    *,
+    db: Session = Depends(get_db),
+    id: uuid.UUID,
+    note_in: PropertyNoteCreate,
+    current_user: CurrentUser,
+    repo: PropertyRepository = Depends(get_property_repository)
+) -> Any:
+    """
+    Add a note to a property.
+    """
+    property = repo.get_by_id(db=db, property_id=id)
+    if not property:
+        raise HTTPException(status_code=404, detail="Property not found")
+    
+    note = repo.create_note(db=db, property_id=id, note_in=note_in, author_id=current_user.id)
+    return note
 
 @router.post("/{property_id}/images", response_model=PropertyImageSchema)
 async def upload_property_image(
