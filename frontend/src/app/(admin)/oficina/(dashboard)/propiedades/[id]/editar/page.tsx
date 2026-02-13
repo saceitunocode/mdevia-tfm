@@ -127,8 +127,8 @@ export default function EditPropertyPage() {
             rooms: property.rooms,
             price_amount: property.price_amount,
             owner_client_id: property.owner_client_id,
-            public_description: property.public_description,
-            internal_notes: property.internal_notes || undefined,
+            public_description: property.public_description ?? "",
+            internal_notes: property.internal_notes ?? "",
             status: property.status as "AVAILABLE" | "SOLD" | "RENTED",
         }}
         initialImages={property.images?.map(img => ({ 

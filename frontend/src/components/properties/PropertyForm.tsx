@@ -24,8 +24,8 @@ const propertySchema = z.object({
   owner_client_id: z.string().uuid("Debes seleccionar un propietario"),
   status: z.enum(["AVAILABLE", "SOLD", "RENTED"]),
   is_published: z.boolean().default(true),
-  public_description: z.string().optional(),
-  internal_notes: z.string().optional(),
+  public_description: z.string().nullable().optional().transform(v => v ?? ""),
+  internal_notes: z.string().nullable().optional().transform(v => v ?? ""),
 });
 
 export type PropertyFormValues = z.infer<typeof propertySchema>;
@@ -59,7 +59,14 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
       owner_client_id: "",
       status: "AVAILABLE",
       is_published: true,
+      public_description: "",
+      internal_notes: "",
       ...initialValues,
+      // Ensure null values from API become empty strings
+      ...(initialValues && {
+        public_description: initialValues.public_description ?? "",
+        internal_notes: initialValues.internal_notes ?? "",
+      }),
     },
   });
 
