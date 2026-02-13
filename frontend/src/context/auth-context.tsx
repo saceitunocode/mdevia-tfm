@@ -7,6 +7,7 @@ interface AuthContextType {
   user: DecodedToken | null;
   token: string | null;
   isLoading: boolean;
+  login: (token: string) => void;
   logout: () => void;
 }
 
@@ -19,14 +20,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-        const rawToken = getAuthToken();
-        const data = getAuthData();
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+        const data = getAuthData(); // First check validity (clears localstorage if expired)
+        const rawToken = getAuthToken(); // Now read the token (will be null if cleared above)
+        
+        // eslint-disable-next-line
         setToken(rawToken);
         setUser(data);
         setIsLoading(false);
     }
   }, []);
+
+  const handleLogin = (rawToken: string) => {
+    localStorage.setItem("token", rawToken);
+    const data = getAuthData();
+    setToken(rawToken);
+    setUser(data);
+  };
 
   const handleLogout = () => {
     logout();
@@ -35,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, logout: handleLogout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login: handleLogin, logout: handleLogout }}>
       {children}
     </AuthContext.Provider>
   );

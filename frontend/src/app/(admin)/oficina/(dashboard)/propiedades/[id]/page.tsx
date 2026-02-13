@@ -6,9 +6,13 @@ import { apiRequest } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Loader2, ArrowLeft, Edit, MapPin, Ruler, BedDouble, Tag, User } from "lucide-react";
+import { Loader2, ArrowLeft, Edit, MapPin, Ruler, BedDouble, Tag, User, Plus, Calendar } from "lucide-react";
 import Link from "next/link";
 import { PropertyGallery } from "@/components/public/PropertyGallery";
+import { VisitList } from "@/components/visits/VisitList";
+import { RegisterVisitDialog } from "@/components/visits/RegisterVisitDialog";
+import { visitService } from "@/services/visitService";
+import { Visit, VisitCreate, VisitUpdate } from "@/types/visit";
 
 interface PropertyImage {
   id: string;
@@ -39,6 +43,11 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Visits state
+  const [visits, setVisits] = useState<Visit[]>([]);
+  const [isVisitsLoading, setIsVisitsLoading] = useState(true);
+  const [isVisitDialogOpen, setIsVisitDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -56,7 +65,47 @@ export default function PropertyDetailPage() {
     };
 
     fetchProperty();
+    
+    // Fetch visits
+    const fetchVisits = async () => {
+        try {
+            // Note: We need to filter by property_id. 
+            // Our service getVisits doesn't take propertyId yet in the arguments but the URL supports it.
+            // Let's use apiRequest directly or update service.
+            const data = await apiRequest<Visit[]>(`/visits/?property_id=${id}`);
+            setVisits(data);
+        } catch (err) {
+            console.error("Error fetching visits:", err);
+        } finally {
+            setIsVisitsLoading(false);
+        }
+    };
+    fetchVisits();
   }, [id]);
+
+  const handleRegisterVisit = async (data: VisitCreate) => {
+    try {
+        await visitService.createVisit(data);
+        // Refresh visits
+        const updatedVisits = await apiRequest<Visit[]>(`/visits/?property_id=${id}`);
+        setVisits(updatedVisits);
+    } catch (err) {
+        console.error("Error registering visit:", err);
+        throw err;
+    }
+  };
+
+  const handleUpdateVisit = async (id: string, data: VisitUpdate) => {
+    try {
+        await visitService.updateVisit(id, data);
+        // Refresh visits
+        const updatedVisits = await apiRequest<Visit[]>(`/visits/?property_id=${id}`);
+        setVisits(updatedVisits);
+    } catch (err) {
+        console.error("Error updating visit:", err);
+        throw err;
+    }
+  };
 
   if (isLoading) {
     return (
@@ -127,6 +176,21 @@ export default function PropertyDetailPage() {
                     </p>
                 </CardContent>
             </Card>
+
+            {/* Visits Section */}
+            <Card className="border-none shadow-sm overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/30">
+                    <CardTitle className="text-xl font-heading flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-primary" /> Visitas Programadas
+                    </CardTitle>
+                    <Button size="sm" variant="outline" className="h-8 gap-1" onClick={() => setIsVisitDialogOpen(true)}>
+                        <Plus className="h-4 w-4" /> Nueva Visita
+                    </Button>
+                </CardHeader>
+                <CardContent className="pt-4">
+                    <VisitList visits={visits} isLoading={isVisitsLoading} onUpdate={handleUpdateVisit} />
+                </CardContent>
+            </Card>
         </div>
 
         {/* Right Column: Key Details & Notes */}
@@ -190,6 +254,13 @@ export default function PropertyDetailPage() {
             </Card>
         </div>
       </div>
+
+      <RegisterVisitDialog
+        isOpen={isVisitDialogOpen}
+        onClose={() => setIsVisitDialogOpen(false)}
+        onSubmit={handleRegisterVisit}
+        initialPropertyId={property.id}
+      />
     </div>
   );
 }

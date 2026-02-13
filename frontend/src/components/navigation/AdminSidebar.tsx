@@ -13,6 +13,7 @@ import {
   Calendar,
   ClipboardList,
   LogOut,
+  MapPin,
 } from "lucide-react";
 
 export function AdminSidebar() {
@@ -31,7 +32,8 @@ export function AdminSidebar() {
     { name: "Agenda", href: "/oficina/agenda", icon: Calendar, roles: ["ADMIN", "AGENT"] },
     { name: "Clientes", href: "/oficina/clientes", icon: Users, roles: ["ADMIN", "AGENT"] },
     { name: "Propiedades", href: "/oficina/propiedades", icon: Home, roles: ["ADMIN", "AGENT"] },
-    { name: "Operaciones", href: "/oficina/operaciones", icon: ClipboardList, roles: ["ADMIN", "AGENT"] },
+    { name: "Visitas", href: "/oficina/visitas", icon: MapPin, roles: ["ADMIN", "AGENT"] },
+    { name: "Operaciones", href: "/oficina/operaciones", icon: ClipboardList, roles: ["ADMIN", "AGENT"] }
   ].filter(item => {
     if (!mounted || !authData) return false;
     const userRole = authData.role?.toUpperCase() || "";

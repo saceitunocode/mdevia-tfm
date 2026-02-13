@@ -17,7 +17,21 @@ import {
     DialogTitle, 
     DialogFooter 
 } from "@/components/ui/Dialog";
+import { Select } from "@/components/ui/Select";
+import { apiRequest } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { EventType, CalendarEvent, CalendarEventUpdate } from "@/types/calendar";
+import { Visit } from "@/types/visit";
+
+interface ClientListItem {
+  id: string;
+  full_name: string;
+}
+
+interface PropertyListItem {
+  id: string;
+  title: string;
+}
 
 // --- Schema Validation ---
 const eventSchema = z.object({
@@ -27,6 +41,16 @@ const eventSchema = z.object({
   startTime: z.string().min(1, "Hora de inicio obligatoria"), // HH:MM
   endTime: z.string().min(1, "Hora de fin obligatoria"), // HH:MM
   description: z.string().optional(),
+  client_id: z.string().optional(),
+  property_id: z.string().optional(),
+}).refine((data) => {
+    if (data.type === EventType.VISIT) {
+        return !!data.client_id && !!data.property_id;
+    }
+    return true;
+}, {
+    message: "El cliente y la propiedad son obligatorios para una visita",
+    path: ["client_id"],
 }).refine((data) => {
     return data.endTime > data.startTime;
 }, {
@@ -47,6 +71,9 @@ interface EditEventDialogProps {
 export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: EditEventDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [clients, setClients] = useState<ClientListItem[]>([]);
+  const [properties, setProperties] = useState<PropertyListItem[]>([]);
+  const [hasLoadedData, setHasLoadedData] = useState(false);
 
   const form = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
@@ -57,8 +84,12 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
       startTime: "10:00",
       endTime: "11:00",
       description: "",
+      client_id: "",
+      property_id: "",
     },
   });
+
+  const selectedType = form.watch("type");
 
   // Load event data when dialog opens
   React.useEffect(() => {
@@ -75,7 +106,41 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
             startTime: format(start, "HH:mm"),
             endTime: format(end, "HH:mm"),
             description: event.description || "",
+            client_id: event.client_id || "",
+            property_id: event.property_id || "",
         });
+
+        const loadData = async () => {
+             try {
+                // 1. Load clients and properties lists if needed
+                if (!hasLoadedData) {
+                    const [clientsData, propsData] = await Promise.all([
+                        apiRequest<ClientListItem[]>("/clients/"),
+                        apiRequest<PropertyListItem[]>("/properties/"),
+                    ]);
+                    setClients(clientsData.map(c => ({ id: c.id, full_name: c.full_name })));
+                    setProperties(propsData.map(p => ({ id: p.id, title: p.title })));
+                    setHasLoadedData(true);
+                }
+
+                // 2. If it's a visit but missing client/property in event, fetch the visit details
+                if (event.type === EventType.VISIT && event.visit_id && (!event.client_id || !event.property_id)) {
+                    // Import Visit type here or just assume structure
+                    const visit = await apiRequest<Visit>(`/visits/${event.visit_id}`);
+                    if (visit) {
+                         // Update form with real data from visit
+                         form.setValue("client_id", visit.client_id);
+                         form.setValue("property_id", visit.property_id);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching data for edit event dialog:", err);
+            }
+        };
+
+        if (event.type === EventType.VISIT) {
+             loadData();
+        }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, event, form.reset]);
@@ -94,6 +159,8 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
             starts_at: startIso,
             ends_at: endIso,
             description: values.description,
+            client_id: values.client_id || undefined,
+            property_id: values.property_id || undefined,
         };
 
         await onSubmit(event.id, updates);
@@ -129,6 +196,8 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
   }
 
   if (!event) return null;
+
+  const isLinkedVisit = !!event.visit_id;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -224,6 +293,51 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
                 className="resize-none h-20"
             />
           </div>
+
+          {/* Visit specific fields */}
+          {selectedType === EventType.VISIT && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Cliente</label>
+                <Select 
+                  {...form.register("client_id")}
+                  className={cn(isLinkedVisit && "pointer-events-none opacity-50 bg-muted/50")}
+                  tabIndex={isLinkedVisit ? -1 : undefined}
+                  aria-disabled={isLinkedVisit}
+                >
+                  <option value="">Seleccionar...</option>
+                  {clients.map(c => (
+                    <option key={c.id} value={c.id}>{c.full_name}</option>
+                  ))}
+                </Select>
+                {form.formState.errors.client_id && (
+                  <p className="text-xs text-destructive">{form.formState.errors.client_id.message}</p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Propiedad</label>
+                <Select 
+                  {...form.register("property_id")}
+                  className={cn(isLinkedVisit && "pointer-events-none opacity-50 bg-muted/50")}
+                  tabIndex={isLinkedVisit ? -1 : undefined}
+                  aria-disabled={isLinkedVisit}
+                >
+                  <option value="">Seleccionar...</option>
+                  {properties.map(p => (
+                    <option key={p.id} value={p.id}>{p.title}</option>
+                  ))}
+                </Select>
+                {form.formState.errors.property_id && (
+                  <p className="text-xs text-destructive">{form.formState.errors.property_id.message}</p>
+                )}
+                {isLinkedVisit && (
+                   <p className="text-[10px] text-muted-foreground mt-1">
+                     No se puede cambiar el cliente o propiedad de una visita creada.
+                   </p>
+                )}
+              </div>
+            </div>
+          )}
 
           {form.formState.errors.root && (
             <div className="p-3 rounded bg-destructive/10 text-destructive text-sm font-medium">

@@ -6,8 +6,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { ArrowLeft, Edit, Mail, Phone, User, Calendar, StickyNote, Send } from "lucide-react";
+import { ArrowLeft, Edit, Mail, Phone, User, Calendar, StickyNote, Send, Plus } from "lucide-react";
 import { apiRequest } from "@/lib/api";
+import { VisitList } from "@/components/visits/VisitList";
+import { RegisterVisitDialog } from "@/components/visits/RegisterVisitDialog";
+import { Visit, VisitCreate, VisitUpdate } from "@/types/visit";
+import { visitService } from "@/services/visitService";
 
 interface ClientNote {
   id: string;
@@ -30,12 +34,17 @@ interface ClientDetail {
 
 export default function ClienteDetallePage() {
   const params = useParams();
-  const clientId = params.id as string;
+  const clientId = params?.id as string;
 
   const [client, setClient] = useState<ClientDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [newNote, setNewNote] = useState("");
   const [isSendingNote, setIsSendingNote] = useState(false);
+  
+  // Visits state
+  const [visits, setVisits] = useState<Visit[]>([]);
+  const [isVisitsLoading, setIsVisitsLoading] = useState(true);
+  const [isVisitDialogOpen, setIsVisitDialogOpen] = useState(false);
 
   const fetchClient = useCallback(async () => {
     try {
@@ -48,9 +57,43 @@ export default function ClienteDetallePage() {
     }
   }, [clientId]);
 
+  const fetchVisits = useCallback(async () => {
+    try {
+      const data = await apiRequest<Visit[]>(`/visits/?client_id=${clientId}`);
+      setVisits(data);
+    } catch (error) {
+      console.error("Error al cargar visitas:", error);
+    } finally {
+      setIsVisitsLoading(false);
+    }
+  }, [clientId]);
+
   useEffect(() => {
-    fetchClient();
-  }, [fetchClient]);
+    if (clientId) {
+      fetchClient();
+      fetchVisits();
+    }
+  }, [clientId, fetchClient, fetchVisits]);
+
+  const handleRegisterVisit = async (data: VisitCreate) => {
+    try {
+        await visitService.createVisit(data);
+        fetchVisits();
+    } catch (err) {
+        console.error("Error al registrar visita:", err);
+        throw err;
+    }
+  };
+
+  const handleUpdateVisit = async (id: string, data: VisitUpdate) => {
+    try {
+        await visitService.updateVisit(id, data);
+        fetchVisits();
+    } catch (err) {
+        console.error("Error al actualizar visita:", err);
+        throw err;
+    }
+  };
 
   const handleAddNote = async () => {
     if (!newNote.trim()) return;
@@ -93,10 +136,12 @@ export default function ClienteDetallePage() {
   if (!client) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Cliente no encontrado.</p>
         <Link href="/oficina/clientes">
-          <Button variant="outline" className="mt-4">Volver al listado</Button>
+          <Button variant="outline" className="mt-4">
+             <ArrowLeft className="mr-2 h-4 w-4" /> Volver al listado
+          </Button>
         </Link>
+        <p className="text-muted-foreground mt-4">Cliente no encontrado.</p>
       </div>
     );
   }
@@ -176,6 +221,25 @@ export default function ClienteDetallePage() {
         </CardContent>
       </Card>
 
+      {/* Visits Section */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/10">
+            <CardTitle className="text-lg flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" /> Visitas
+            </CardTitle>
+            <Button size="sm" variant="outline" className="h-8 gap-1" onClick={() => setIsVisitDialogOpen(true)}>
+                <Plus className="h-4 w-4" /> Nueva Visita
+            </Button>
+        </CardHeader>
+        <CardContent className="pt-4">
+            <VisitList 
+                visits={visits} 
+                isLoading={isVisitsLoading} 
+                onUpdate={handleUpdateVisit}
+            />
+        </CardContent>
+      </Card>
+
       {/* Notes Card */}
       <Card>
         <CardHeader>
@@ -184,7 +248,6 @@ export default function ClienteDetallePage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Add Note */}
           <div className="flex gap-2">
             <textarea
               value={newNote}
@@ -202,7 +265,6 @@ export default function ClienteDetallePage() {
             </Button>
           </div>
 
-          {/* Notes List */}
           {client.notes.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-4 italic">
               No hay notas todavía. Añade la primera nota de seguimiento.
@@ -227,6 +289,13 @@ export default function ClienteDetallePage() {
           )}
         </CardContent>
       </Card>
+
+      <RegisterVisitDialog
+        isOpen={isVisitDialogOpen}
+        onClose={() => setIsVisitDialogOpen(false)}
+        onSubmit={handleRegisterVisit}
+        initialClientId={client.id}
+      />
     </div>
   );
 }
