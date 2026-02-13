@@ -1,8 +1,10 @@
 from typing import List, Optional, Union, Dict, Any
 import uuid
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.infrastructure.database.models.client import Client
 from app.infrastructure.database.models.client_note import ClientNote
+from app.infrastructure.database.models.visit import Visit
+from app.infrastructure.database.models.operation import Operation
 from app.domain.schemas.client import ClientUpdate, ClientNoteCreate
 
 class ClientRepository:
@@ -24,7 +26,12 @@ class ClientRepository:
         return db_note
 
     def get_by_id(self, db: Session, client_id: uuid.UUID) -> Optional[Client]:
-        return db.query(Client).filter(Client.id == client_id, Client.is_active == True).first()
+        return db.query(Client).options(
+            joinedload(Client.notes),
+            joinedload(Client.visits).joinedload(Visit.property),
+            joinedload(Client.operations).joinedload(Operation.property),
+            joinedload(Client.owned_properties)
+        ).filter(Client.id == client_id, Client.is_active == True).first()
 
     def list_all(
         self, 

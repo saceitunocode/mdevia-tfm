@@ -13,29 +13,10 @@ import { VisitList } from "@/components/visits/VisitList";
 import { RegisterVisitDialog } from "@/components/visits/RegisterVisitDialog";
 import { visitService } from "@/services/visitService";
 import { Visit, VisitCreate, VisitUpdate } from "@/types/visit";
+import { StickyNote, Send } from "lucide-react";
+import { toast } from "sonner";
+import { Property, PropertyNote, PropertyStatus } from "@/types/property";
 
-interface PropertyImage {
-  id: string;
-  public_url: string;
-  is_cover: boolean;
-  caption?: string;
-}
-
-interface Property {
-  id: string;
-  title: string;
-  address_line1: string;
-  city: string;
-  sqm: number;
-  rooms: number;
-  price_amount: number;
-  status: string;
-  public_description?: string;
-  internal_notes?: string;
-  owner_client_id: string;
-  images?: PropertyImage[];
-  created_at: string;
-}
 
 export default function PropertyDetailPage() {
   const params = useParams();
@@ -43,6 +24,8 @@ export default function PropertyDetailPage() {
   const [property, setProperty] = useState<Property | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [newNote, setNewNote] = useState("");
+  const [isSendingNote, setIsSendingNote] = useState(false);
   
   // Visits state
   const [visits, setVisits] = useState<Visit[]>([]);
@@ -95,15 +78,41 @@ export default function PropertyDetailPage() {
     }
   };
 
-  const handleUpdateVisit = async (id: string, data: VisitUpdate) => {
+  const handleUpdateVisit = async (visitId: string, data: VisitUpdate) => {
     try {
-        await visitService.updateVisit(id, data);
+        await visitService.updateVisit(visitId, data);
         // Refresh visits
         const updatedVisits = await apiRequest<Visit[]>(`/visits/?property_id=${id}`);
         setVisits(updatedVisits);
     } catch (err) {
         console.error("Error updating visit:", err);
         throw err;
+    }
+  };
+
+  const handleAddNote = async () => {
+    if (!newNote.trim()) return;
+    
+    setIsSendingNote(true);
+    try {
+      const response = await apiRequest(`/properties/${id}/notes`, {
+        method: "POST",
+        body: JSON.stringify({ text: newNote }),
+      });
+      
+      if (property) {
+        setProperty({
+          ...property,
+          notes: [response as PropertyNote, ...(property.notes || [])]
+        });
+      }
+      setNewNote("");
+      toast.success("Nota añadida correctamente");
+    } catch (error) {
+      console.error("Error adding note:", error);
+      toast.error("Error al añadir la nota");
+    } finally {
+      setIsSendingNote(false);
     }
   };
 
@@ -149,7 +158,7 @@ export default function PropertyDetailPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-            <Badge variant={property.status === 'AVAILABLE' ? 'default' : 'secondary'} className="text-sm px-3 py-1 uppercase tracking-wide">
+            <Badge variant={property.status === PropertyStatus.AVAILABLE ? 'default' : 'secondary'} className="text-sm px-3 py-1 uppercase tracking-wide">
                 {property.status}
             </Badge>
             <Link href={`/oficina/propiedades/${property.id}/editar`}>
@@ -239,19 +248,70 @@ export default function PropertyDetailPage() {
                 </CardContent>
             </Card>
 
-            {/* Internal Notes */}
-            <Card className="border-dashed border-2 bg-yellow-50/50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-900/40">
-                <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-bold text-yellow-700 dark:text-yellow-500 uppercase tracking-wider flex items-center gap-2">
-                        <Edit className="h-4 w-4" /> Notas Internas
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-yellow-800/80 dark:text-yellow-200/80 italic leading-relaxed">
-                        {property.internal_notes || "Sin notas internas registradas para esta propiedad."}
-                    </p>
-                </CardContent>
-            </Card>
+            {/* Internal & Dynamic Notes */}
+            <div className="space-y-4">
+                <Card className="border-none shadow-sm h-full">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-lg font-bold flex items-center gap-2">
+                            <StickyNote className="h-5 w-5 text-primary" /> Notas de Seguimiento
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="flex gap-2">
+                            <textarea
+                                value={newNote}
+                                onChange={(e) => setNewNote(e.target.value)}
+                                placeholder="Añadir nota de seguimiento..."
+                                className="flex-1 min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+                            />
+                            <Button
+                                onClick={handleAddNote}
+                                disabled={isSendingNote || !newNote.trim()}
+                                size="icon"
+                                className="self-end shrink-0"
+                            >
+                                <Send className="h-4 w-4" />
+                            </Button>
+                        </div>
+
+                        <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                            {(property.notes?.length || 0) === 0 ? (
+                                <p className="text-xs text-muted-foreground text-center py-4 italic">No hay notas de seguimiento.</p>
+                            ) : (
+                                property.notes?.map((note) => (
+                                    <div key={note.id} className="border-l-2 border-primary/20 pl-3 py-1">
+                                        <p className="text-sm">{note.text}</p>
+                                        <p className="text-[10px] text-muted-foreground mt-1">
+                                            {new Date(note.created_at).toLocaleDateString("es-ES", { 
+                                                day: '2-digit', 
+                                                month: '2-digit', 
+                                                year: '2-digit', 
+                                                hour: '2-digit', 
+                                                minute: '2-digit' 
+                                            })}
+                                        </p>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {property.internal_notes && (
+                    <Card className="border-dashed border-2 bg-yellow-50/50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-900/40">
+                        <CardHeader className="pb-2">
+                            <CardTitle className="text-xs font-bold text-yellow-700 dark:text-yellow-500 uppercase tracking-wider flex items-center gap-2">
+                                <Edit className="h-4 w-4" /> Notas de la ficha (Legacy)
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-yellow-800/80 dark:text-yellow-200/80 italic leading-relaxed">
+                                {property.internal_notes}
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
+            </div>
         </div>
       </div>
 

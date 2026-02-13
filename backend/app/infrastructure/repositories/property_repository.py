@@ -3,7 +3,8 @@ from decimal import Decimal
 import uuid
 from sqlalchemy.orm import Session, joinedload
 from app.infrastructure.database.models.property import Property
-from app.domain.schemas.property import PropertyUpdate
+from app.infrastructure.database.models.property_note import PropertyNote
+from app.domain.schemas.property import PropertyUpdate, PropertyNoteCreate
 from app.domain.enums import PropertyStatus
 
 class PropertyRepository:
@@ -13,8 +14,28 @@ class PropertyRepository:
         db.refresh(property_obj)
         return property_obj
 
+    def create_note(
+        self, 
+        db: Session, 
+        property_id: uuid.UUID, 
+        note_in: PropertyNoteCreate, 
+        author_id: uuid.UUID
+    ) -> PropertyNote:
+        db_note = PropertyNote(
+            text=note_in.text,
+            property_id=property_id,
+            author_user_id=author_id
+        )
+        db.add(db_note)
+        db.commit()
+        db.refresh(db_note)
+        return db_note
+
     def get_by_id(self, db: Session, property_id: uuid.UUID) -> Optional[Property]:
-        return db.query(Property).options(joinedload(Property.images)).filter(Property.id == property_id, Property.is_active == True).first()
+        return db.query(Property).options(
+            joinedload(Property.images),
+            joinedload(Property.notes)
+        ).filter(Property.id == property_id, Property.is_active == True).first()
 
     def list_all(
         self, 

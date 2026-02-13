@@ -6,6 +6,20 @@ from datetime import datetime
 from app.domain.enums import PropertyStatus
 from app.domain.schemas.property_image import PropertyImage
 
+class PropertyNoteBase(BaseModel):
+    text: str
+
+class PropertyNoteCreate(PropertyNoteBase):
+    pass
+
+class PropertyNote(PropertyNoteBase):
+    id: uuid.UUID
+    property_id: uuid.UUID
+    author_user_id: uuid.UUID
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
 class PropertyBase(BaseModel):
     title: str
     address_line1: str
@@ -67,6 +81,7 @@ class Property(PropertyBase):
     captor_agent_id: uuid.UUID
     owner_client_id: uuid.UUID
     images: List[PropertyImage] = []
+    notes: List[PropertyNote] = []
     is_active: bool
     created_at: datetime
     updated_at: datetime
