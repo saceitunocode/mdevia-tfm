@@ -122,7 +122,9 @@ def test_property_full_lifecycle(client: TestClient, db_session: Session):
     # ----------------------------------------------------------------
     # 5. CLEANUP
     # ----------------------------------------------------------------
-    db_session.query(Property).filter(Property.id == property_id).delete()
+    prop_obj = db_session.query(Property).filter(Property.id == property_id).first()
+    if prop_obj:
+        db_session.delete(prop_obj)
     db_session.delete(owner)
     db_session.delete(agent)
     db_session.commit()

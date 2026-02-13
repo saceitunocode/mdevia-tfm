@@ -146,7 +146,7 @@ def update_property(
     if not property:
         raise HTTPException(status_code=404, detail="Property not found")
         
-    property = repo.update(db=db, property_obj=property, property_in=property_in)
+    property = repo.update(db=db, property_obj=property, property_in=property_in, user_id=current_user.id)
     return property
 
 @router.post("/{id}/notes", response_model=PropertyNote)

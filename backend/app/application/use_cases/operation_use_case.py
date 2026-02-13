@@ -66,7 +66,8 @@ class OperationUseCase:
                 self.property_repo.update(
                     db, 
                     property_obj=property_obj, 
-                    property_in={"status": new_prop_status}
+                    property_in={"status": new_prop_status},
+                    user_id=user_id
                 )
 
         return updated_op

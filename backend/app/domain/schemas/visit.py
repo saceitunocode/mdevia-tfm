@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import List, Optional
 from datetime import datetime
 from uuid import UUID
@@ -50,7 +51,7 @@ class VisitPublic(VisitBase):
     # In this case, we use the class names as defined in their modules
     
     client: Optional["Client"] = None
-    property: Optional["Property"] = None
+    property: Optional["PropertyPublic"] = None
     agent: Optional["User"] = None
     
     notes: List[VisitNotePublic] = []
@@ -59,7 +60,11 @@ class VisitPublic(VisitBase):
 
 # For late evaluation of string types
 from app.domain.schemas.client import Client
-from app.domain.schemas.property import Property
+from app.domain.schemas.property import PropertyPublic
 from app.domain.schemas.user import User
 
-VisitPublic.model_rebuild()
+try:
+    VisitPublic.model_rebuild(_types_namespace={"Client": Client, "PropertyPublic": PropertyPublic, "User": User})
+except Exception:
+    # This might happen during circular imports, Pydantic will try again when needed
+    pass

@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional, List
 import uuid
 from pydantic import BaseModel, ConfigDict
@@ -54,6 +55,15 @@ class ClientDetail(Client):
 from app.domain.schemas.visit import VisitPublic
 from app.domain.schemas.operation import OperationPublic
 from app.domain.schemas.property import Property
+from app.domain.schemas.user import User
 
-ClientDetail.model_rebuild()
+try:
+    ClientDetail.model_rebuild(_types_namespace={
+        "VisitPublic": VisitPublic,
+        "OperationPublic": OperationPublic,
+        "Property": Property,
+        "User": User
+    })
+except Exception:
+    pass
 
