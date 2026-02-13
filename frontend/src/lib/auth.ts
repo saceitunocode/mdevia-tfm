@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 export interface DecodedToken {
   sub: string; // email
   role: "ADMIN" | "AGENT";
+  full_name?: string;
   exp: number;
 }
 
