@@ -15,6 +15,7 @@ def get_password_hash(password: str) -> str:
 def create_access_token(
     subject: Union[str, Any], 
     role: str | None = None,
+    full_name: str | None = None,
     expires_delta: timedelta | None = None
 ) -> str:
     if expires_delta:
@@ -25,6 +26,8 @@ def create_access_token(
     to_encode = {"exp": expire, "sub": str(subject)}
     if role:
         to_encode["role"] = role
+    if full_name:
+        to_encode["full_name"] = full_name
         
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
     return encoded_jwt

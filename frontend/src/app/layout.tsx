@@ -31,6 +31,7 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${outfit.variable} antialiased`}
+        suppressHydrationWarning={true}
       >
         <ThemeProvider
           attribute="class"

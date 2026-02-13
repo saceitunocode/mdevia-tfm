@@ -37,6 +37,7 @@ def login_access_token(
     access_token = security.create_access_token(
         subject=user.email, 
         role=user.role.value,
+        full_name=user.full_name,
         expires_delta=access_token_expires
     )
     

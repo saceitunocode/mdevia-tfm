@@ -3,7 +3,11 @@
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { User, Bell } from "lucide-react";
 
+import { useAuth } from "@/context/auth-context";
+
 export function AdminHeader() {
+  const { user } = useAuth();
+
   return (
     <header className="h-16 border-b border-border bg-background sticky top-0 z-40 px-8 flex items-center justify-between">
       <h2 className="text-lg font-heading font-bold text-foreground capitalize tracking-tight">
@@ -18,8 +22,12 @@ export function AdminHeader() {
         </button>
         <div className="flex items-center space-x-3 pl-6 border-l border-border">
           <div className="text-right flex flex-col items-end">
-            <span className="text-sm font-medium leading-none">Agente Demo</span>
-            <span className="text-xs text-muted-foreground mt-1">frinmobiliarias.es</span>
+            <span className="text-sm font-medium leading-none">
+              {user?.full_name || "Agente"}
+            </span>
+            <span className="text-xs text-muted-foreground mt-1">
+              {user?.sub || ""}
+            </span>
           </div>
           <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center border border-border">
             <User className="h-5 w-5 text-muted-foreground" />
