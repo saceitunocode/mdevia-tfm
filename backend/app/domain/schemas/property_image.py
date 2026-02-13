@@ -28,3 +28,9 @@ class PropertyImage(PropertyImageBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class PropertyImagePublic(PropertyImageBase):
+    id: uuid.UUID
+    public_url: Optional[str] = None
+    
+    model_config = ConfigDict(from_attributes=True)
