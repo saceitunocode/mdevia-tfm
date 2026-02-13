@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Clock, User, Building2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -113,12 +114,27 @@ export function RegisterVisitDialog({
       };
 
       await onSubmit(visitData);
+      toast.success("Visita programada correctamente");
       onClose();
     } catch (error) {
-      console.error("Error registering visit:", error);
-      form.setError("root", { message: "Error al registrar la visita" });
+      toast.error("Error al registrar la visita", {
+        description: error instanceof Error ? error.message : "Error inesperado",
+      });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const onError = (errors: FieldErrors<VisitFormValues>) => {
+    const errorMessages = Object.values(errors)
+      .map((err) => err?.message)
+      .filter(Boolean)
+      .join(". ");
+    
+    if (errorMessages) {
+      toast.error("Error de validación", {
+        description: errorMessages,
+      });
     }
   };
 
@@ -129,7 +145,7 @@ export function RegisterVisitDialog({
           <DialogTitle>Programar Visita</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="space-y-4 py-4">
           
           <div className="space-y-2">
             <label className="text-sm font-medium flex items-center gap-2">
@@ -144,9 +160,6 @@ export function RegisterVisitDialog({
                   <option key={client.id} value={client.id}>{client.full_name}</option>
                 ))}
               </Select>
-            )}
-            {form.formState.errors.client_id && (
-                <p className="text-xs text-destructive">{form.formState.errors.client_id.message}</p>
             )}
           </div>
 
@@ -164,9 +177,6 @@ export function RegisterVisitDialog({
                 ))}
               </Select>
             )}
-            {form.formState.errors.property_id && (
-                <p className="text-xs text-destructive">{form.formState.errors.property_id.message}</p>
-            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -178,9 +188,6 @@ export function RegisterVisitDialog({
                     type="date" 
                     {...form.register("date")} 
                 />
-                {form.formState.errors.date && (
-                    <p className="text-xs text-destructive">{form.formState.errors.date.message}</p>
-                )}
             </div>
             
             <div className="space-y-2">
@@ -191,9 +198,6 @@ export function RegisterVisitDialog({
                     type="time" 
                     {...form.register("time")} 
                 />
-                {form.formState.errors.time && (
-                    <p className="text-xs text-destructive">{form.formState.errors.time.message}</p>
-                )}
             </div>
           </div>
 

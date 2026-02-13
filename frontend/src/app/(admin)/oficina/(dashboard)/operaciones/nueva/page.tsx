@@ -12,6 +12,7 @@ import {
   Home, 
   CheckCircle2
 } from "lucide-react";
+import { toast } from "sonner";
 import { apiRequest } from "@/lib/api";
 import { operationService } from "@/services/operationService";
 import { OperationType, OperationStatus } from "@/types/operation";
@@ -52,6 +53,9 @@ export default function NuevaOperacionPage() {
         setProperties(propertiesData?.filter(p => p.status === "AVAILABLE") || []);
       } catch (error) {
         console.error("Error al cargar datos:", error);
+        toast.error("Error al cargar datos", {
+          description: error instanceof Error ? error.message : "Error desconocido",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -61,7 +65,7 @@ export default function NuevaOperacionPage() {
 
   const handleSave = async () => {
     if (!clientId || !propertyId) {
-      alert("Por favor, selecciona un cliente y una propiedad");
+      toast.error("Por favor, selecciona un cliente y una propiedad");
       return;
     }
 
@@ -74,10 +78,13 @@ export default function NuevaOperacionPage() {
         status: OperationStatus.INTEREST,
         note: note
       });
+      toast.success("Operación creada correctamente");
       router.push(`/oficina/operaciones/${newOp.id}`);
     } catch (error) {
-      console.error("Error al crear operación:", error);
-      alert(error instanceof Error ? error.message : "Error al crear la operación");
+      // console.error("Error al crear operación:", error);
+      toast.error("Error al crear la operación", {
+        description: error instanceof Error ? error.message : "Error inesperado",
+      });
     } finally {
       setIsSaving(false);
     }

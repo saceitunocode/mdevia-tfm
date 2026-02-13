@@ -5,12 +5,12 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import { Select } from "@/components/ui/Select";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
-import { ArrowLeft, Save, ShieldCheck, UserCog, Power, KeyRound, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Save, UserCog, Power, KeyRound } from "lucide-react";
 import Link from "next/link";
 import { apiRequest } from "@/lib/api";
+import { toast } from "sonner";
 
 interface User {
   id: string;
@@ -26,7 +26,6 @@ export default function DetalleUsuarioPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -50,9 +49,11 @@ export default function DetalleUsuarioPage() {
           role: data.role,
           is_active: data.is_active,
         });
-      } catch (err) {
-        console.error("Error al cargar usuario:", err);
-        setMessage({ type: 'error', text: "No se pudo cargar la información del usuario" });
+      } catch (error) {
+        console.error("Error al cargar usuario:", error);
+        toast.error("Error al cargar la información del usuario", {
+          description: error instanceof Error ? error.message : "Error desconocido",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -64,17 +65,24 @@ export default function DetalleUsuarioPage() {
   const handleInfoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setMessage(null);
+    
+    if (!formData.full_name.trim()) {
+        toast.error("El nombre completo es obligatorio");
+        setIsSaving(false);
+        return;
+    }
 
     try {
       await apiRequest(`/users/${userId}`, {
         method: "PATCH",
         body: JSON.stringify(formData),
       });
-      setMessage({ type: 'success', text: "Información de usuario actualizada correctamente" });
+      toast.success("Información de usuario actualizada correctamente");
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Error al actualizar la información";
-      setMessage({ type: 'error', text: errorMsg });
+      toast.error("Error al actualizar usuario", {
+        description: errorMsg
+      });
     } finally {
       setIsSaving(false);
     }
@@ -83,11 +91,11 @@ export default function DetalleUsuarioPage() {
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setMessage({ type: 'error', text: "Las contraseñas no coinciden" });
+      toast.error("Las contraseñas no coinciden");
       return;
     }
     if (passwordData.newPassword.length < 8) {
-      setMessage({ type: 'error', text: "La contraseña debe tener al menos 8 caracteres" });
+      toast.error("La contraseña debe tener al menos 8 caracteres");
       return;
     }
 
@@ -97,11 +105,13 @@ export default function DetalleUsuarioPage() {
         method: "PATCH",
         body: JSON.stringify({ password: passwordData.newPassword }),
       });
-      setMessage({ type: 'success', text: "Contraseña actualizada correctamente" });
+      toast.success("Contraseña actualizada correctamente");
       setPasswordData({ newPassword: "", confirmPassword: "" });
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Error al actualizar la contraseña";
-      setMessage({ type: 'error', text: errorMsg });
+      toast.error("Error al actualizar contraseña", {
+        description: errorMsg
+      });
     } finally {
       setIsSaving(false);
     }
@@ -116,10 +126,13 @@ export default function DetalleUsuarioPage() {
         body: JSON.stringify({ is_active: newStatus }),
       });
       setFormData(prev => ({ ...prev, is_active: newStatus }));
-      setMessage({ type: 'success', text: `Usuario ${newStatus ? 'activado' : 'desactivado'} correctamente` });
+      const action = newStatus ? 'activado' : 'desactivado';
+      toast.success(`Usuario ${action} correctamente`);
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : "Error al cambiar el estado";
-      setMessage({ type: 'error', text: errorMsg });
+      toast.error("Error al cambiar estado", {
+        description: errorMsg
+      });
     } finally {
       setIsSaving(false);
     }
@@ -130,7 +143,7 @@ export default function DetalleUsuarioPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-12">
+    <div className="max-w-7xl mx-auto space-y-6 pb-12">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/oficina/usuarios">
@@ -151,15 +164,8 @@ export default function DetalleUsuarioPage() {
         </Button>
       </div>
 
-      {message && (
-        <div className={`${message.type === 'success' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-destructive/10 text-destructive border-destructive/20'} border px-4 py-3 rounded-md flex items-center gap-3 text-sm animate-in fade-in`}>
-          {message.type === 'success' ? <ShieldCheck className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
-          {message.text}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
           <Card className="border-none shadow-lg">
             <CardHeader>
               <div className="flex items-center gap-2 text-primary">
@@ -188,14 +194,15 @@ export default function DetalleUsuarioPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="role">Rol en el Sistema</Label>
-                  <Select 
+                  <select 
                     id="role"
+                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     value={formData.role} 
                     onChange={(e) => setFormData(p => ({...p, role: e.target.value as "ADMIN" | "AGENT"}))}
                   >
                     <option value="AGENT">Agente Inmobiliario</option>
                     <option value="ADMIN">Administrador</option>
-                  </Select>
+                  </select>
                 </div>
                 <div className="pt-4">
                   <Button type="submit" disabled={isSaving} className="gap-2">
@@ -260,11 +267,12 @@ export default function DetalleUsuarioPage() {
               </div>
               <div className="space-y-1">
                 <p className="font-bold text-xl">{formData.full_name}</p>
-                <div className="flex justify-center">
+                <div className="flex justify-center flex-col gap-2">
+                    <div className="text-sm text-muted-foreground">{formData.email}</div>
                   {formData.is_active ? (
-                    <Badge className="bg-green-100 text-green-700 hover:bg-green-200 border-none">ACTIVO</Badge>
+                    <Badge className="bg-green-100 text-green-700 hover:bg-green-200 border-none w-fit mx-auto">ACTIVO</Badge>
                   ) : (
-                    <Badge variant="destructive">INACTIVO</Badge>
+                    <Badge variant="destructive" className="w-fit mx-auto">INACTIVO</Badge>
                   )}
                 </div>
               </div>

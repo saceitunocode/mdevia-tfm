@@ -11,6 +11,7 @@ import { getAuthData } from "@/lib/auth";
 import { useAuth } from "@/context/auth-context";
 import { jwtDecode } from "jwt-decode";
 import { DecodedToken } from "@/lib/auth";
+import { toast } from "sonner";
 
 export default function AccesoPage() {
   const router = useRouter();
@@ -69,8 +70,10 @@ export default function AccesoPage() {
         router.push("/oficina/agenda");
       }
     } catch (error) {
-      console.error("Login error:", error);
-      alert(error instanceof Error ? error.message : "Credenciales inválidas");
+      // console.error("Login error:", error);
+      toast.error("Inicio de sesión fallido", {
+        description: error instanceof Error ? error.message : "Credenciales inválidas",
+      });
     } finally {
       setIsLoading(false);
     }

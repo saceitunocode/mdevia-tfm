@@ -23,7 +23,7 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({ detail: "Error desconocido" }));
-    console.error(`❌ API Error [${response.status}]:`, errorData);
+    // console.error(`❌ API Error [${response.status}]:`, errorData);
     
     // Si es 401, limpiar token inválido
     if (response.status === 401 && typeof window !== "undefined") {

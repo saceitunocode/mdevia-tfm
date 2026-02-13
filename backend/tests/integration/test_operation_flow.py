@@ -35,7 +35,8 @@ def test_operation_flow_lifecycle(db_session: Session):
         full_name="Buyer Client",
         email=f"buyer-{client_buyer_id}@test.com",
         type=ClientType.BUYER,
-        responsible_agent_id=agent.id
+        responsible_agent_id=agent.id,
+        phone="555-BUYER"
     )
     db_session.add(client_buyer)
     
@@ -45,7 +46,8 @@ def test_operation_flow_lifecycle(db_session: Session):
         id=client_owner_id,
         full_name="Owner Client",
         type=ClientType.OWNER,
-        responsible_agent_id=agent.id
+        responsible_agent_id=agent.id,
+        phone="555-OWNER"
     )
     db_session.add(client_owner)
     db_session.commit()

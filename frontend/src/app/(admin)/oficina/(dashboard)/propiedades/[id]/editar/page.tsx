@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import { PropertyForm, PropertyFormValues } from "@/components/properties/PropertyForm";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface Property {
   id: string;
@@ -48,7 +49,9 @@ export default function EditPropertyPage() {
         setClients(clientsData);
       } catch (error) {
         console.error("Error loading data:", error);
-        alert("Error al cargar la propiedad");
+        toast.error("Error al cargar la propiedad", {
+          description: error instanceof Error ? error.message : "Error desconocido",
+        });
         router.push("/oficina/propiedades");
       } finally {
         setIsLoading(false);
@@ -84,11 +87,13 @@ export default function EditPropertyPage() {
         }
       }
 
-      alert("Propiedad actualizada correctamente");
+      toast.success("Propiedad actualizada correctamente");
       router.push(`/oficina/propiedades/${id}`);
     } catch (error) {
       console.error("Error updating property:", error);
-      alert("Error al actualizar la propiedad");
+      toast.error("Error al actualizar la propiedad", {
+        description: error instanceof Error ? error.message : "Error desconocido",
+      });
     } finally {
       setIsLoading(false);
     }

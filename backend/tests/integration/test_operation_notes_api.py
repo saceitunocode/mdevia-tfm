@@ -46,7 +46,8 @@ def test_data(db: Session, test_agent):
         id=uuid.uuid4(),
         full_name="API Notes Client",
         type=ClientType.BUYER,
-        responsible_agent_id=test_agent.id
+        responsible_agent_id=test_agent.id,
+        phone="555-NOTES"
     )
     db.add(test_client)
     
@@ -55,7 +56,8 @@ def test_data(db: Session, test_agent):
         id=uuid.uuid4(),
         full_name="API Notes Owner",
         type=ClientType.OWNER,
-        responsible_agent_id=test_agent.id
+        responsible_agent_id=test_agent.id,
+        phone="555-OWNER"
     )
     db.add(test_owner)
     db.commit()
