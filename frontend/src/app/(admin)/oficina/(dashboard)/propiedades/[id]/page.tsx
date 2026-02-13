@@ -6,16 +6,22 @@ import { apiRequest } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Loader2, ArrowLeft, Edit, MapPin, Ruler, BedDouble, Tag, User, Plus, Calendar } from "lucide-react";
+import { 
+    Loader2, ArrowLeft, Edit, MapPin, Ruler, BedDouble, 
+    Tag, User, Plus, Calendar, Briefcase, Activity, 
+    ArrowUpRight, ArrowDownRight, TrendingUp, Clock,
+    ChevronRight
+} from "lucide-react";
 import Link from "next/link";
 import { PropertyGallery } from "@/components/public/PropertyGallery";
 import { VisitList } from "@/components/visits/VisitList";
 import { RegisterVisitDialog } from "@/components/visits/RegisterVisitDialog";
 import { visitService } from "@/services/visitService";
-import { Visit, VisitCreate, VisitUpdate } from "@/types/visit";
+import { VisitCreate, VisitUpdate } from "@/types/visit";
 import { StickyNote, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Property, PropertyNote, PropertyStatus } from "@/types/property";
+import { OperationList } from "@/components/operations/OperationList";
 
 
 export default function PropertyDetailPage() {
@@ -27,9 +33,7 @@ export default function PropertyDetailPage() {
   const [newNote, setNewNote] = useState("");
   const [isSendingNote, setIsSendingNote] = useState(false);
   
-  // Visits state
-  const [visits, setVisits] = useState<Visit[]>([]);
-  const [isVisitsLoading, setIsVisitsLoading] = useState(true);
+  // Dialogs state
   const [isVisitDialogOpen, setIsVisitDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -48,30 +52,15 @@ export default function PropertyDetailPage() {
     };
 
     fetchProperty();
-    
-    // Fetch visits
-    const fetchVisits = async () => {
-        try {
-            // Note: We need to filter by property_id. 
-            // Our service getVisits doesn't take propertyId yet in the arguments but the URL supports it.
-            // Let's use apiRequest directly or update service.
-            const data = await apiRequest<Visit[]>(`/visits/?property_id=${id}`);
-            setVisits(data);
-        } catch (err) {
-            console.error("Error fetching visits:", err);
-        } finally {
-            setIsVisitsLoading(false);
-        }
-    };
-    fetchVisits();
   }, [id]);
 
   const handleRegisterVisit = async (data: VisitCreate) => {
     try {
         await visitService.createVisit(data);
-        // Refresh visits
-        const updatedVisits = await apiRequest<Visit[]>(`/visits/?property_id=${id}`);
-        setVisits(updatedVisits);
+        // Refresh property (which includes visits)
+        const updatedData = await apiRequest<Property>(`/properties/${id}`);
+        setProperty(updatedData);
+        toast.success("Visita registrada correctamente");
     } catch (err) {
         console.error("Error registering visit:", err);
         throw err;
@@ -81,9 +70,9 @@ export default function PropertyDetailPage() {
   const handleUpdateVisit = async (visitId: string, data: VisitUpdate) => {
     try {
         await visitService.updateVisit(visitId, data);
-        // Refresh visits
-        const updatedVisits = await apiRequest<Visit[]>(`/visits/?property_id=${id}`);
-        setVisits(updatedVisits);
+        // Refresh property
+        const updatedData = await apiRequest<Property>(`/properties/${id}`);
+        setProperty(updatedData);
     } catch (err) {
         console.error("Error updating visit:", err);
         throw err;
@@ -187,9 +176,9 @@ export default function PropertyDetailPage() {
             </Card>
 
             {/* Visits Section */}
-            <Card className="border-none shadow-sm overflow-hidden">
-                <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/30">
-                    <CardTitle className="text-xl font-heading flex items-center gap-2">
+            <Card className="border-l-4 border-l-primary shadow-sm overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/10">
+                    <CardTitle className="text-lg font-heading flex items-center gap-2">
                         <Calendar className="h-5 w-5 text-primary" /> Visitas Programadas
                     </CardTitle>
                     <Button size="sm" variant="outline" className="h-8 gap-1" onClick={() => setIsVisitDialogOpen(true)}>
@@ -197,7 +186,87 @@ export default function PropertyDetailPage() {
                     </Button>
                 </CardHeader>
                 <CardContent className="pt-4">
-                    <VisitList visits={visits} isLoading={isVisitsLoading} onUpdate={handleUpdateVisit} />
+                    <VisitList visits={property.visits || []} isLoading={false} onUpdate={handleUpdateVisit} />
+                </CardContent>
+            </Card>
+
+            {/* Operations Section */}
+            <Card className="border-l-4 border-l-blue-500 shadow-sm overflow-hidden">
+                <CardHeader className="pb-2 bg-blue-50/50">
+                    <CardTitle className="text-lg font-heading flex items-center gap-2">
+                        <Briefcase className="h-5 w-5 text-blue-600" /> Operaciones Asociadas
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 px-0">
+                    {(!property.operations || property.operations.length === 0) ? (
+                        <div className="text-center py-8 text-muted-foreground text-sm italic">
+                            No hay operaciones asociadas a esta propiedad.
+                        </div>
+                    ) : (
+                        <OperationList operations={property.operations} isLoading={false} />
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Change History (Prices & Status) */}
+            <Card className="border-l-4 border-l-orange-500 shadow-sm overflow-hidden">
+                <CardHeader className="pb-2 bg-orange-50/50">
+                    <CardTitle className="text-lg font-heading flex items-center gap-2">
+                        <Activity className="h-5 w-5 text-orange-600" /> Historial de Evolución
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 px-4">
+                    <div className="space-y-4">
+                        {(property.status_history?.length || 0) === 0 ? (
+                            <p className="text-sm text-muted-foreground italic text-center py-4">No hay cambios registrados todavía.</p>
+                        ) : (
+                            <div className="relative space-y-4 before:absolute before:inset-0 before:ml-5 before:h-full before:w-0.5 before:bg-linear-to-b before:from-orange-500/20 before:to-transparent">
+                                {property.status_history?.slice().reverse().map((change) => (
+                                    <div key={change.id} className="relative flex items-start gap-4 pl-10">
+                                        <div className="absolute left-0 flex h-10 w-10 items-center justify-center rounded-full bg-background border-2 border-primary/20 shadow-sm z-10">
+                                            {change.from_price && change.to_price && change.to_price > change.from_price ? (
+                                                <ArrowUpRight className="h-4 w-4 text-destructive" />
+                                            ) : change.from_price && change.to_price && change.to_price < change.from_price ? (
+                                                <ArrowDownRight className="h-4 w-4 text-emerald-500" />
+                                            ) : (
+                                                <Clock className="h-4 w-4 text-primary" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1 space-y-1">
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-sm font-bold">
+                                                    {change.from_status !== change.to_status ? (
+                                                        <>Estado: <span className="text-muted-foreground line-through decoration-1">{change.from_status}</span> &rarr; <Badge variant="outline" className="bg-primary/5 ml-1">{change.to_status}</Badge></>
+                                                    ) : (
+                                                        <>Actualización de precio</>
+                                                    )}
+                                                </p>
+                                                <time className="text-[10px] font-mono text-muted-foreground">
+                                                    {new Date(change.changed_at).toLocaleDateString("es-ES", { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                                                </time>
+                                            </div>
+                                            {change.from_price && change.to_price && change.from_price !== change.to_price && (
+                                                <div className="flex items-center gap-2 text-sm">
+                                                    <TrendingUp className="h-3 w-3 text-muted-foreground" />
+                                                    <span className="text-muted-foreground line-through decoration-1">
+                                                        {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(change.from_price)}
+                                                    </span>
+                                                    <span className="font-bold text-primary">
+                                                        {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(change.to_price)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {change.note && (
+                                                <p className="text-xs text-muted-foreground italic bg-muted/20 p-2 rounded">
+                                                    {change.note}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </CardContent>
             </Card>
         </div>
@@ -238,13 +307,47 @@ export default function PropertyDetailPage() {
                             </span>
                             <span className="font-mono text-xs">{property.id.substring(0, 8)}</span>
                          </div>
+                         
                          <div className="flex items-center justify-between text-sm">
                             <span className="flex items-center gap-2 text-muted-foreground">
-                                <User className="h-4 w-4" /> Captador
+                                <Clock className="h-4 w-4" /> Captador
                             </span>
                             <span className="font-medium">Admin (Tú)</span>
                          </div>
                     </div>
+                </CardContent>
+            </Card>
+
+            {/* Owner Section */}
+            <Card className="border-l-4 border-l-green-500 shadow-sm overflow-hidden">
+                <CardHeader className="pb-2 bg-green-50/50">
+                    <CardTitle className="text-lg font-heading flex items-center gap-2">
+                        <User className="h-5 w-5 text-green-600" /> Propietario
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 px-0">
+                    {property.owner_client ? (
+                        <Link href={`/oficina/clientes/${property.owner_client.id}`} className="block hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center justify-between p-4 group">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center text-green-700">
+                                        <User size={20} />
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <p className="font-bold text-sm group-hover:text-primary transition-colors">{property.owner_client.full_name}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {property.owner_client.email || "Sin email"} • {property.owner_client.phone || "Sin teléfono"}
+                                        </p>
+                                    </div>
+                                </div>
+                                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </Link>
+                    ) : (
+                        <div className="text-center py-6 text-muted-foreground text-sm italic">
+                            Sin propietario asignado.
+                        </div>
+                    )}
                 </CardContent>
             </Card>
 

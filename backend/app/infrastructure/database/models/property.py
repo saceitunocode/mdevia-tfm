@@ -46,3 +46,4 @@ class Property(Base):
     visits = relationship("Visit", back_populates="property")
     calendar_events = relationship("CalendarEvent", back_populates="property")
     notes = relationship("PropertyNote", back_populates="property", cascade="all, delete-orphan", order_by="desc(PropertyNote.created_at)")
+    status_history = relationship("PropertyStatusHistory", back_populates="property", cascade="all, delete-orphan", order_by="PropertyStatusHistory.changed_at")

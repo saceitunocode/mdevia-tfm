@@ -11,3 +11,4 @@ from app.infrastructure.database.models.domain_event import DomainEvent
 from app.infrastructure.database.models.client_note import ClientNote
 from app.infrastructure.database.models.property_note import PropertyNote
 from app.infrastructure.database.models.visit_note import VisitNote
+from app.infrastructure.database.models.property_status_history import PropertyStatusHistory

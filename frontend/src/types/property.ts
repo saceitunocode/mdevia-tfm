@@ -1,3 +1,7 @@
+import { Visit } from "./visit";
+import { Operation } from "./operation";
+import { Client } from "./client";
+
 export enum PropertyStatus {
   AVAILABLE = "AVAILABLE",
   RESERVED = "RESERVED",
@@ -22,6 +26,18 @@ export interface PropertyNote {
   created_at: string;
 }
 
+export interface PropertyStatusHistory {
+  id: string;
+  property_id: string;
+  from_status?: PropertyStatus;
+  to_status: PropertyStatus;
+  from_price?: number;
+  to_price?: number;
+  changed_at: string;
+  changed_by_user_id: string;
+  note?: string;
+}
+
 export interface Property {
   id: string;
   title: string;
@@ -42,6 +58,10 @@ export interface Property {
   captor_agent_id: string;
   images: PropertyImage[];
   notes?: PropertyNote[];
+  visits?: Visit[];
+  operations?: Operation[];
+  owner_client?: Client;
+  status_history?: PropertyStatusHistory[];
   is_active: boolean;
   created_at: string;
   updated_at: string;

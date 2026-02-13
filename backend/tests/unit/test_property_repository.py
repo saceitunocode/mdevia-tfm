@@ -111,7 +111,7 @@ def test_property_repository_update_status(db: Session):
         "is_published": False,
         "title": "Sold Title"
     }
-    updated_prop = repo.update(db, property_obj=created_prop, property_in=update_data)
+    updated_prop = repo.update(db, property_obj=created_prop, property_in=update_data, user_id=agent.id)
 
     assert updated_prop.status == PropertyStatus.SOLD
     assert updated_prop.is_published is False

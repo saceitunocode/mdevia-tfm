@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional, List
 import uuid
 from decimal import Decimal
@@ -17,6 +18,19 @@ class PropertyNote(PropertyNoteBase):
     property_id: uuid.UUID
     author_user_id: uuid.UUID
     created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+class PropertyStatusHistory(BaseModel):
+    id: uuid.UUID
+    property_id: uuid.UUID
+    from_status: Optional[PropertyStatus] = None
+    to_status: PropertyStatus
+    from_price: Optional[Decimal] = None
+    to_price: Optional[Decimal] = None
+    changed_at: datetime
+    changed_by_user_id: uuid.UUID
+    note: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -82,8 +96,28 @@ class Property(PropertyBase):
     owner_client_id: uuid.UUID
     images: List[PropertyImage] = []
     notes: List[PropertyNote] = []
+    visits: List["VisitPublic"] = []
+    operations: List["OperationPublic"] = []
+    owner_client: Optional["Client"] = None
+    status_history: List[PropertyStatusHistory] = []
     is_active: bool
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+# For late evaluation
+from app.domain.schemas.visit import VisitPublic
+from app.domain.schemas.operation import OperationPublic
+from app.domain.schemas.client import Client
+from app.domain.schemas.user import User
+
+try:
+    Property.model_rebuild(_types_namespace={
+        "VisitPublic": VisitPublic,
+        "OperationPublic": OperationPublic,
+        "Client": Client,
+        "User": User
+    })
+except Exception:
+    pass

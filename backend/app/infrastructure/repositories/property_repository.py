@@ -4,6 +4,8 @@ import uuid
 from sqlalchemy.orm import Session, joinedload
 from app.infrastructure.database.models.property import Property
 from app.infrastructure.database.models.property_note import PropertyNote
+from app.infrastructure.database.models.property_status_history import PropertyStatusHistory
+from app.infrastructure.database.models import Visit, Operation, Client
 from app.domain.schemas.property import PropertyUpdate, PropertyNoteCreate
 from app.domain.enums import PropertyStatus
 
@@ -34,7 +36,11 @@ class PropertyRepository:
     def get_by_id(self, db: Session, property_id: uuid.UUID) -> Optional[Property]:
         return db.query(Property).options(
             joinedload(Property.images),
-            joinedload(Property.notes)
+            joinedload(Property.notes),
+            joinedload(Property.owner_client),
+            joinedload(Property.visits),
+            joinedload(Property.operations),
+            joinedload(Property.status_history)
         ).filter(Property.id == property_id, Property.is_active == True).first()
 
     def list_all(
@@ -92,7 +98,8 @@ class PropertyRepository:
         db: Session,
         *,
         property_obj: Property,
-        property_in: Union[PropertyUpdate, Dict[str, Any]]
+        property_in: Union[PropertyUpdate, Dict[str, Any]],
+        user_id: uuid.UUID
     ) -> Property:
         obj_data = property_obj.__dict__
         if isinstance(property_in, dict):
@@ -100,10 +107,29 @@ class PropertyRepository:
         else:
             update_data = property_in.model_dump(exclude_unset=True)
             
+        old_status = property_obj.status
+        new_status = update_data.get("status")
+        old_price = property_obj.price_amount
+        new_price = update_data.get("price_amount")
+        note = update_data.get("internal_notes") # Use internal_notes or a dedicated 'note' if available
+
         for field in update_data:
             if field in obj_data:
                 setattr(property_obj, field, update_data[field])
                 
+        # Record history if status or price changed
+        if (new_status and new_status != old_status) or (new_price is not None and new_price != old_price):
+            history = PropertyStatusHistory(
+                property_id=property_obj.id,
+                from_status=old_status,
+                to_status=new_status or old_status,
+                from_price=old_price,
+                to_price=new_price if new_price is not None else old_price,
+                changed_by_user_id=user_id,
+                note=f"Cambio detectado en actualización. {note if note else ''}"
+            )
+            db.add(history)
+
         db.add(property_obj)
         db.commit()
         db.refresh(property_obj)
