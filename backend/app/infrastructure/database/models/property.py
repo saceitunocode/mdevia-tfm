@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import uuid
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Integer, Numeric, Text, Enum as SqlEnum
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Integer, Numeric, Text, Enum as SqlEnum, and_
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.infrastructure.database.base import Base
@@ -41,7 +41,13 @@ class Property(Base):
     # Relationships
     owner_client = relationship("Client", back_populates="owned_properties")
     captor_agent = relationship("User", back_populates="captured_properties")
-    images = relationship("PropertyImage", back_populates="property", cascade="all, delete-orphan", order_by="PropertyImage.position")
+    images = relationship(
+        "PropertyImage", 
+        primaryjoin="and_(Property.id==PropertyImage.property_id, PropertyImage.is_active==True)",
+        back_populates="property", 
+        cascade="all, delete-orphan", 
+        order_by="PropertyImage.position"
+    )
     operations = relationship("Operation", back_populates="property")
     visits = relationship("Visit", back_populates="property")
     calendar_events = relationship("CalendarEvent", back_populates="property")

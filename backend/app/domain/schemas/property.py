@@ -5,7 +5,7 @@ from decimal import Decimal
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 from app.domain.enums import PropertyStatus
-from app.domain.schemas.property_image import PropertyImage
+from app.domain.schemas.property_image import PropertyImage, PropertyImagePublic
 
 class PropertyNoteBase(BaseModel):
     text: str
@@ -84,7 +84,7 @@ class PropertyPublic(BaseModel):
     price_amount: Optional[Decimal] = None
     price_currency: str
     public_description: Optional[str] = None
-    images: List[PropertyImage] = []
+    images: List[PropertyImagePublic] = []
     created_at: datetime
     updated_at: datetime
 
