@@ -4,7 +4,10 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from app.main import app
 from app.infrastructure.database.session import SessionLocal
-from app.infrastructure.database.models import User, Client
+from app.infrastructure.database.models import (
+    User, Client, Property, Visit, Operation, CalendarEvent,
+    PropertyImage, ClientNote, OperationNote, OperationStatusHistory, VisitNote
+)
 from app.domain.enums import UserRole, ClientType
 from app.core import security
 
@@ -20,6 +23,37 @@ def db():
         yield session
     finally:
         session.close()
+
+@pytest.fixture(autouse=True)
+def clean_clients_db(db: Session):
+    # DANGER: Clean ALL tables to avoid validation errors with new schema
+    # Order matters due to Foreign Keys
+    try:
+        # 1. Notes and History (Leafs)
+        db.query(PropertyImage).delete()
+        db.query(ClientNote).delete()
+        db.query(OperationNote).delete()
+        db.query(OperationStatusHistory).delete()
+        db.query(VisitNote).delete()
+        
+        # 2. Activities
+        db.query(CalendarEvent).delete()
+        db.query(Visit).delete()
+        
+        # 3. Operations
+        db.query(Operation).delete()
+        
+        # 4. Properties (depends on Client)
+        db.query(Property).delete()
+        
+        # 5. Clients
+        db.query(Client).delete()
+        
+        db.commit()
+    except Exception as e:
+        print(f"Cleanup Error: {e}")
+        db.rollback()
+
 
 def test_read_clients_api(client: TestClient, db: Session):
     # 1. Create a test agent

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import { ClientForm, type ClientFormValues } from "@/components/clients/ClientForm";
 import { apiRequest } from "@/lib/api";
 
@@ -33,6 +34,9 @@ export default function EditarClientePage() {
         setClient(data);
       } catch (error) {
         console.error("Error al cargar cliente:", error);
+        toast.error("Error al cargar cliente", {
+          description: error instanceof Error ? error.message : "Error desconocido",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -48,10 +52,13 @@ export default function EditarClientePage() {
         method: "PUT",
         body: JSON.stringify(values),
       });
+      toast.success("Cliente actualizado correctamente");
       router.push(`/oficina/clientes/${clientId}`);
     } catch (error) {
-      console.error("Error al actualizar cliente:", error);
-      alert("Error al actualizar el cliente.");
+      // console.error("Error al actualizar cliente:", error);
+      toast.error("Error al actualizar el cliente.", {
+        description: error instanceof Error ? error.message : undefined,
+      });
     } finally {
       setIsSaving(false);
     }

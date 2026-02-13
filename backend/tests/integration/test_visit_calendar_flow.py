@@ -35,13 +35,14 @@ def test_visit_calendar_sync(db_session: Session):
         id=client_id,
         full_name="Visitor Client",
         type=ClientType.BUYER,
-        responsible_agent_id=agent.id
+        responsible_agent_id=agent.id,
+        phone="555-VISIT"
     )
     db_session.add(client)
     
     # Dummy owner for property
     owner_id = uuid.uuid4()
-    owner = Client(id=owner_id, full_name="Owner", type=ClientType.OWNER, responsible_agent_id=agent.id)
+    owner = Client(id=owner_id, full_name="Owner", type=ClientType.OWNER, responsible_agent_id=agent.id, phone="555-OWNER")
     db_session.add(owner)
     db_session.commit()
 

@@ -17,6 +17,7 @@ import {
   Clock,
   FileText
 } from "lucide-react";
+import { toast } from "sonner";
 import { operationService } from "@/services/operationService";
 import { Operation, OperationStatus, OperationType } from "@/types/operation";
 import { format } from "date-fns";
@@ -39,6 +40,9 @@ export default function OperationDetailPage() {
         setOperation(data);
       } catch (error) {
         console.error("Error al cargar operación:", error);
+        toast.error("Error al cargar operación", {
+          description: error instanceof Error ? error.message : "Error desconocido",
+        });
       } finally {
         setIsLoading(false);
       }
@@ -58,9 +62,12 @@ export default function OperationDetailPage() {
       });
       setOperation(updated);
       setNote("");
+      toast.success("Estado actualizado");
     } catch (error) {
-      console.error("Error al actualizar estado:", error);
-      alert("Error al actualizar estado");
+      // console.error("Error al actualizar estado:", error);
+      toast.error("Error al actualizar estado", {
+        description: error instanceof Error ? error.message : "Error inesperado",
+      });
     } finally {
       setIsUpdating(false);
     }
@@ -76,9 +83,12 @@ export default function OperationDetailPage() {
       const updated = await operationService.getOperation(operation.id);
       setOperation(updated);
       setNewNote("");
+      toast.success("Nota añadida");
     } catch (error) {
-      console.error("Error al añadir nota:", error);
-      alert("Error al añadir nota");
+      // console.error("Error al añadir nota:", error);
+      toast.error("Error al añadir nota", {
+        description: error instanceof Error ? error.message : "Error inesperado",
+      });
     } finally {
       setIsAddingNote(false);
     }

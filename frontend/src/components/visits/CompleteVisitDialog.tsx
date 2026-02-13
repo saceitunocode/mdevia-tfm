@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { CheckCircle2, XCircle } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Textarea";
@@ -57,12 +58,27 @@ export function CompleteVisitDialog({
         note: values.note
       });
       form.reset();
+      toast.success("Visita cerrada correctamente");
       onClose();
     } catch (error) {
-      console.error("Error completing visit:", error);
-      form.setError("root", { message: "Error al cerrar la visita" });
+      toast.error("Error al cerrar la visita", {
+        description: error instanceof Error ? error.message : "Error inesperado",
+      });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const onError = (errors: FieldErrors<CompleteFormValues>) => {
+    const errorMessages = Object.values(errors)
+      .map((err) => err?.message)
+      .filter(Boolean)
+      .join(". ");
+    
+    if (errorMessages) {
+      toast.error("Error de validación", {
+        description: errorMessages,
+      });
     }
   };
 
@@ -78,7 +94,7 @@ export function CompleteVisitDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="space-y-4 py-4">
           
           {/* Status Selection */}
           <div className="space-y-2">
@@ -122,11 +138,6 @@ export function CompleteVisitDialog({
                 }
                 className="resize-none h-32"
             />
-            {form.formState.errors.note && (
-                <p className="text-xs text-destructive flex items-center gap-1 mt-1">
-                    <AlertCircle size={12} /> {form.formState.errors.note.message}
-                </p>
-            )}
           </div>
 
           <DialogFooter>

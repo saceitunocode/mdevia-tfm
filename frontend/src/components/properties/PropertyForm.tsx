@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +12,7 @@ import { Select } from "@/components/ui/Select";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { ImageUpload } from "./ImageUpload";
 import { PropertyGalleryManager } from "./PropertyGalleryManager";
+import { toast } from "sonner";
 
 const propertySchema = z.object({
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
@@ -45,7 +46,6 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
   const {
     register,
     handleSubmit,
-    formState: { errors },
   } = useForm<PropertyFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(propertySchema) as any,
@@ -67,6 +67,19 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
     onSubmit(values, selectedImages);
   };
 
+  const onFormError = (errors: FieldErrors<PropertyFormValues>) => {
+    const errorMessages = Object.values(errors)
+      .map((err) => err?.message)
+      .filter(Boolean)
+      .join(". ");
+    
+    if (errorMessages) {
+      toast.error("Error de validación", {
+        description: errorMessages,
+      });
+    }
+  };
+
   return (
     <Card className="w-full max-w-6xl mx-auto shadow-xl border-none">
       <CardHeader className="border-b border-border/50 bg-muted/5">
@@ -74,7 +87,7 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
           {isEditMode ? "Editar Propiedad" : "Datos de la Propiedad"}
         </CardTitle>
       </CardHeader>
-      <form onSubmit={handleSubmit(onFormSubmit)}>
+      <form onSubmit={handleSubmit(onFormSubmit, onFormError)}>
         <CardContent className="p-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Columna Izquierda: Datos del Formulario */}
@@ -88,7 +101,6 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                     className="h-11"
                     {...register("title")}
                   />
-                  {errors.title && <p className="text-sm text-red-700 font-medium">{errors.title.message}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -100,7 +112,6 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                       className="h-11"
                       {...register("address_line1")}
                     />
-                    {errors.address_line1 && <p className="text-sm text-red-700 font-medium">{errors.address_line1.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="city">Ciudad</Label>
@@ -110,7 +121,6 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                       className="h-11"
                       {...register("city")}
                     />
-                    {errors.city && <p className="text-sm text-red-700 font-medium">{errors.city.message}</p>}
                   </div>
                 </div>
 
@@ -123,7 +133,6 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                       className="h-11"
                       {...register("sqm")}
                     />
-                    {errors.sqm && <p className="text-sm text-red-700 font-medium">{errors.sqm.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="rooms">Habitaciones</Label>
@@ -133,7 +142,6 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                       className="h-11"
                       {...register("rooms")}
                     />
-                    {errors.rooms && <p className="text-sm text-red-700 font-medium">{errors.rooms.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="price_amount">Precio (€)</Label>
@@ -143,7 +151,6 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                       className="h-11 font-bold text-primary"
                       {...register("price_amount")}
                     />
-                    {errors.price_amount && <p className="text-sm text-red-700 font-medium">{errors.price_amount.message}</p>}
                   </div>
                 </div>
 
@@ -155,7 +162,6 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                       <option value="SOLD">Vendido</option>
                       <option value="RENTED">Alquilado</option>
                     </Select>
-                    {errors.status && <p className="text-sm text-red-700 font-medium">{errors.status.message}</p>}
                   </div>
                   <div className="flex items-center space-x-2 pt-8">
                     <input
@@ -180,7 +186,6 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                       </option>
                     ))}
                   </Select>
-                  {errors.owner_client_id && <p className="text-sm text-red-700 font-medium">{errors.owner_client_id.message}</p>}
                 </div>
 
                 <div className="space-y-2">

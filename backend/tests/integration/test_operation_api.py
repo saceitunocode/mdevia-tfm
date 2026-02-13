@@ -50,7 +50,8 @@ def test_data(db: Session, test_agent):
         id=client_id,
         full_name="API Test Client",
         type=ClientType.BUYER,
-        responsible_agent_id=test_agent.id
+        responsible_agent_id=test_agent.id,
+        phone="555-API"
     )
     db.add(test_client)
     
@@ -60,7 +61,8 @@ def test_data(db: Session, test_agent):
         id=owner_id,
         full_name="API Test Owner",
         type=ClientType.OWNER,
-        responsible_agent_id=test_agent.id
+        responsible_agent_id=test_agent.id,
+        phone="555-OWNER"
     )
     db.add(test_owner)
     db.commit()

@@ -47,7 +47,8 @@ def test_data(db: Session, test_agent):
         id=uuid.uuid4(),
         full_name="Visit Client",
         type=ClientType.BUYER,
-        responsible_agent_id=test_agent.id
+        responsible_agent_id=test_agent.id,
+        phone="555-0001"
     )
     db.add(test_client)
     
@@ -56,7 +57,8 @@ def test_data(db: Session, test_agent):
         id=uuid.uuid4(),
         full_name="Visit Owner",
         type=ClientType.OWNER,
-        responsible_agent_id=test_agent.id
+        responsible_agent_id=test_agent.id,
+        phone="555-0002"
     )
     db.add(test_owner)
     db.commit()

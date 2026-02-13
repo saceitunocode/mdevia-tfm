@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -114,8 +115,11 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                     setClients(clientsData.map(c => ({ id: c.id, full_name: c.full_name })));
                     setProperties(propsData.map(p => ({ id: p.id, title: p.title })));
                     setHasLoadedData(true);
-                } catch (err) {
-                    console.error("Error fetching data for event dialog:", err);
+                } catch (error) {
+                    console.error("Error fetching data for event dialog:", error);
+                    toast.error("Error cargando datos del evento", {
+                        description: error instanceof Error ? error.message : "Error desconocido"
+                    });
                 }
             };
             fetchData();
@@ -125,10 +129,8 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
   }, [isOpen, defaultDate, form.reset]); // Removed 'form' to avoid re-runs, added 'form.reset' which is stable
 
   const handleSubmit = async (values: EventFormValues) => {
-    console.log("CreateEventDialog: Submitting values:", values);
     setIsSubmitting(true);
     try {
-        // Construct ISO datetimes
         const startIso = new Date(`${values.date}T${values.startTime}:00`).toISOString();
         const endIso = new Date(`${values.date}T${values.endTime}:00`).toISOString();
 
@@ -143,15 +145,27 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
         };
 
         await onSubmit(eventData);
+        toast.success("Evento creado correctamente");
         onClose();
     } catch (error) {
-        console.error("Error submitting form", error);
-        form.setError("root", { 
-            type: "manual",
-            message: "No se pudo guardar el evento. Inténtalo de nuevo."
+        toast.error("Error al crear el evento", {
+            description: error instanceof Error ? error.message : "Error inesperado",
         });
     } finally {
         setIsSubmitting(false);
+    }
+  };
+
+  const onError = (errors: FieldErrors<EventFormValues>) => {
+    const errorMessages = Object.values(errors)
+      .map((err) => err?.message)
+      .filter(Boolean)
+      .join(". ");
+    
+    if (errorMessages) {
+      toast.error("Error de validación", {
+        description: errorMessages,
+      });
     }
   };
 
@@ -162,7 +176,7 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
           <DialogTitle>Nuevo Evento</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="space-y-4 py-4">
           
           {/* Title */}
           <div className="space-y-2">
@@ -171,9 +185,6 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                 {...form.register("title")} 
                 placeholder="Ej: Visita Calle Mayor" 
             />
-            {form.formState.errors.title && (
-                <p className="text-xs text-destructive">{form.formState.errors.title.message}</p>
-            )}
           </div>
 
           {/* Type */}
@@ -195,9 +206,6 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                     </div>
                 ))}
             </div>
-             {form.formState.errors.type && (
-                <p className="text-xs text-destructive">{form.formState.errors.type.message}</p>
-            )}
           </div>
 
           {/* Date & Time Row */}
@@ -212,9 +220,6 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                         className="pl-9" 
                     />
                 </div>
-                {form.formState.errors.date && (
-                    <p className="text-xs text-destructive">{form.formState.errors.date.message}</p>
-                )}
             </div>
             
             <div className="grid grid-cols-2 gap-2">
@@ -242,9 +247,6 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                 </div>
             </div>
           </div>
-          {form.formState.errors.endTime && (
-             <p className="text-xs text-destructive">{form.formState.errors.endTime.message}</p>
-          )}
 
           {/* Description */}
           <div className="space-y-2">
@@ -267,9 +269,6 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                     <option key={c.id} value={c.id}>{c.full_name}</option>
                   ))}
                 </Select>
-                {form.formState.errors.client_id && (
-                  <p className="text-xs text-destructive">{form.formState.errors.client_id.message}</p>
-                )}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Propiedad</label>
@@ -279,16 +278,7 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                     <option key={p.id} value={p.id}>{p.title}</option>
                   ))}
                 </Select>
-                {form.formState.errors.property_id && (
-                  <p className="text-xs text-destructive">{form.formState.errors.property_id.message}</p>
-                )}
               </div>
-            </div>
-          )}
-
-          {form.formState.errors.root && (
-            <div className="p-3 rounded bg-destructive/10 text-destructive text-sm font-medium">
-                {form.formState.errors.root.message}
             </div>
           )}
 

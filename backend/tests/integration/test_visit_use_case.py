@@ -40,7 +40,7 @@ def test_create_visit_use_case(db_session: Session):
     )
     db_session.add(agent)
     
-    test_client = Client(id=uuid.uuid4(), full_name="UC Client", type=ClientType.BUYER, responsible_agent_id=agent_id)
+    test_client = Client(id=uuid.uuid4(), full_name="UC Client", type=ClientType.BUYER, responsible_agent_id=agent_id, phone="555-UC")
     db_session.add(test_client)
     
     prop = Property(

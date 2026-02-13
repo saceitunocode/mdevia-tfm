@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/Button";
@@ -11,11 +11,14 @@ import { Select } from "@/components/ui/Select";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/Card";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const clientSchema = z.object({
   full_name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
   email: z.union([z.literal(""), z.string().email("Email inválido")]).optional(),
-  phone: z.string().optional(),
+  phone: z.string()
+    .min(5, "El teléfono es obligatorio")
+    .regex(/^[\d\s\+\-\(\)]*$/, "El teléfono solo puede contener números y símbolos (+, -, espacio)"),
   type: z.enum(["BUYER", "TENANT", "OWNER"], {
     message: "Selecciona un tipo de cliente"
   }),
@@ -51,8 +54,20 @@ export function ClientForm({ initialValues, onSubmit, isLoading, isEditMode = fa
     },
   });
 
+  const onError = (formErrors: FieldErrors<ClientFormValues>) => {
+    const errorMessages = Object.values(formErrors)
+      .map((error) => error?.message)
+      .filter((msg): msg is string => typeof msg === "string")
+      .join("\n");
+    
+    toast.error("Por favor revisa el formulario", {
+      description: errorMessages || "Hay campos inválidos",
+    });
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    <form onSubmit={handleSubmit(onSubmit as any, onError)}>
       <Card>
         <CardHeader>
           <CardTitle>{isEditMode ? "Editar Cliente" : "Datos del Cliente"}</CardTitle>
@@ -68,9 +83,6 @@ export function ClientForm({ initialValues, onSubmit, isLoading, isEditMode = fa
                 {...register("full_name")}
                 className={errors.full_name ? "border-destructive" : ""}
               />
-              {errors.full_name && (
-                <p className="text-xs text-destructive">{errors.full_name.message}</p>
-              )}
             </div>
 
             <div className="space-y-2">
@@ -84,9 +96,6 @@ export function ClientForm({ initialValues, onSubmit, isLoading, isEditMode = fa
                 <option value="TENANT">Inquilino (Busca alquilar)</option>
                 <option value="OWNER">Propietario (Vende/Alquila)</option>
               </Select>
-              {errors.type && (
-                <p className="text-xs text-destructive">{errors.type.message}</p>
-              )}
             </div>
           </div>
 
@@ -100,17 +109,15 @@ export function ClientForm({ initialValues, onSubmit, isLoading, isEditMode = fa
                 {...register("email")}
                 className={errors.email ? "border-destructive" : ""}
               />
-              {errors.email && (
-                <p className="text-xs text-destructive">{errors.email.message}</p>
-              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Teléfono</Label>
+              <Label htmlFor="phone">Teléfono *</Label>
               <Input
                 id="phone"
                 placeholder="+34 600..."
                 {...register("phone")}
+                className={errors.phone ? "border-destructive" : ""}
               />
             </div>
           </div>

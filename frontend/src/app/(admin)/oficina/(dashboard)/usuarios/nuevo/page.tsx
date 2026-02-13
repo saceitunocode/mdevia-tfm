@@ -6,14 +6,25 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/Card";
-import { ArrowLeft, UserPlus, ShieldAlert } from "lucide-react";
+import { ArrowLeft, UserPlus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { apiRequest } from "@/lib/api";
+import { toast } from "sonner";
+import { z } from "zod";
+
+const userSchema = z.object({
+  full_name: z.string().min(1, "El nombre completo es obligatorio"),
+  email: z.string().email("El correo electrónico no es válido"),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  confirmPassword: z.string()
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Las contraseñas no coinciden",
+  path: ["confirmPassword"],
+});
 
 export default function NuevoUsuarioPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -30,16 +41,16 @@ export default function NuevoUsuarioPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
 
-    if (formData.password !== formData.confirmPassword) {
-      setError("Las contraseñas no coinciden");
-      setIsLoading(false);
-      return;
-    }
+    // Validación local con Zod
+    const validation = userSchema.safeParse(formData);
 
-    if (formData.password.length < 8) {
-      setError("La contraseña debe tener al menos 8 caracteres");
+    if (!validation.success) {
+      const errorMessages = validation.error.flatten().fieldErrors;
+      const errorList = Object.values(errorMessages).flat().join(". ");
+      toast.error("Error de validación", {
+        description: errorList,
+      });
       setIsLoading(false);
       return;
     }
@@ -54,11 +65,17 @@ export default function NuevoUsuarioPage() {
           is_active: true
         }),
       });
+      toast.success("Usuario creado exitosamente");
       router.push("/oficina/usuarios");
       router.refresh();
-    } catch (err) {
+    } catch (err: unknown) {
+      // console.error("Error creating user:", err); // Removed to avoid console noise
+      
       const errorMsg = err instanceof Error ? err.message : "Error al crear el agente";
-      setError(errorMsg);
+
+      toast.error("Error al crear usuario", {
+        description: errorMsg
+      });
     } finally {
       setIsLoading(false);
     }
@@ -87,12 +104,6 @@ export default function NuevoUsuarioPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md flex items-center gap-3 text-sm animate-in fade-in slide-in-from-top-1">
-                <ShieldAlert className="h-4 w-4" />
-                {error}
-              </div>
-            )}
 
             <div className="space-y-2">
               <Label htmlFor="full_name">Nombre Completo</Label>
@@ -154,10 +165,17 @@ export default function NuevoUsuarioPage() {
                 className="flex-1 shadow-lg hover:shadow-primary/20 transition-all font-bold"
                 disabled={isLoading}
               >
-                {isLoading ? "Creando..." : "Registrar Agente"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creando...
+                  </>
+                ) : (
+                  "Registrar Agente"
+                )}
               </Button>
               <Link href="/oficina/usuarios" className="flex-1">
-                <Button variant="outline" className="w-full" disabled={isLoading}>
+                <Button variant="outline" type="button" className="w-full" disabled={isLoading}>
                   Cancelar
                 </Button>
               </Link>

@@ -15,6 +15,7 @@ const outfit = Outfit({
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/context/auth-context";
 import { OfflineBanner } from "@/components/common/OfflineBanner";
+import { Toaster } from "@/components/ui/Toaster";
 
 export const metadata: Metadata = {
   title: "FR Inmobiliaria - Gestión Inmobiliaria",
@@ -40,6 +41,7 @@ export default function RootLayout({
           <AuthProvider>
             <OfflineBanner />
             {children}
+            <Toaster />
           </AuthProvider>
         </ThemeProvider>
       </body>

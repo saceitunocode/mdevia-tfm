@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { ClientForm, type ClientFormValues } from "@/components/clients/ClientForm";
 import { apiRequest } from "@/lib/api";
+import { toast } from "sonner";
 
 export default function NuevoClientePage() {
   const router = useRouter();
@@ -28,10 +29,13 @@ export default function NuevoClientePage() {
         body: JSON.stringify(payload),
       });
 
+      toast.success("Cliente creado correctamente");
       router.push("/oficina/clientes");
     } catch (error) {
-      console.error("Error al crear cliente:", error);
-      alert("Error al crear el cliente. Revisa los datos e inténtalo de nuevo.");
+      // console.error("Error al crear cliente:", error);
+      toast.error("Error al crear el cliente", {
+        description: error instanceof Error ? error.message : "Revisa los datos e inténtalo de nuevo.",
+      });
     } finally {
       setIsLoading(false);
     }

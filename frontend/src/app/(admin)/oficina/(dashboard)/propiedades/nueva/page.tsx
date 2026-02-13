@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { PropertyForm, PropertyFormValues } from "@/components/properties/PropertyForm";
 import { apiRequest } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function NuevaPropiedadPage() {
   const router = useRouter();
@@ -17,6 +18,9 @@ export default function NuevaPropiedadPage() {
         setClients(data);
       } catch (error) {
         console.error("Error al cargar clientes:", error);
+        toast.error("Error al cargar clientes", {
+          description: error instanceof Error ? error.message : "Error desconocido",
+        });
       }
     }
     fetchClients();
@@ -45,11 +49,13 @@ export default function NuevaPropiedadPage() {
         }
       }
 
-      alert("Propiedad guardada correctamente con sus fotos");
+      toast.success("Propiedad guardada correctamente con sus fotos");
       router.push("/oficina/propiedades");
     } catch (error) {
-      console.error("Error al guardar:", error);
-      alert(error instanceof Error ? error.message : "Error al guardar la propiedad");
+      // console.error("Error al guardar:", error);
+      toast.error("Error al guardar la propiedad", {
+        description: error instanceof Error ? error.message : undefined,
+      });
     } finally {
       setIsLoading(false);
     }

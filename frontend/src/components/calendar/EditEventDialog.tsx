@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Clock, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -133,8 +134,11 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
                          form.setValue("property_id", visit.property_id);
                     }
                 }
-            } catch (err) {
-                console.error("Error fetching data for edit event dialog:", err);
+            } catch (error) {
+                console.error("Error fetching data for edit event dialog:", error);
+                toast.error("Error cargando datos del evento", {
+                    description: error instanceof Error ? error.message : "Error desconocido"
+                });
             }
         };
 
@@ -164,15 +168,27 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
         };
 
         await onSubmit(event.id, updates);
+        toast.success("Evento actualizado correctamente");
         onClose();
     } catch (error) {
-        console.error("Error updating event", error);
-        form.setError("root", { 
-            type: "manual",
-            message: "No se pudo actualizar el evento. Inténtalo de nuevo."
+        toast.error("Error al actualizar el evento", {
+            description: error instanceof Error ? error.message : "Error inesperado",
         });
     } finally {
         setIsSubmitting(false);
+    }
+  };
+
+  const onError = (errors: FieldErrors<EventFormValues>) => {
+    const errorMessages = Object.values(errors)
+      .map((err) => err?.message)
+      .filter(Boolean)
+      .join(". ");
+    
+    if (errorMessages) {
+      toast.error("Error de validación", {
+        description: errorMessages,
+      });
     }
   };
 
@@ -183,13 +199,13 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
       setIsDeleting(true);
       try {
           await onDelete(event.id);
+          toast.success("Evento eliminado");
           onClose();
       } catch (error) {
-          console.error("Error deleting event", error);
-           form.setError("root", { 
-            type: "manual",
-            message: "Error al eliminar el evento."
-        });
+          // console.error("Error deleting event", error);
+          toast.error("Error al eliminar el evento", {
+              description: error instanceof Error ? error.message : undefined,
+          });
       } finally {
           setIsDeleting(false);
       }
@@ -206,7 +222,7 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
           <DialogTitle>Editar Evento</DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="space-y-4 py-4">
           
           {/* Title */}
           <div className="space-y-2">
@@ -215,9 +231,6 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
                 {...form.register("title")} 
                 placeholder="Ej: Visita Calle Mayor" 
             />
-            {form.formState.errors.title && (
-                <p className="text-xs text-destructive">{form.formState.errors.title.message}</p>
-            )}
           </div>
 
           {/* Type */}
@@ -280,9 +293,6 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
                 </div>
             </div>
           </div>
-          {form.formState.errors.endTime && (
-             <p className="text-xs text-destructive">{form.formState.errors.endTime.message}</p>
-          )}
 
           {/* Description */}
           <div className="space-y-2">
@@ -310,9 +320,6 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
                     <option key={c.id} value={c.id}>{c.full_name}</option>
                   ))}
                 </Select>
-                {form.formState.errors.client_id && (
-                  <p className="text-xs text-destructive">{form.formState.errors.client_id.message}</p>
-                )}
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">Propiedad</label>
@@ -327,21 +334,12 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
                     <option key={p.id} value={p.id}>{p.title}</option>
                   ))}
                 </Select>
-                {form.formState.errors.property_id && (
-                  <p className="text-xs text-destructive">{form.formState.errors.property_id.message}</p>
-                )}
                 {isLinkedVisit && (
                    <p className="text-[10px] text-muted-foreground mt-1">
                      No se puede cambiar el cliente o propiedad de una visita creada.
                    </p>
                 )}
               </div>
-            </div>
-          )}
-
-          {form.formState.errors.root && (
-            <div className="p-3 rounded bg-destructive/10 text-destructive text-sm font-medium">
-                {form.formState.errors.root.message}
             </div>
           )}
 

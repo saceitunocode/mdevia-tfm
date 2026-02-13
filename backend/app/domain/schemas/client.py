@@ -7,7 +7,7 @@ from app.domain.enums import ClientType
 class ClientBase(BaseModel):
     full_name: str
     email: Optional[str] = None
-    phone: Optional[str] = None
+    phone: str
     type: ClientType
     is_active: bool = True
 
