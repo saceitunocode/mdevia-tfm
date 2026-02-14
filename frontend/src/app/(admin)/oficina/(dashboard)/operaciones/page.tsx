@@ -5,7 +5,8 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/Button";
-import { Plus, Briefcase, ArrowRight, User, Building2, MapPin, LayoutGrid, List as ListIcon } from "lucide-react";
+import { Plus, Briefcase, ArrowRight, User, Building2, MapPin, LayoutGrid, List as ListIcon, Filter } from "lucide-react";
+import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
 import { operationService } from "@/services/operationService";
 import { Operation, OperationStatus, OperationType } from "@/types/operation";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,8 @@ export default function AdminOperacionesPage() {
   const [operations, setOperations] = useState<Operation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("list");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("ALL");
 
   useEffect(() => {
     const fetchOperations = async () => {
@@ -58,6 +61,18 @@ export default function AdminOperacionesPage() {
     fetchOperations();
   }, []);
 
+  const filteredOperations = operations.filter(op => {
+    const matchesSearch = 
+      op.property?.title?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      op.property?.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      op.client?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      op.agent?.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterStatus === "ALL" || op.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       
@@ -68,32 +83,6 @@ export default function AdminOperacionesPage() {
           <p className="text-sm text-muted-foreground mt-1">Seguimiento de ventas y alquileres en curso.</p>
         </div>
         <div className="flex items-center gap-2">
-           <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg border border-border mr-2">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={cn(
-                  "p-2 rounded-md transition-all duration-200",
-                  viewMode === "grid" 
-                    ? "bg-background shadow-sm text-primary" 
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                title="Vista Cuadrícula"
-              >
-                <LayoutGrid size={18} />
-              </button>
-              <button
-                onClick={() => setViewMode("list")}
-                className={cn(
-                  "p-2 rounded-md transition-all duration-200",
-                  viewMode === "list" 
-                    ? "bg-background shadow-sm text-primary" 
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-                title="Vista Lista"
-              >
-                <ListIcon size={18} />
-              </button>
-           </div>
            <Link href="/oficina/operaciones/nueva">
              <Button className="shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
                <Plus className="mr-2 h-4 w-4" /> Nueva Operación
@@ -101,6 +90,59 @@ export default function AdminOperacionesPage() {
            </Link>
         </div>
       </div>
+
+
+
+      <DashboardToolbar
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        placeholder="Buscar por propiedad, cliente o agente..."
+      >
+        <div className="flex items-center gap-4">
+          <div className="relative w-full sm:w-auto">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <select 
+              className="pl-9 pr-8 py-2 border border-input rounded-lg bg-background text-sm focus:ring-primary focus:border-primary appearance-none shadow-sm cursor-pointer hover:bg-muted/50 transition-colors w-full sm:w-48"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+            >
+              <option value="ALL">Todos los estados</option>
+              <option value={OperationStatus.INTEREST}>Interés</option>
+              <option value={OperationStatus.NEGOTIATION}>Negociación</option>
+              <option value={OperationStatus.RESERVED}>Reservado</option>
+              <option value={OperationStatus.CLOSED}>Cerrado</option>
+              <option value={OperationStatus.CANCELLED}>Cancelado</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border border-border">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={cn(
+                "p-2 rounded-md transition-all duration-200",
+                viewMode === "grid" 
+                  ? "bg-background shadow-sm text-primary" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              title="Vista Cuadrícula"
+            >
+              <LayoutGrid size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={cn(
+                "p-2 rounded-md transition-all duration-200",
+                viewMode === "list" 
+                  ? "bg-background shadow-sm text-primary" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              title="Vista Lista"
+            >
+              <ListIcon size={18} />
+            </button>
+          </div>
+        </div>
+      </DashboardToolbar>
 
       {/* Content */}
       <div className={cn("space-y-6", viewMode === "list" && "bg-card rounded-xl border border-border shadow-sm overflow-hidden")}>
@@ -132,11 +174,11 @@ export default function AdminOperacionesPage() {
         ) : viewMode === "grid" ? (
           /* Grid View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {operations.map((op) => (
+            {filteredOperations.map((op) => (
               <div key={op.id} className="group bg-card hover:shadow-lg transition-all duration-300 rounded-xl border border-border overflow-hidden flex flex-col">
                 {/* Card Header (Image/Icon placeholder) */}
                 <div className="relative h-40 bg-muted/30 flex items-center justify-center overflow-hidden">
-                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
+                   <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10" />
                    <Building2 className="h-12 w-12 text-muted-foreground/30" />
                    
                    <div className="absolute top-3 right-3 z-20">
@@ -205,8 +247,8 @@ export default function AdminOperacionesPage() {
                    <th className="px-6 py-4 text-right">Acción</th>
                  </tr>
                </thead>
-               <tbody className="divide-y divide-border/50">
-                 {operations.map((op) => (
+                <tbody className="divide-y divide-border/50">
+                  {filteredOperations.map((op) => (
                    <tr key={op.id} className="hover:bg-muted/30 transition-colors group">
                      {/* ... (Existing table rows) ... */}
                      <td className="px-6 py-4">

@@ -4,7 +4,7 @@ from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Integer, N
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 from app.infrastructure.database.base import Base
-from app.domain.enums import PropertyStatus
+from app.domain.enums import PropertyStatus, PropertyType, OperationType
 
 class Property(Base):
     __tablename__ = "properties"
@@ -18,9 +18,12 @@ class Property(Base):
     postal_code = Column(String, nullable=True)
     sqm = Column(Integer, nullable=False)
     rooms = Column(Integer, nullable=False)
+    baths = Column(Integer, default=1, nullable=False)
     floor = Column(Integer, nullable=True)
     has_elevator = Column(Boolean, default=False, nullable=False)
     status = Column(SqlEnum(PropertyStatus), default=PropertyStatus.AVAILABLE, nullable=False, index=True)
+    property_type = Column(SqlEnum(PropertyType), default=PropertyType.APARTMENT, nullable=False, index=True)
+    operation_type = Column(SqlEnum(OperationType), default=OperationType.SALE, nullable=False, index=True)
     
     # Relations
     owner_client_id = Column(UUID(as_uuid=True), ForeignKey("clients.id"), nullable=False, index=True)
@@ -33,6 +36,7 @@ class Property(Base):
     price_amount = Column(Numeric(12, 2), nullable=True)
     price_currency = Column(String(3), default="EUR", nullable=False)
     is_published = Column(Boolean, default=True, nullable=False)
+    is_featured = Column(Boolean, default=False, nullable=False)
     
     is_active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False)

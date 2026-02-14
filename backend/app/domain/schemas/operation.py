@@ -1,8 +1,12 @@
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 from app.domain.enums import OperationType, OperationStatus
+from app.domain.schemas.summaries import ClientSummary, PropertySummary, UserSummary
+
+if TYPE_CHECKING:
+    from app.domain.schemas.visit import VisitPublic
 
 # History Schema
 class OperationStatusHistoryBase(BaseModel):
@@ -15,6 +19,21 @@ class OperationStatusHistoryBase(BaseModel):
 
 class OperationStatusHistoryPublic(OperationStatusHistoryBase):
     id: UUID
+    model_config = ConfigDict(from_attributes=True)
+
+# Note Schema for Operations
+class OperationNoteBase(BaseModel):
+    operation_id: UUID
+    text: str
+
+class OperationNoteCreate(BaseModel):
+    text: str
+
+class OperationNotePublic(OperationNoteBase):
+    id: UUID
+    author_user_id: UUID
+    author: Optional[UserSummary] = None
+    created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
 # Operation Schemas
@@ -33,23 +52,6 @@ class OperationUpdate(BaseModel):
     status: Optional[OperationStatus] = None
     note: Optional[str] = None
 
-# Nested summaries for UI
-class ClientSummary(BaseModel):
-    id: UUID
-    full_name: str
-    model_config = ConfigDict(from_attributes=True)
-
-class PropertySummary(BaseModel):
-    id: UUID
-    title: str
-    city: str
-    model_config = ConfigDict(from_attributes=True)
-
-class UserSummary(BaseModel):
-    id: UUID
-    full_name: str
-    model_config = ConfigDict(from_attributes=True)
-
 class OperationPublic(OperationBase):
     id: UUID
     is_active: bool
@@ -62,20 +64,10 @@ class OperationPublic(OperationBase):
     agent: Optional[UserSummary] = None
     status_history: List[OperationStatusHistoryPublic] = []
     notes: List[OperationNotePublic] = []
+    visits: List["VisitPublic"] = []
     
     model_config = ConfigDict(from_attributes=True)
 
-# Note Schema for Operations
-class OperationNoteBase(BaseModel):
-    operation_id: UUID
-    text: str
-
-class OperationNoteCreate(BaseModel):
-    text: str
-
-class OperationNotePublic(OperationNoteBase):
-    id: UUID
-    author_user_id: UUID
-    author: Optional[UserSummary] = None
-    created_at: datetime
-    model_config = ConfigDict(from_attributes=True)
+# For late evaluation
+from app.domain.schemas.visit import VisitPublic
+OperationPublic.model_rebuild()

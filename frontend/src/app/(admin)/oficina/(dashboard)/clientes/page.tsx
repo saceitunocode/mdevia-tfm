@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { Plus, Users, Mail, Phone, Search, Filter, FileEdit, Eye, TrendingUp, Zap, Star, Clock } from "lucide-react";
+import { Plus, Users, Mail, Phone, Filter, FileEdit, Eye, TrendingUp, Zap, Star, Clock } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
 
 interface Client {
   id: string;
@@ -158,35 +159,26 @@ export default function AdminClientesPage() {
       </div>
 
       {/* Filters & Search */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm mt-8">
-        <div className="relative w-full sm:w-96">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <input
-            type="text"
-            placeholder="Buscar por nombre o email..."
-            className="block w-full pl-10 pr-3 py-2 border border-input rounded-lg leading-5 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-all shadow-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      {/* Filters & Search */}
+      <DashboardToolbar
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        placeholder="Buscar por nombre o email..."
+      >
+        <div className="relative w-full sm:w-auto">
+           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+           <select 
+             className="pl-9 pr-8 py-2 border border-input rounded-lg bg-background text-sm focus:ring-primary focus:border-primary appearance-none shadow-sm cursor-pointer hover:bg-muted/50 transition-colors w-full sm:w-48"
+             value={filterType}
+             onChange={(e) => setFilterType(e.target.value)}
+           >
+             <option value="ALL">Todos los tipos</option>
+             <option value="BUYER">Compradores</option>
+             <option value="OWNER">Propietarios</option>
+             <option value="TENANT">Inquilinos</option>
+           </select>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="relative">
-             <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-             <select 
-               className="pl-9 pr-8 py-2 border border-input rounded-lg bg-background text-sm focus:ring-primary focus:border-primary appearance-none shadow-sm cursor-pointer hover:bg-muted/50 transition-colors w-full"
-               value={filterType}
-               onChange={(e) => setFilterType(e.target.value)}
-             >
-               <option value="ALL">Todos los tipos</option>
-               <option value="BUYER">Compradores</option>
-               <option value="OWNER">Propietarios</option>
-               <option value="TENANT">Inquilinos</option>
-             </select>
-          </div>
-        </div>
-      </div>
+      </DashboardToolbar>
 
       {/* Table Content */}
       <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">

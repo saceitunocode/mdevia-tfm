@@ -4,6 +4,7 @@ from datetime import datetime
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 from app.domain.enums import VisitStatus
+from app.domain.schemas.summaries import ClientSummary, PropertySummary, UserSummary
 
 # --- Visit Note Schemas ---
 
@@ -47,24 +48,11 @@ class VisitPublic(VisitBase):
     created_at: datetime
     updated_at: datetime
     
-    # Use TYPE_CHECKING to avoid circular imports if any, or just local imports
-    # In this case, we use the class names as defined in their modules
-    
-    client: Optional["Client"] = None
-    property: Optional["PropertyPublic"] = None
-    agent: Optional["User"] = None
+    # Use summaries instead of full models to break circularity
+    client: Optional[ClientSummary] = None
+    property: Optional[PropertySummary] = None
+    agent: Optional[UserSummary] = None
     
     notes: List[VisitNotePublic] = []
 
     model_config = ConfigDict(from_attributes=True)
-
-# For late evaluation of string types
-from app.domain.schemas.client import Client
-from app.domain.schemas.property import PropertyPublic
-from app.domain.schemas.user import User
-
-try:
-    VisitPublic.model_rebuild(_types_namespace={"Client": Client, "PropertyPublic": PropertyPublic, "User": User})
-except Exception:
-    # This might happen during circular imports, Pydantic will try again when needed
-    pass

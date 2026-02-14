@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Menu, X, Home, Search, Info, Phone } from "lucide-react";
 import { useState } from "react";
@@ -18,9 +19,18 @@ export function PublicNavbar() {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="w-full flex h-16 items-center justify-between px-6 lg:px-10">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
+          <div className="relative w-8 h-8 mr-1">
+             <Image 
+               src="/logo.png" 
+               alt="FR Inmobiliaria Logo" 
+               fill
+               className="object-contain"
+               priority
+             />
+          </div>
           <div className="flex items-center text-2xl font-heading font-bold text-primary tracking-tighter uppercase">
             FR <span className="text-foreground ml-1">Inmobiliaria</span>
           </div>

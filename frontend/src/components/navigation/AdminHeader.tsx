@@ -23,7 +23,7 @@ export function AdminHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 md:px-8 py-3 flex items-center justify-between transition-all">
+      <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 md:px-8 h-16 flex items-center justify-between transition-all">
         <div className="flex items-center gap-3">
           {/* Mobile Menu Button */}
           <button 
@@ -69,7 +69,7 @@ export function AdminHeader() {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-[100] flex md:hidden">
+        <div className="fixed inset-0 z-100 flex md:hidden">
           {/* Backdrop */}
           <div 
             className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in"

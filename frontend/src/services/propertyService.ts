@@ -11,7 +11,10 @@ export interface PropertyFilterParams {
   rooms?: number;
   baths?: number;
   status?: string;
-  type?: string[]; // Multi-select
+  is_featured?: boolean;
+  property_type?: string | string[]; 
+  operation_type?: string;
+  has_elevator?: boolean;
   amenities?: string[];
   limit?: number;
   offset?: number;
@@ -30,10 +33,16 @@ export const propertyService = {
     if (params.rooms) searchParams.set("rooms", params.rooms.toString());
     if (params.baths) searchParams.set("baths", params.baths.toString());
     if (params.status) searchParams.set("status", params.status);
-    
-    if (params.type && params.type.length > 0) {
-      params.type.forEach(t => searchParams.append("property_type", t));
+    if (params.is_featured !== undefined) searchParams.set("is_featured", params.is_featured.toString());
+    if (params.property_type) {
+      if (Array.isArray(params.property_type)) {
+        params.property_type.forEach(t => searchParams.append("property_type", t));
+      } else {
+        searchParams.set("property_type", params.property_type);
+      }
     }
+    if (params.operation_type) searchParams.set("operation_type", params.operation_type);
+    if (params.has_elevator !== undefined) searchParams.set("has_elevator", params.has_elevator.toString());
 
     if (params.amenities && params.amenities.length > 0) {
        params.amenities.forEach(a => searchParams.append("amenities", a));

@@ -19,6 +19,8 @@ db-down: ## Detiene la base de datos
 	@docker compose stop db
 
 db-seed: ## Puebla la base de datos con datos maestro e iniciales
+	@echo "🌱 Reseteando base de datos..."
+	@cd backend && . venv/bin/activate && python3 scripts/reset_db.py
 	@echo "🌱 Poblando base de datos..."
 	@cd backend && . venv/bin/activate && python3 scripts/seed.py
 

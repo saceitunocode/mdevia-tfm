@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { ADMIN_MENU_ITEMS } from "@/config/admin-navigation";
-import { LogOut, Building2 } from "lucide-react";
+import Image from "next/image";
+import { LogOut } from "lucide-react";
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -23,14 +24,20 @@ export function AdminSidebar() {
     <aside className="hidden md:flex flex-col w-64 bg-card border-r border-border h-screen sticky top-0 transition-colors duration-300 z-20">
       {/* Brand Header */}
       <div className="h-16 flex items-center px-6 border-b border-border">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded bg-primary text-primary-foreground p-0.5 overflow-hidden flex items-center justify-center shadow-sm">
-             <Building2 className="w-5 h-5" />
+        <Link href="/oficina/dashboard" className="flex items-center gap-3">
+          <div className="relative w-8 h-8">
+             <Image 
+               src="/logo.png" 
+               alt="FR Inmobiliaria Logo" 
+               fill
+               className="object-contain"
+               priority
+             />
           </div>
           <span className="font-bold text-lg tracking-tight text-foreground font-heading">
             FR Inmobiliaria
           </span>
-        </div>
+        </Link>
       </div>
 
       {/* Main Navigation */}

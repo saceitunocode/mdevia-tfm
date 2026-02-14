@@ -13,8 +13,9 @@ export interface PropertyCardData {
   price_currency: string;
   sqm: number;
   rooms: number;
-  baths?: number; // Added to match design
+  baths: number;
   status: string;
+  operation_type: string;
   is_published: boolean;
   images: { id: string; public_url: string; is_cover: boolean; alt_text?: string }[];
   agent?: { name: string; avatar_url?: string }; // Added for agent info
@@ -32,10 +33,17 @@ function formatPrice(amount: string | number | null, currency: string): string {
 
 export function PropertyCard({ property }: { property: PropertyCardData }) {
   const coverImage = property.images.find((img) => img.is_cover) ?? property.images[0];
-  const isForRent = property.status === "RENT";
+  const isForRent = property.operation_type === "RENT";
 
   return (
-    <Card className="group overflow-hidden rounded-xl border border-border/50 bg-card hover:shadow-xl dark:hover:shadow-black/20 transition-all duration-300 flex flex-col h-full">
+    <Card className="group relative overflow-hidden rounded-xl border border-border/50 bg-card hover:shadow-xl dark:hover:shadow-black/20 transition-all duration-300 flex flex-col h-full">
+      {/* Absolute Link overlay for the whole card */}
+      <Link 
+        href={`/propiedades/${property.id}`} 
+        className="absolute inset-0 z-10" 
+        aria-label={`Ver detalles de ${property.title}`}
+      />
+
       {/* Image Container */}
       <div className="relative h-60 overflow-hidden bg-muted">
         {coverImage ? (
@@ -53,19 +61,22 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
         )}
         
         {/* Status Badge */}
-        <div className="absolute top-4 left-4 z-10">
+        <div className="absolute top-4 left-4 z-20">
           <span className={`px-3 py-1 text-xs font-bold uppercase rounded-md shadow-sm tracking-wide text-white ${isForRent ? 'bg-secondary' : 'bg-primary'}`}>
             {isForRent ? "Alquiler" : "Venta"}
           </span>
         </div>
 
-        {/* Favorite Button (Mock) */}
-        <button className="absolute top-4 right-4 p-2 bg-white/90 dark:bg-black/50 backdrop-blur-sm rounded-full text-foreground/70 hover:text-red-500 transition-colors z-10">
+        {/* Favorite Button - Higher z-index to be clickable */}
+        <button 
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); /* handle favorite logic */ }}
+          className="absolute top-4 right-4 p-2 bg-white/90 dark:bg-black/50 backdrop-blur-sm rounded-full text-foreground/70 hover:text-red-500 transition-colors z-20"
+        >
           <Heart className="h-5 w-5" />
         </button>
 
         {/* Price Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-4 pt-12">
+        <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 z-20">
            <span className="text-white font-bold text-2xl shadow-sm text-shadow">
              {formatPrice(property.price_amount, property.price_currency)}
              {isForRent && <span className="text-sm font-normal opacity-80 text-white/90"> /mes</span>}
@@ -98,31 +109,16 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
            <div className="w-px h-8 bg-border/50" />
            <div className="flex items-center gap-1.5" title="Baños">
               <Bath className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium"><b className="text-foreground">{property.baths || 1}</b> Baños</span>
+              <span className="text-sm font-medium"><b className="text-foreground">{property.baths}</b> Baños</span>
            </div>
         </div>
 
-        {/* Footer: Agent & CTA */}
-        <div className="mt-auto pt-4 border-t border-border/50 flex items-center justify-between">
-           <div className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-full bg-muted overflow-hidden border border-border">
-                 {/* Placeholder Avatar */}
-                 {property.agent?.avatar_url ? (
-                    <Image src={property.agent.avatar_url} alt="Agent" width={32} height={32} />
-                 ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-bold text-xs">
-                       AG
-                    </div>
-                 )}
-              </div>
-              <span className="text-xs font-medium text-muted-foreground">
-                 {property.agent?.name || "Agente FR"}
-              </span>
+        {/* Footer: CTA */}
+        <div className="mt-auto pt-4 border-t border-border/50">
+           <div className="z-20 w-full px-4 py-2.5 bg-primary text-primary-foreground text-sm font-semibold rounded-lg shadow-sm group-hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+             Ver Detalles
+             <span className="group-hover:translate-x-1 transition-transform">→</span>
            </div>
-           
-           <Link href={`/propiedades/${property.id}`} className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors flex items-center">
-             Ver Detalles →
-           </Link>
         </div>
       </div>
     </Card>

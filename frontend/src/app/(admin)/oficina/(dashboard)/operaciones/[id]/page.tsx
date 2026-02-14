@@ -15,13 +15,24 @@ import {
   History, 
   Briefcase,
   Clock,
-  FileText
+  FileText,
+  Eye,
+  CheckCircle2,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 import { operationService } from "@/services/operationService";
 import { Operation, OperationStatus, OperationType } from "@/types/operation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+
+const CalendarEventIcon = ({ status }: { status: string }) => {
+  switch (status) {
+    case 'DONE': return <CheckCircle2 className="h-5 w-5" />;
+    case 'CANCELLED': return <X className="h-5 w-5" />;
+    default: return <Clock className="h-5 w-5" />;
+  }
+};
 
 export default function OperationDetailPage() {
   const { id } = useParams();
@@ -264,7 +275,62 @@ export default function OperationDetailPage() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Related Visits Card */}
+          <Card className="border-primary/10 shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Eye size={18} className="text-primary" />
+                Visitas Relacionadas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4">
+              {operation.visits && operation.visits.length > 0 ? (
+                <div className="space-y-4">
+                  {operation.visits.map((visit) => (
+                    <div key={visit.id} className="flex items-start gap-4 p-4 rounded-lg bg-muted/20 border border-border/50">
+                      <div className="h-10 w-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                        <CalendarEventIcon status={visit.status} />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <p className="font-bold text-sm">
+                            {format(new Date(visit.scheduled_at), "d 'de' MMMM, yyyy", { locale: es })}
+                          </p>
+                          <Badge variant={visit.status === 'DONE' ? 'default' : 'outline'} className="text-[10px] h-5 px-1.5 uppercase tracking-wider">
+                            {visit.status === 'DONE' ? 'Realizada' : visit.status}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock size={12} />
+                          {format(new Date(visit.scheduled_at), "HH:mm")}
+                          <span className="mx-1">•</span>
+                          <User size={12} />
+                          {visit.agent?.full_name || "Agente"}
+                        </div>
+                        {visit.notes && visit.notes.length > 0 && (
+                          <div className="mt-2 text-sm text-foreground/80 bg-background/50 p-2 rounded border border-border/30 italic">
+                            &quot;{visit.notes[0].text}&quot;
+                          </div>
+                        )}
+                      </div>
+                      <Link href={`/oficina/agenda?visitId=${visit.id}`}>
+                        <Button variant="ghost" size="sm" className="h-8 px-2">
+                          Ver en Agenda
+                        </Button>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10 text-muted-foreground bg-muted/10 rounded-lg border border-dashed border-border">
+                  <p className="text-sm font-medium">No se han registrado visitas para este cliente en esta propiedad.</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
+
 
         {/* Sidebar Info */}
         <div className="space-y-6">
