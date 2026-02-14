@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Plus, UserCog, Mail, Shield, User, Search } from "lucide-react";
+import { Plus, UserCog, Mail, Shield } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/utils";
 

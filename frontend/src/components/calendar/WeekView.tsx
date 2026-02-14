@@ -14,10 +14,10 @@ interface WeekViewProps {
 }
 
 const EVENT_TYPE_COLORS: Record<EventType, string> = {
-  [EventType.VISIT]: "bg-blue-500/90 text-white border-blue-600",
-  [EventType.NOTE]: "bg-yellow-500/90 text-white border-yellow-600",
-  [EventType.CAPTATION]: "bg-indigo-500/90 text-white border-indigo-600",
-  [EventType.REMINDER]: "bg-gray-500/90 text-white border-gray-600",
+  [EventType.VISIT]: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-800",
+  [EventType.NOTE]: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800",
+  [EventType.CAPTATION]: "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-200 dark:border-purple-800",
+  [EventType.REMINDER]: "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 dark:bg-gray-800/60 dark:text-gray-300 dark:border-gray-700",
 };
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -45,43 +45,43 @@ export function WeekView({ currentDate, events, onTimeSlotClick, onEventClick }:
   };
 
   return (
-    <div className="flex flex-col h-full rounded-lg border overflow-hidden bg-background">
-      {/* Days Header */}
-      <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b bg-muted/30 sticky top-0 z-10">
-        <div className="border-r p-2" /> {/* Spacer for time column */}
-        {weekDays.map((day) => {
-          const isTodayDate = isToday(day);
-          return (
-            <div
-              key={day.toString()}
-              className={cn(
-                "text-center py-3 border-r last:border-r-0",
-                isTodayDate && "bg-primary/5"
-              )}
-            >
-              <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                {format(day, "EEE", { locale: es })}
-              </div>
+    <div className="flex flex-col h-full rounded-lg border border-border/50 overflow-hidden bg-background">
+      <div className="flex-1 overflow-y-auto relative scrollbar-hide">
+        {/* Days Header - Sticky */}
+        <div className="grid grid-cols-[60px_repeat(7,1fr)] border-b border-border/50 bg-muted/30 sticky top-0 z-30 shadow-sm backdrop-blur-sm">
+          <div className="border-r border-border/50 p-2" /> {/* Spacer for time column */}
+          {weekDays.map((day) => {
+            const isTodayDate = isToday(day);
+            return (
               <div
+                key={day.toString()}
                 className={cn(
-                  "text-lg font-semibold mt-0.5 w-9 h-9 flex items-center justify-center rounded-full mx-auto",
-                  isTodayDate
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground"
+                  "text-center py-3 border-r border-border/50 last:border-r-0",
+                  isTodayDate && "bg-primary/5"
                 )}
               >
-                {format(day, "d")}
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                  {format(day, "EEE", { locale: es })}
+                </div>
+                <div
+                  className={cn(
+                    "text-lg font-semibold mt-0.5 w-9 h-9 flex items-center justify-center rounded-full mx-auto transition-colors",
+                    isTodayDate
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-foreground"
+                  )}
+                >
+                  {format(day, "d")}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
-      {/* Time Grid */}
-      <div className="flex-1 overflow-y-auto">
+        {/* Time Grid - Body */}
         <div className="grid grid-cols-[60px_repeat(7,1fr)] min-h-[1440px]">
           {/* Time Labels Column */}
-          <div className="relative border-r">
+          <div className="relative border-r border-border/50 bg-background/50">
             {HOURS.map((hour) => (
               <div
                 key={hour}
@@ -104,8 +104,8 @@ export function WeekView({ currentDate, events, onTimeSlotClick, onEventClick }:
               <div
                 key={day.toString()}
                 className={cn(
-                  "relative border-r last:border-r-0",
-                  isTodayDate && "bg-primary/[0.02]"
+                  "relative border-r border-border/50 last:border-r-0",
+                  isTodayDate && "bg-primary/5"
                 )}
               >
                 {/* Hour grid lines */}

@@ -2,11 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { 
-  Home, Users, Calendar, Briefcase, 
-  ArrowUpRight, Clock, MapPin, 
-  MoreHorizontal, Building2, TrendingUp,
-  CheckCircle2, AlertCircle, FileText,
-  BarChart3, Settings, MoreVertical, Search, Bell
+  Users, Calendar, Briefcase, 
+  ArrowUpRight, MapPin, 
+  MoreHorizontal, Building2, TrendingUp
 } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import Link from "next/link";

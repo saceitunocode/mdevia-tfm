@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { ADMIN_MENU_ITEMS } from "@/config/admin-navigation";
-import { LogOut, Building2, BarChart3, Settings } from "lucide-react";
+import { LogOut, Building2 } from "lucide-react";
 
 export function AdminSidebar() {
   const pathname = usePathname();
@@ -36,7 +36,7 @@ export function AdminSidebar() {
       {/* Main Navigation */}
       <div className="flex-1 flex flex-col overflow-y-auto py-6 px-3">
         <nav className="space-y-1">
-          {filteredItems.map((item, index) => {
+          {filteredItems.map((item) => {
             const isActive = pathname.startsWith(item.href);
             const isDashboard = item.name === "Dashboard";
             

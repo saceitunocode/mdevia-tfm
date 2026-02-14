@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { ADMIN_MENU_ITEMS } from "@/config/admin-navigation";
-import { Menu, X } from "lucide-react";
 
 // Using a simple custom overlay for the menu to avoid dependency on a Sheet component if not present.
 // Checking file list, `Sheet.tsx` does NOT exist in `components/ui` list from step 29.

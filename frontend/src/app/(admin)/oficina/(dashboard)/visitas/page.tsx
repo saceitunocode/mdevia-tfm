@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { MapPin, Plus, Search, Filter, Calendar, User, Building2, CheckCircle2, XCircle, Clock, Check, ArrowRight } from "lucide-react";
+import { MapPin, Plus, Search, Filter, Calendar, Building2, CheckCircle2, XCircle, Clock, Check, ArrowRight } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { RegisterVisitDialog } from "@/components/visits/RegisterVisitDialog";
 import { CompleteVisitDialog } from "@/components/visits/CompleteVisitDialog";
@@ -13,7 +11,6 @@ import { visitService } from "@/services/visitService";
 import { Input } from "@/components/ui/Input";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { cn } from "@/lib/utils";
 
 export default function VisitasPage() {
   const [visits, setVisits] = useState<Visit[]>([]);

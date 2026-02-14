@@ -5,7 +5,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/Button";
-import { Plus, Briefcase, Calendar, ArrowRight, User, Building2, MapPin, LayoutGrid, List as ListIcon } from "lucide-react";
+import { Plus, Briefcase, ArrowRight, User, Building2, MapPin, LayoutGrid, List as ListIcon } from "lucide-react";
 import { operationService } from "@/services/operationService";
 import { Operation, OperationStatus, OperationType } from "@/types/operation";
 import { cn } from "@/lib/utils";
