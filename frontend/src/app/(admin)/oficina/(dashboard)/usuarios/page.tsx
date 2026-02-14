@@ -3,9 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Plus, UserCog, Mail, Shield } from "lucide-react";
+import { Plus, UserCog, Mail, Shield, User, Search } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -39,84 +38,113 @@ export default function AdminUsuariosPage() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-heading font-bold">Gestión de Usuarios</h1>
-          <p className="text-muted-foreground font-medium">Administra el equipo de agentes y sus permisos.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Gestión de Usuarios</h1>
+          <p className="text-sm text-muted-foreground mt-1">Administra el equipo de agentes y sus permisos.</p>
         </div>
         <Link href="/oficina/usuarios/nuevo">
-          <Button className="shadow-lg hover:shadow-xl transition-all duration-300">
+          <Button className="shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
             <Plus className="mr-2 h-4 w-4" /> Nuevo Agente
           </Button>
         </Link>
       </div>
 
-      {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="animate-pulse bg-muted h-20 border-none" />
-          ))}
-        </div>
-      ) : users.length === 0 ? (
-        <Card className="border-2 border-dashed border-muted text-center py-12">
-          <CardContent className="space-y-4 pt-6">
-            <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-              <UserCog size={24} />
-            </div>
-            <p className="font-semibold text-lg text-muted-foreground">No hay usuarios registrados</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {users.map((user) => (
-            <Card key={user.id} className="hover:shadow-md transition-all duration-300 overflow-hidden group">
-              <CardContent className="p-0">
-                <div className="flex items-center justify-between p-4 px-6">
-                  <div className="flex items-center gap-4">
-                    <div className={cn(
-                      "h-10 w-10 rounded-full flex items-center justify-center font-bold",
-                      user.role === 'ADMIN' ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'
-                    )}>
-                      {user.full_name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-lg">{user.full_name}</span>
-                        {user.role === "ADMIN" && (
-                          <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-200 border-none text-[10px] h-4">
-                            ADMIN
-                          </Badge>
-                        )}
-                        {!user.is_active && (
-                          <Badge variant="destructive" className="text-[10px] h-4">INACTIVO</Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Mail className="h-3 w-3" />
-                          {user.email}
+      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+        {isLoading ? (
+          <div className="p-8 space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-4 animate-pulse">
+                 <div className="h-10 w-10 rounded-full bg-muted" />
+                 <div className="flex-1 space-y-2 py-1">
+                    <div className="h-4 w-1/3 bg-muted rounded" />
+                    <div className="h-3 w-1/4 bg-muted rounded" />
+                 </div>
+              </div>
+            ))}
+          </div>
+        ) : users.length === 0 ? (
+          <div className="text-center py-16 px-4">
+             <div className="mx-auto w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground mb-4">
+               <UserCog className="h-8 w-8 opacity-50" />
+             </div>
+             <h3 className="text-lg font-semibold text-foreground">No hay usuarios registrados</h3>
+             <p className="text-muted-foreground mt-1 max-w-sm mx-auto">
+               Comienza agregando los miembros de tu equipo.
+             </p>
+             <Link href="/oficina/usuarios/nuevo">
+               <Button variant="outline" className="mt-4">Nuevo Agente</Button>
+             </Link>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left">
+              <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs border-b border-border">
+                <tr>
+                  <th className="px-6 py-4">Usuario</th>
+                  <th className="px-6 py-4">Rol</th>
+                  <th className="px-6 py-4">Estado</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                {users.map((user) => (
+                  <tr key={user.id} className="hover:bg-muted/30 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "h-10 w-10 rounded-full flex items-center justify-center font-bold shrink-0",
+                          user.role === 'ADMIN' 
+                            ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" 
+                            : "bg-primary/10 text-primary"
+                        )}>
+                          {(user.full_name || "U").charAt(0).toUpperCase()}
                         </div>
-                        <div className="flex items-center gap-1">
+                        <div>
+                          <p className="font-medium text-foreground">{user.full_name}</p>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Mail className="h-3 w-3" />
+                            {user.email}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                       <span className={cn(
+                          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border",
+                          user.role === "ADMIN"
+                             ? "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/30"
+                             : "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30"
+                       )}>
                           <Shield className="h-3 w-3" />
-                          {user.role === "ADMIN" ? "Administrador" : "Agente Inmobiliario"}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/oficina/usuarios/${user.id}`}>
-                      <Button variant="outline" size="sm">
-                        Configurar
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                          {user.role === "ADMIN" ? "Administrador" : "Agente"}
+                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={cn(
+                        "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border",
+                        user.is_active
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30"
+                          : "bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30"
+                      )}>
+                        {user.is_active ? "Activo" : "Inactivo"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Link href={`/oficina/usuarios/${user.id}`}>
+                        <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary">
+                          Configurar
+                        </Button>
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
