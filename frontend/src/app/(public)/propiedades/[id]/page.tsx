@@ -30,6 +30,7 @@ interface PropertyDetail {
   public_description: string;
   images: { id: string; public_url: string; is_cover: boolean; alt_text?: string }[];
   type: string;
+  operation_type: string;
   created_at: string;
   updated_at: string;
 }
@@ -137,8 +138,11 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                 </h1>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-primary">
+                <div className="text-3xl font-bold text-primary flex items-baseline gap-1">
                   {formatPrice(property.price_amount, property.price_currency)}
+                  {property.operation_type === "RENT" && (
+                    <span className="text-lg font-bold"> /mes</span>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   {property.sqm > 0 ? formatPrice(parseInt(property.price_amount) / property.sqm, property.price_currency).replace(",00", "") + "/m²" : ""}

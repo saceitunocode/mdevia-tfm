@@ -78,7 +78,8 @@ def setup_test_database():
         VisitNote, PropertyStatusHistory
     )
     
-    print("\n🏗️  Creating tables in test database...")
+    print("\n🏗️  Recreating tables in test database...")
+    Base.metadata.drop_all(bind=test_engine)
     Base.metadata.create_all(bind=test_engine)
     
     yield

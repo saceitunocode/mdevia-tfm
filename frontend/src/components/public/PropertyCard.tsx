@@ -79,7 +79,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
         <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 z-20">
            <span className="text-white font-bold text-2xl shadow-sm text-shadow">
              {formatPrice(property.price_amount, property.price_currency)}
-             {isForRent && <span className="text-sm font-normal opacity-80 text-white/90"> /mes</span>}
+             {isForRent && <span className="text-sm font-bold opacity-100 text-white"> /mes</span>}
            </span>
         </div>
       </div>

@@ -90,15 +90,22 @@ def seed_stories(db: Session, agents: list, clients: list):
         agent = agents[i % len(agents)]
         owner = owners[i % len(owners)]
         
+        # Distribution of scenarios
+        # 0-3: AVAILABLE, 4: INTEREST, 5-6: NEGOTIATION, 7: RESERVED, 8: CLOSED_SALE, 9: CLOSED_RENTAL
+        scenarios = ["AVAILABLE", "AVAILABLE", "AVAILABLE", "AVAILABLE", "INTEREST", "NEGOTIATION", "NEGOTIATION", "RESERVED", "CLOSED_SALE", "CLOSED_RENTAL"]
+        scenario = scenarios[i % len(scenarios)]
+        
         status = PropertyStatus.AVAILABLE
-        scenario = "AVAILABLE"
+        if scenario == "CLOSED_SALE": status = PropertyStatus.SOLD
+        elif scenario == "CLOSED_RENTAL": status = PropertyStatus.RENTED
         
         # 1. Create Property
         is_featured = i in [1, 2, 3, 6, 8, 9]  # Mark exactly 6 as featured
         
         # New Field Logic
         p_type = random.choice([PropertyType.APARTMENT, PropertyType.HOUSE, PropertyType.CHALET])
-        op_type = OperationType.RENT if p_info["price"] < 3000 else OperationType.SALE
+        # Ensure consistency with p_info type if possible, or just use what we have
+        op_type = p_info["type"]
         
         prop = Property(
             title=p_info["title"], city=p_info["city"], status=status, 

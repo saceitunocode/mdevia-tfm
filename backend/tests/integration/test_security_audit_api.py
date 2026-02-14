@@ -68,7 +68,7 @@ def test_public_endpoints_unauthenticated(client: TestClient, db: Session):
     # 1. Test public list
     response = client.get("/api/v1/properties/public")
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()["items"]
     assert any(p["id"] == str(test_prop.id) for p in data)
     
     # 2. Test data filtering (No sensitive data in list)
