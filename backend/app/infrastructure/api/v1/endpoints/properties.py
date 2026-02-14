@@ -5,13 +5,13 @@ from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form, Q
 from sqlalchemy.orm import Session
 from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin, get_storage_service
 from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema, ReorderImages
-from app.domain.schemas.property import Property, PropertyCreate, PropertyUpdate, PropertyPublic, PropertyNote, PropertyNoteCreate
+from app.domain.schemas.property import Property, PropertyCreate, PropertyUpdate, PropertyPublic, PropertyNote, PropertyNoteCreate, PropertyPublicList
 from app.application.use_cases.property_images import PropertyImageUseCase
 from app.infrastructure.repositories.property_image_repository import PropertyImageRepository
 from app.infrastructure.repositories.property_repository import PropertyRepository
 from app.infrastructure.database.models.property import Property as PropertyModel
 from app.domain.services.storage_service import StorageService
-from app.domain.enums import PropertyStatus
+from app.domain.enums import PropertyStatus, PropertyType, OperationType
 
 router = APIRouter()
 
@@ -29,14 +29,20 @@ def get_property_image_use_case(
 # PUBLIC SHOWCASE ENDPOINT (No auth required)
 # ─────────────────────────────────────────────────────────────
 
-@router.get("/public", response_model=List[PropertyPublic])
+@router.get("/public", response_model=PropertyPublicList)
 def list_public_properties(
     city: Optional[str] = Query(None, description="Filter by city (case-insensitive)"),
     price_min: Optional[Decimal] = Query(None, ge=0, description="Minimum price"),
     price_max: Optional[Decimal] = Query(None, ge=0, description="Maximum price"),
     sqm_min: Optional[int] = Query(None, ge=0, description="Minimum square meters"),
     sqm_max: Optional[int] = Query(None, ge=0, description="Maximum square meters"),
-    rooms: Optional[int] = Query(None, ge=1, description="Exact number of rooms"),
+    rooms: Optional[int] = Query(None, ge=1, description="Minimum number of rooms (1+)"),
+    baths: Optional[int] = Query(None, ge=1, description="Minimum number of baths (1+)"),
+    property_type: Optional[List[PropertyType]] = Query(None, description="Type of property"),
+    operation_type: Optional[OperationType] = Query(None, description="Type of operation (SALE/RENT)"),
+    has_elevator: Optional[bool] = Query(None, description="Filter by elevator presence"),
+    is_featured: Optional[bool] = Query(None, description="Filter by featured status"),
+    sort: Optional[str] = Query(None, description="Sorting field: price_asc, price_desc, newest"),
     limit: int = Query(50, ge=1, le=100, description="Max results per page"),
     offset: int = Query(0, ge=0, description="Number of results to skip"),
     db: Session = Depends(get_db),
@@ -54,8 +60,14 @@ def list_public_properties(
         sqm_min=sqm_min,
         sqm_max=sqm_max,
         rooms=rooms,
+        baths=baths,
+        property_type=property_type,
+        operation_type=operation_type,
+        has_elevator=has_elevator,
+        is_featured=is_featured,
         offset=offset,
         limit=limit,
+        sort=sort,
     )
 
 @router.get("/public/{id}", response_model=PropertyPublic)

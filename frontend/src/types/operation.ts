@@ -11,6 +11,8 @@ export enum OperationStatus {
   CANCELLED = "CANCELLED",
 }
 
+import { Visit } from "./visit";
+
 export interface Operation {
   id: string;
   type: OperationType;
@@ -38,6 +40,7 @@ export interface Operation {
   };
   status_history?: OperationStatusHistory[];
   notes?: OperationNote[];
+  visits?: Visit[];
 }
 
 export interface OperationNote {

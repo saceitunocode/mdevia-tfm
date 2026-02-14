@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { PropertyCard, type PropertyCardData } from "@/components/public/PropertyCard";
 import { PropertyFilters } from "@/components/public/PropertyFilters";
 import { propertyService, type PropertyFilterParams } from "@/services/propertyService";
@@ -33,6 +33,7 @@ function PropertyCardSkeleton() {
 }
 
 function ShowcaseContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [properties, setProperties] = useState<PropertyCardData[]>([]);
   const [total, setTotal] = useState(0); // For pagination
@@ -57,22 +58,20 @@ function ShowcaseContent() {
         sqm_min: searchParams.get("sqm_min") ? Number(searchParams.get("sqm_min")) : undefined,
         sqm_max: searchParams.get("sqm_max") ? Number(searchParams.get("sqm_max")) : undefined,
         rooms: searchParams.get("rooms") ? Number(searchParams.get("rooms")) : undefined,
+        baths: searchParams.get("baths") ? Number(searchParams.get("baths")) : undefined,
         status: searchParams.get("status") || undefined,
-        type: searchParams.getAll("type"),
+        property_type: searchParams.getAll("property_type"),
+        operation_type: searchParams.get("operation_type") || undefined,
+        has_elevator: searchParams.get("has_elevator") === "true" ? true : searchParams.get("has_elevator") === "false" ? false : undefined,
         amenities: searchParams.getAll("amenities"),
+        sort: searchParams.get("sort") || undefined,
         limit: PAGE_SIZE,
         offset: offset,
       };
 
       const data = await propertyService.getPublicProperties(filters);
-      // Handle potential API response formats
-      if (Array.isArray(data)) {
-          setProperties(data);
-          setTotal(data.length); // Fallback
-      } else {
-          setProperties(data.items);
-          setTotal(data.total);
-      }
+      setProperties(data.items);
+      setTotal(data.total);
 
     } catch (err) {
       console.error(err);
@@ -86,57 +85,80 @@ function ShowcaseContent() {
     fetchProperties();
   }, [fetchProperties]);
 
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (e.target.value) {
+      params.set("sort", e.target.value);
+    } else {
+      params.delete("sort");
+    }
+    params.set("page", "1"); // Reset context
+    router.push(`/propiedades?${params.toString()}`);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", newPage.toString());
+    router.push(`/propiedades?${params.toString()}`);
+  };
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+
   return (
     <div className="w-full py-8 px-4 sm:px-6 lg:px-8 animate-in fade-in duration-500">
-      {/* Header Area */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-3xl font-heading font-bold text-foreground">Propiedades en Venta y Alquiler</h1>
-          <p className="text-muted-foreground mt-1 text-lg">Descubre tu hogar ideal en nuestra selección exclusiva.</p>
-        </div>
-        
-        {/* View Toggles */}
-        <div className="flex items-center bg-muted/20 p-1 rounded-lg border border-border/50 shadow-sm">
-           <button 
-             onClick={() => setViewMode("grid")}
-             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'grid' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
-           >
-             Grid
-           </button>
-           <button 
-             onClick={() => setViewMode("list")}
-             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
-           >
-             List
-           </button>
-           <button 
-             onClick={() => setViewMode("map")}
-             className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'map' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
-           >
-             Map
-           </button>
-        </div>
-      </div>
-
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filters sidebar */}
+        {/* Filters sidebar - Occupies full height from header level */}
         <aside className="w-full lg:w-72 lg:shrink-0">
             <PropertyFilters key={searchParams.toString()} />
         </aside>
 
         {/* Content Area */}
         <div className="flex-1 min-w-0">
+            {/* Header Area - Now inside right column */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+              <div>
+                <h1 className="text-3xl font-heading font-bold text-foreground">Propiedades en Venta y Alquiler</h1>
+                <p className="text-muted-foreground mt-1 text-base">Descubre tu hogar ideal en nuestra selección exclusiva.</p>
+              </div>
+              
+              {/* View Toggles */}
+              <div className="flex items-center bg-muted/20 p-1 rounded-lg border border-border/50 shadow-sm shrink-0">
+                 <button 
+                   onClick={() => setViewMode("grid")}
+                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'grid' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
+                 >
+                   Grid
+                 </button>
+                 <button 
+                   onClick={() => setViewMode("list")}
+                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'list' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
+                 >
+                   List
+                 </button>
+                 <button 
+                   onClick={() => setViewMode("map")}
+                   className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${viewMode === 'map' ? 'bg-background shadow text-primary' : 'text-muted-foreground hover:bg-muted/50'}`}
+                 >
+                   Map
+                 </button>
+              </div>
+            </div>
+
             {/* Results Header */}
-            <div className="mb-6 flex justify-between items-center text-sm">
+            <div className="mb-6 flex justify-between items-center text-sm border-b border-border/50 pb-4">
                 <p className="text-muted-foreground">
                    Mostrando <span className="font-bold text-foreground">{properties.length}</span> de <span className="font-bold text-foreground">{total}</span> propiedades
                 </p>
                 <div className="flex items-center gap-2">
                     <span className="text-muted-foreground hidden sm:inline">Ordenar por:</span>
-                    <select className="bg-transparent border-none text-foreground font-medium focus:ring-0 cursor-pointer pl-0 pr-8 text-right appearance-none">
-                        <option>Más recientes</option>
-                        <option>Precio: Bajo a Alto</option>
-                        <option>Precio: Alto a Bajo</option>
+                    <select 
+                      value={searchParams.get("sort") || "newest"}
+                      onChange={handleSortChange}
+                      className="bg-transparent border border-border rounded px-2 py-1 text-foreground font-medium focus:ring-1 focus:ring-primary cursor-pointer appearance-none"
+                    >
+                        <option value="newest">Más recientes</option>
+                        <option value="price_asc">Precio: Bajo a Alto</option>
+                        <option value="price_desc">Precio: Alto a Bajo</option>
                     </select>
                 </div>
             </div>
@@ -171,22 +193,33 @@ function ShowcaseContent() {
                             ))}
                         </div>
 
-                        {/* Pagination (Visual Placeholder based on design) */}
+                        {/* Pagination */}
                         <div className="mt-12 flex justify-center">
                             <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm">
-                                <button disabled={page === 1} className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-border hover:bg-muted focus:z-20 focus:outline-offset-0 disabled:opacity-50">
+                                <button 
+                                  disabled={page === 1} 
+                                  onClick={() => handlePageChange(page - 1)}
+                                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-border hover:bg-muted focus:z-20 focus:outline-offset-0 disabled:opacity-50 cursor-pointer"
+                                >
                                     <ChevronLeft className="h-5 w-5" />
                                 </button>
-                                <button className="relative z-10 inline-flex items-center bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground focus:z-20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
-                                    {page}
-                                </button>
-                                <button className="relative hidden items-center px-4 py-2 text-sm font-semibold text-foreground ring-1 ring-inset ring-border hover:bg-muted focus:z-20 focus:outline-offset-0 md:inline-flex">
-                                    {page + 1}
-                                </button>
-                                <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 ring-1 ring-inset ring-border focus:outline-offset-0">
-                                    ...
-                                </span>
-                                <button className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-border hover:bg-muted focus:z-20 focus:outline-offset-0">
+                                {Array.from({ length: totalPages }).map((_, i) => {
+                                  const p = i + 1;
+                                  return (
+                                    <button
+                                      key={p}
+                                      onClick={() => handlePageChange(p)}
+                                      className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ring-1 ring-inset ring-border focus:z-20 ${p === page ? 'bg-primary text-primary-foreground focus:outline-offset-0' : 'text-foreground hover:bg-muted cursor-pointer'}`}
+                                    >
+                                      {p}
+                                    </button>
+                                  );
+                                })}
+                                <button 
+                                  disabled={page === totalPages}
+                                  onClick={() => handlePageChange(page + 1)}
+                                  className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-border hover:bg-muted focus:z-20 focus:outline-offset-0 disabled:opacity-50 cursor-pointer"
+                                >
                                     <ChevronRight className="h-5 w-5" />
                                 </button>
                             </nav>

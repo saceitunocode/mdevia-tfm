@@ -5,9 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { Plus, Building2, MapPin, Ruler, Home, LayoutGrid, List as ListIcon, Search, ArrowUpRight, Bed, Bath } from "lucide-react";
+import { Plus, Building2, MapPin, Ruler, Home, LayoutGrid, List as ListIcon, ArrowUpRight, Bed, Bath, Filter } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
 
 interface PropertyImage {
   id: string;
@@ -43,6 +44,7 @@ export default function AdminPropiedadesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState<string>("ALL");
 
   useEffect(() => {
     const fetchProperties = async () => {
@@ -59,10 +61,21 @@ export default function AdminPropiedadesPage() {
     fetchProperties();
   }, []);
 
-  const filteredProperties = properties.filter(prop => 
-    prop.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    prop.city.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProperties = properties.filter(prop => {
+    const matchesSearch = 
+      prop.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      prop.city.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Temporary heuristic: distinguish by price if no explicit type field
+    // In our seed data, rents are < 5000 and sales are usually > 20000
+    // We also consider RENTED status as RENT and SOLD as SALE
+    const isRent = prop.status === 'RENTED' || (prop.status === 'AVAILABLE' && prop.price_amount < 5000);
+    const propType = isRent ? 'RENT' : 'SALE';
+    
+    const matchesType = filterType === "ALL" || propType === filterType;
+    
+    return matchesSearch && matchesType;
+  });
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -81,47 +94,54 @@ export default function AdminPropiedadesPage() {
       </div>
 
       {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
-        <div className="relative w-full sm:w-80">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-muted-foreground" />
+      {/* Controls */}
+      <DashboardToolbar
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        placeholder="Buscar por título o ciudad..."
+      >
+        <div className="flex items-center gap-4">
+          <div className="relative w-full sm:w-auto">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <select 
+              className="pl-9 pr-8 py-2 border border-input rounded-lg bg-background text-sm focus:ring-primary focus:border-primary appearance-none shadow-sm cursor-pointer hover:bg-muted/50 transition-colors w-full sm:w-48"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <option value="ALL">Venta y Alquiler</option>
+              <option value="SALE">Sólo Venta</option>
+              <option value="RENT">Sólo Alquiler</option>
+            </select>
           </div>
-          <input
-            type="text"
-            placeholder="Buscar por título o ciudad..."
-            className="block w-full pl-10 pr-3 py-2 border border-input rounded-lg leading-5 bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-all shadow-sm"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+
+          <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border border-border">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={cn(
+                "p-2 rounded-md transition-all duration-200",
+                viewMode === "grid" 
+                  ? "bg-background shadow-sm text-primary" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              title="Vista Cuadrícula"
+            >
+              <LayoutGrid size={18} />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={cn(
+                "p-2 rounded-md transition-all duration-200",
+                viewMode === "list" 
+                  ? "bg-background shadow-sm text-primary" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              title="Vista Lista"
+            >
+              <ListIcon size={18} />
+            </button>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border border-border">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={cn(
-              "p-2 rounded-md transition-all duration-200",
-              viewMode === "grid" 
-                ? "bg-background shadow-sm text-primary" 
-                : "text-muted-foreground hover:text-foreground"
-            )}
-            title="Vista Cuadrícula"
-          >
-            <LayoutGrid size={18} />
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={cn(
-              "p-2 rounded-md transition-all duration-200",
-              viewMode === "list" 
-                ? "bg-background shadow-sm text-primary" 
-                : "text-muted-foreground hover:text-foreground"
-            )}
-            title="Vista Lista"
-          >
-            <ListIcon size={18} />
-          </button>
-        </div>
-      </div>
+      </DashboardToolbar>
 
       {/* Content */}
       {isLoading ? (

@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
-import { MapPin, Plus, Search, Filter, Calendar, Building2, CheckCircle2, XCircle, Clock, Check, ArrowRight } from "lucide-react";
+import { MapPin, Plus, Filter, Calendar, Building2, CheckCircle2, XCircle, Clock, Check, ArrowRight } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { RegisterVisitDialog } from "@/components/visits/RegisterVisitDialog";
 import { CompleteVisitDialog } from "@/components/visits/CompleteVisitDialog";
 import { Visit, VisitCreate, VisitUpdate } from "@/types/visit";
 import { visitService } from "@/services/visitService";
-import { Input } from "@/components/ui/Input";
+import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -17,6 +17,7 @@ export default function VisitasPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isVisitDialogOpen, setIsVisitDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState<string>("ALL");
   
   // State for completing a visit
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
@@ -63,11 +64,16 @@ export default function VisitasPage() {
     setCompleteDialogOpen(true);
   };
 
-  const filteredVisits = visits.filter(visit => 
-    visit.client?.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    visit.property?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    visit.agent?.full_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredVisits = visits.filter(visit => {
+    const matchesSearch = 
+      visit.client?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      visit.property?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      visit.agent?.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = filterStatus === "ALL" || visit.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -104,20 +110,25 @@ export default function VisitasPage() {
         </Button>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Buscar por cliente, propiedad o agente..." 
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+      <DashboardToolbar
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        placeholder="Buscar por cliente, propiedad o agente..."
+      >
+        <div className="relative w-full sm:w-auto">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <select 
+            className="pl-9 pr-8 py-2 border border-input rounded-lg bg-background text-sm focus:ring-primary focus:border-primary appearance-none shadow-sm cursor-pointer hover:bg-muted/50 transition-colors w-full sm:w-48"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="ALL">Todos los estados</option>
+            <option value="PENDING">Pendiente</option>
+            <option value="DONE">Realizada</option>
+            <option value="CANCELLED">Cancelada</option>
+          </select>
         </div>
-        <Button variant="outline" className="gap-2 text-muted-foreground">
-            <Filter className="h-4 w-4" /> Filtros
-        </Button>
-      </div>
+      </DashboardToolbar>
 
       <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         {isLoading ? (

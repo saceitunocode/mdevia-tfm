@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 from app.infrastructure.database.models.operation import Operation
 from app.infrastructure.database.models.operation_status_history import OperationStatusHistory
 from app.infrastructure.database.models.operation_note import OperationNote
+from app.infrastructure.database.models.visit import Visit
 from app.domain.schemas.operation import OperationUpdate
 from app.domain.enums import OperationStatus
 
@@ -22,7 +23,8 @@ class OperationRepository:
                 joinedload(Operation.property),
                 joinedload(Operation.agent),
                 joinedload(Operation.status_history),
-                joinedload(Operation.notes).joinedload(OperationNote.author)
+                joinedload(Operation.notes).joinedload(OperationNote.author),
+                joinedload(Operation.visits).joinedload(Visit.notes)
             )
             .filter(Operation.id == operation_id, Operation.is_active == True)
             .first()

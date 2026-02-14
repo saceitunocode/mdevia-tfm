@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { Plus, UserCog, Mail, Shield } from "lucide-react";
+import { Plus, UserCog, Mail, Shield, Filter } from "lucide-react";
+import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,8 @@ interface User {
 export default function AdminUsuariosPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterRole, setFilterRole] = useState<string>("ALL");
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -36,6 +39,16 @@ export default function AdminUsuariosPage() {
     fetchUsers();
   }, []);
 
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch = 
+      user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = filterRole === "ALL" || user.role === filterRole;
+    
+    return matchesSearch && matchesRole;
+  });
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -50,6 +63,27 @@ export default function AdminUsuariosPage() {
         </Link>
       </div>
 
+
+
+      <DashboardToolbar
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        placeholder="Buscar por nombre o email..."
+      >
+        <div className="relative w-full sm:w-auto">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <select 
+            className="pl-9 pr-8 py-2 border border-input rounded-lg bg-background text-sm focus:ring-primary focus:border-primary appearance-none shadow-sm cursor-pointer hover:bg-muted/50 transition-colors w-full sm:w-48"
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+          >
+            <option value="ALL">Todos los roles</option>
+            <option value="ADMIN">Administradores</option>
+            <option value="AGENT">Agentes</option>
+          </select>
+        </div>
+      </DashboardToolbar>
+
       <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         {isLoading ? (
           <div className="p-8 space-y-4">
@@ -63,7 +97,7 @@ export default function AdminUsuariosPage() {
               </div>
             ))}
           </div>
-        ) : users.length === 0 ? (
+        ) : filteredUsers.length === 0 ? (
           <div className="text-center py-16 px-4">
              <div className="mx-auto w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground mb-4">
                <UserCog className="h-8 w-8 opacity-50" />
@@ -88,7 +122,7 @@ export default function AdminUsuariosPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
-                {users.map((user) => (
+                {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-muted/30 transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">

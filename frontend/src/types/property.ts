@@ -52,6 +52,7 @@ export interface Property {
   status: PropertyStatus;
   price_amount: number;
   price_currency: string;
+  is_featured: boolean;
   public_description?: string;
   internal_notes?: string;
   owner_client_id: string;

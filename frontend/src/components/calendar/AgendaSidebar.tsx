@@ -18,7 +18,7 @@ interface AgendaSidebarProps {
 export function AgendaSidebar({ todayEvents, pendingVisits, onEventClick, onVisitClick }: AgendaSidebarProps) {
   return (
     <aside className="hidden xl:flex flex-col w-80 border-l border-border/50 bg-card/30 overflow-y-auto">
-      <div className="p-6 space-y-8">
+      <div className="p-5 space-y-6">
         {/* Today's Tasks Section */}
         <div>
           <div className="flex items-center justify-between mb-4">
