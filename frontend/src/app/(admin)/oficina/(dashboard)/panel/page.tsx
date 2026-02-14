@@ -1,16 +1,18 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { 
-  Home, Users, Calendar, Briefcase, ArrowUpRight, 
-  Clock, MapPin, TrendingUp, Eye, Building2
+  Users, Calendar, Briefcase, 
+  ArrowUpRight, MapPin, 
+  MoreHorizontal, Building2, TrendingUp
 } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
+// --- Types ---
 interface DashboardStats {
   total_properties: number;
   total_clients: number;
@@ -36,6 +38,7 @@ interface RecentProperty {
   price_amount: number | null;
   status: string;
   created_at: string;
+  address?: string; // Optional if not in API response yet
 }
 
 interface RecentOperation {
@@ -54,6 +57,17 @@ interface DashboardData {
   recent_operations: RecentOperation[];
 }
 
+// --- Configuration ---
+const STATUS_STYLES: Record<string, string> = {
+  AVAILABLE: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
+  SOLD: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
+  RENTED: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800",
+  PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
+  DEFAULT: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
+};
+
+const getStatusStyle = (status: string) => STATUS_STYLES[status] || STATUS_STYLES.DEFAULT;
+
 const STATUS_LABELS: Record<string, string> = {
   AVAILABLE: "Disponible",
   SOLD: "Vendido",
@@ -64,79 +78,107 @@ const STATUS_LABELS: Record<string, string> = {
   CLOSED: "Cerrado",
   CANCELLED: "Cancelado",
   PENDING: "Pendiente",
-  DONE: "Realizada",
 };
 
-const STATUS_COLORS: Record<string, string> = {
-  AVAILABLE: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  SOLD: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400",
-  RENTED: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
-  INTEREST: "bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400",
-  NEGOTIATION: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-  RESERVED: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400",
-  CLOSED: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  CANCELLED: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-  PENDING: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-};
+// --- Components ---
 
-function StatCard({ name, value, icon: Icon, accent, subtitle }: {
-  name: string;
-  value: number;
+function Sparkline({ color }: { color: string }) {
+  // Simple sparkline path mimicking the design's "random" look
+  // We can vary this if we had history data, but fixed for now as visual element
+  const path = "M0 30 C 20 30, 20 10, 40 20 C 60 30, 60 5, 80 15 L 100 10";
+  
+  return (
+    <svg className="w-24 h-10 sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+      <path 
+        d={path} 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        className={color}
+      />
+    </svg>
+  );
+}
+
+function KpiCard({ title, value, icon: Icon, trend, trendLabel, colorClass, iconBgClass, sparklineColor }: {
+  title: string;
+  value: number | string;
   icon: React.ElementType;
-  accent: string;
-  subtitle?: string;
+  trend?: string;
+  trendLabel?: string;
+  colorClass: string;
+  iconBgClass: string;
+  sparklineColor: string;
 }) {
   return (
-    <Card className="border-none shadow-md hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-card overflow-hidden relative group">
-      <div className={`absolute inset-y-0 left-0 w-1 ${accent}`} />
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0 pl-5">
-        <CardTitle className="text-sm font-medium uppercase tracking-wider text-muted-foreground">{name}</CardTitle>
-        <div className={`p-2 rounded-lg ${accent}/10`}>
-          <Icon className={`h-5 w-5 ${accent.replace("bg-", "text-")}`} />
+    <div className="bg-card rounded-xl p-5 border border-border shadow-sm hover:shadow-md transition-all duration-300 group">
+      <div className="flex justify-between items-start mb-4">
+        <div>
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
+          <h3 className="text-3xl font-bold text-foreground mt-1 max-w-[120px] truncate" title={String(value)}>{value}</h3>
         </div>
-      </CardHeader>
-      <CardContent className="pl-5">
-        <div className="text-3xl font-bold font-heading">{value}</div>
-        {subtitle && (
-          <p className="text-xs flex items-center mt-2 text-muted-foreground font-medium">
-            {subtitle}
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function SkeletonCard() {
-  return (
-    <Card className="border-none shadow-md bg-white dark:bg-card overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-        <div className="h-4 w-32 bg-muted animate-pulse rounded" />
-        <div className="h-9 w-9 bg-muted animate-pulse rounded-lg" />
-      </CardHeader>
-      <CardContent>
-        <div className="h-8 w-16 bg-muted animate-pulse rounded mb-2" />
-        <div className="h-3 w-24 bg-muted animate-pulse rounded" />
-      </CardContent>
-    </Card>
-  );
-}
-
-function SkeletonList() {
-  return (
-    <div className="space-y-3">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-muted/20">
-          <div className="h-10 w-10 bg-muted animate-pulse rounded-lg" />
-          <div className="flex-1 space-y-2">
-            <div className="h-4 w-3/4 bg-muted animate-pulse rounded" />
-            <div className="h-3 w-1/2 bg-muted animate-pulse rounded" />
-          </div>
+        <div className={cn("p-2 rounded-lg transition-colors", iconBgClass)}>
+          <Icon className={cn("w-6 h-6", colorClass)} />
         </div>
-      ))}
+      </div>
+      <div className="flex items-end justify-between">
+         {trend && (
+           <div className={cn("flex items-center text-sm font-medium px-2 py-0.5 rounded", "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400")}>
+             <TrendingUp className="w-4 h-4 mr-1" />
+             {trend}
+           </div>
+         )}
+         {!trend && trendLabel && (
+           <span className="text-xs text-muted-foreground">{trendLabel}</span>
+         )}
+         <Sparkline color={sparklineColor} />
+      </div>
     </div>
   );
 }
+
+function SectionHeader({ title, subtitle, actionHref, actionLabel, filters }: { 
+  title: string, 
+  subtitle?: string,
+  actionHref?: string, 
+  actionLabel?: string,
+  filters?: React.ReactNode
+}) {
+  return (
+    <div className="flex items-center justify-between mb-6 px-1">
+      <div>
+        <h3 className="text-lg font-bold text-foreground tracking-tight">{title}</h3>
+        {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+      </div>
+      <div className="flex items-center gap-3">
+        {filters}
+        {actionHref && (
+          <Link href={actionHref} className="text-sm font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1">
+            {actionLabel || "View All"}
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SkeletonKpi() {
+  return (
+    <div className="bg-card rounded-xl p-5 border border-border shadow-sm">
+      <div className="flex justify-between items-start mb-4">
+        <div className="space-y-2">
+          <div className="h-3 w-20 bg-muted animate-pulse rounded" />
+          <div className="h-8 w-12 bg-muted animate-pulse rounded" />
+        </div>
+        <div className="h-10 w-10 bg-muted animate-pulse rounded-lg" />
+      </div>
+      <div className="h-8 w-full bg-muted/50 animate-pulse rounded mt-2" />
+    </div>
+  );
+}
+
+// --- Main Page ---
 
 export default function AdminDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -156,288 +198,256 @@ export default function AdminDashboard() {
     fetchDashboard();
   }, []);
 
-  return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-heading font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Resumen general de la actividad inmobiliaria.</p>
-      </div>
+  // Prepare chart data (simple normalization for visual bars)
+  const chartData = data ? [
+    { label: "Disp", value: data.stats.available_properties, color: "bg-emerald-500", labelFull: "Disponibles" },
+    { label: "Vend", value: data.stats.sold_properties, color: "bg-blue-500", labelFull: "Vendidas" },
+    { label: "Alq", value: data.stats.rented_properties, color: "bg-amber-500", labelFull: "Alquiladas" },
+    { label: "Ops", value: data.stats.active_operations, color: "bg-purple-500", labelFull: "Operaciones" },
+    { label: "Vis", value: data.stats.pending_visits, color: "bg-orange-500", labelFull: "Visitas" },
+    { label: "Clt", value: data.stats.total_clients > 20 ? 20 : data.stats.total_clients, color: "bg-cyan-500", labelFull: "Clientes (Scale)" }, // Cap for visual scale
+  ] : [];
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+  const maxChartValue = Math.max(...chartData.map(d => d.value), 10); // Avoid div by zero
+
+  return (
+    <div className="space-y-8 pb-8 animate-in fade-in duration-500">
+      
+      {/* 1. KPI Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {isLoading ? (
           <>
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
-            <SkeletonCard />
+            <SkeletonKpi />
+            <SkeletonKpi />
+            <SkeletonKpi />
+            <SkeletonKpi />
           </>
         ) : data ? (
           <>
-            <StatCard
-              name="Propiedades"
-              value={data.stats.total_properties}
-              icon={Home}
-              accent="bg-primary"
-              subtitle={`${data.stats.available_properties} disponibles`}
-            />
-            <StatCard
-              name="Clientes"
+            <KpiCard
+              title="Active Clients"
               value={data.stats.total_clients}
               icon={Users}
-              accent="bg-blue-500"
-              subtitle="Cartera activa"
+              colorClass="text-primary"
+              iconBgClass="bg-blue-50 dark:bg-blue-900/20"
+              trend="12%"
+              sparklineColor="text-primary"
             />
-            <StatCard
-              name="Visitas Pendientes"
-              value={data.stats.pending_visits}
-              icon={Calendar}
-              accent="bg-amber-500"
-              subtitle="Próximos 7 días"
+            <KpiCard
+              title="Properties"
+              value={data.stats.total_properties}
+              icon={Building2}
+              colorClass="text-secondary" // green
+              iconBgClass="bg-emerald-50 dark:bg-emerald-900/20"
+              trend="4%"
+              sparklineColor="text-emerald-500"
             />
-            <StatCard
-              name="Operaciones Activas"
+            <KpiCard
+              title="Active Ops"
               value={data.stats.active_operations}
               icon={Briefcase}
-              accent="bg-emerald-500"
-              subtitle="En curso"
+              colorClass="text-orange-500"
+              iconBgClass="bg-orange-50 dark:bg-orange-900/20"
+              trend="2%"
+              sparklineColor="text-orange-500"
+            />
+            <KpiCard
+              title="Visits (Week)"
+              value={data.stats.pending_visits}
+              icon={Calendar}
+              colorClass="text-purple-500"
+              iconBgClass="bg-purple-50 dark:bg-purple-900/20"
+              trend="8%"
+              sparklineColor="text-purple-500"
             />
           </>
         ) : null}
       </div>
 
-      {/* Property Status Overview */}
-      {data && data.stats.total_properties > 0 && (
-        <Card className="border-none shadow-md">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              Estado del Portfolio
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-4 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-900/20">
-                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{data.stats.available_properties}</div>
-                <p className="text-xs text-muted-foreground mt-1 font-medium">Disponibles</p>
-              </div>
-              <div className="text-center p-4 rounded-xl bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/20">
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{data.stats.sold_properties}</div>
-                <p className="text-xs text-muted-foreground mt-1 font-medium">Vendidas</p>
-              </div>
-              <div className="text-center p-4 rounded-xl bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20">
-                <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">{data.stats.rented_properties}</div>
-                <p className="text-xs text-muted-foreground mt-1 font-medium">Alquiladas</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Two-column layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Upcoming Visits */}
-        <Card className="border-none shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Clock className="h-5 w-5 text-amber-500" />
-              Próximas Visitas
-            </CardTitle>
-            <Link 
-              href="/oficina/visitas" 
-              className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
-            >
-              Ver todas <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <SkeletonList />
-            ) : data && data.upcoming_visits.length > 0 ? (
-              <div className="space-y-3">
-                {data.upcoming_visits.map((visit) => (
-                  <Link
-                    key={visit.id}
-                    href={`/oficina/visitas`}
-                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/40 transition-colors duration-200 group"
-                  >
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                      <Eye className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
-                        {visit.client_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate flex items-center gap-1 mt-0.5">
-                        <Building2 className="h-3 w-3" />
-                        {visit.property_title}
-                      </p>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-xs font-semibold text-foreground">
-                        {format(new Date(visit.scheduled_at), "d MMM", { locale: es })}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground">
-                        {format(new Date(visit.scheduled_at), "HH:mm")}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10 border-2 border-dashed border-muted rounded-xl bg-muted/5">
-                <Calendar className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No hay visitas pendientes esta semana.</p>
-                <Link href="/oficina/agenda" className="text-xs text-primary hover:underline mt-2 inline-block">
-                  Ir a la Agenda →
-                </Link>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Recent Properties */}
-        <Card className="border-none shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Home className="h-5 w-5 text-primary" />
-              Últimas Propiedades
-            </CardTitle>
-            <Link 
-              href="/oficina/propiedades" 
-              className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
-            >
-              Ver todas <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <SkeletonList />
-            ) : data && data.recent_properties.length > 0 ? (
-              <div className="space-y-3">
-                {data.recent_properties.map((prop) => (
-                  <Link
-                    key={prop.id}
-                    href={`/oficina/propiedades/${prop.id}`}
-                    className="flex items-start gap-3 p-3 rounded-xl hover:bg-muted/40 transition-colors duration-200 group"
-                  >
-                    <div className="shrink-0 h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Building2 className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold truncate group-hover:text-primary transition-colors">
-                        {prop.title}
-                      </p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                        <MapPin className="h-3 w-3" />
-                        {prop.city}
-                      </p>
-                    </div>
-                    <div className="text-right shrink-0 space-y-1">
-                      {prop.price_amount && (
-                        <p className="text-xs font-bold text-primary">
-                          {new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(prop.price_amount)}
-                        </p>
-                      )}
-                      <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[prop.status] || "bg-muted text-foreground"}`}>
-                        {STATUS_LABELS[prop.status] || prop.status}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* 2. Middle Section - Left: Performance Chart (Visual Match) */}
+        <div className="lg:col-span-2 bg-card rounded-xl border border-border shadow-sm p-6">
+           <SectionHeader 
+             title="Activity Overview" 
+             subtitle="Properties & Operations distribution"
+             filters={
+               <select className="bg-muted/50 border-none text-sm rounded-lg focus:ring-primary py-1 pl-3 pr-8 hidden sm:block">
+                 <option>This Month</option>
+                 <option>Last Month</option>
+               </select>
+             }
+           />
+           
+           <div className="h-64 flex items-end justify-between space-x-4 px-2 mt-4">
+              {isLoading ? (
+                <div className="w-full h-full bg-muted/20 animate-pulse rounded-lg" />
+              ) : chartData.map((item, idx) => {
+                 const heightPercent = Math.max((item.value / maxChartValue) * 100, 10); // Min 10% height
+                 return (
+                   <div key={idx} className="flex flex-col items-center flex-1 group h-full justify-end">
+                      <div className="w-full bg-muted/30 rounded-t-lg relative flex items-end h-full hover:bg-muted/50 transition-colors">
+                         <div 
+                           className={cn("w-full rounded-t-lg transition-all duration-700 ease-out", item.color)} 
+                           style={{ height: `${heightPercent}%`, opacity: 0.8 }}
+                         ></div>
+                      </div>
+                      <span className="text-xs text-muted-foreground mt-3 font-medium truncate w-full text-center" title={item.labelFull}>
+                        {item.label}
                       </span>
-                    </div>
-                  </Link>
-                ))}
+                   </div>
+                 );
+              })}
+           </div>
+           
+           {/* Legend */}
+           <div className="flex items-center justify-center gap-6 mt-6 flex-wrap">
+              <div className="flex items-center gap-2">
+                 <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                 <span className="text-xs text-muted-foreground">Available</span>
               </div>
-            ) : (
-              <div className="text-center py-10 border-2 border-dashed border-muted rounded-xl bg-muted/5">
-                <Home className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">No hay propiedades registradas.</p>
-                <Link href="/oficina/propiedades/nueva" className="text-xs text-primary hover:underline mt-2 inline-block">
-                  Añadir Propiedad →
-                </Link>
+              <div className="flex items-center gap-2">
+                 <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                 <span className="text-xs text-muted-foreground">Sold</span>
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <div className="flex items-center gap-2">
+                 <div className="w-3 h-3 rounded-full bg-purple-500"></div>
+                 <span className="text-xs text-muted-foreground">Ops</span>
+              </div>
+           </div>
+        </div>
+
+        {/* 3. Middle Section - Right: Recent Activity (Timeline Style) */}
+        <div className="lg:col-span-1 bg-card rounded-xl border border-border shadow-sm p-6 flex flex-col h-[400px]">
+           <SectionHeader title="Próximas Visitas" actionHref="/oficina/visitas" actionLabel="Ver Todo" />
+           
+           <div className="space-y-6 overflow-y-auto pr-2 flex-1 scrollbar-hide">
+              {isLoading ? (
+                 <div className="space-y-6">
+                    {[1, 2, 3].map(i => (
+                       <div key={i} className="flex gap-4">
+                          <div className="w-8 h-8 rounded-full bg-muted animate-pulse" />
+                          <div className="flex-1 space-y-2">
+                             <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                             <div className="h-3 w-16 bg-muted animate-pulse rounded" />
+                          </div>
+                       </div>
+                    ))}
+                 </div>
+              ) : (!data || data.upcoming_visits.length === 0) ? (
+                 <div className="text-center py-12 text-muted-foreground">
+                    <Calendar className="w-10 h-10 mx-auto mb-2 opacity-20" />
+                    <p className="text-sm">No scheduled visits</p>
+                 </div>
+              ) : (
+                data.upcoming_visits.map((visit, index) => (
+                  <div key={visit.id} className="flex gap-4 group relative">
+                     {/* Connector Line */}
+                     {index !== data.upcoming_visits.length - 1 && (
+                        <div className="absolute top-8 left-[15px] bottom-[-24px] w-[2px] bg-border z-0" />
+                     )}
+                     
+                     <div className="relative z-10 shrink-0 mt-1">
+                        <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+                           <Calendar className="w-4 h-4" />
+                        </div>
+                     </div>
+                     <div className="flex-1 pb-2">
+                        <p className="text-sm font-semibold text-foreground">Visita Programada</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                           Con {visit.client_name} en {visit.property_title}
+                        </p>
+                        <div className="mt-2 inline-flex items-center gap-2">
+                           <span className="px-2 py-0.5 rounded bg-muted text-muted-foreground text-[10px] font-medium border border-border">
+                              {format(new Date(visit.scheduled_at), "PPP p", { locale: es })}
+                           </span>
+                        </div>
+                     </div>
+                  </div>
+                ))
+              )}
+           </div>
+        </div>
       </div>
 
-      {/* Recent Operations */}
-      {data && data.recent_operations.length > 0 && (
-        <Card className="border-none shadow-md">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Briefcase className="h-5 w-5 text-emerald-500" />
-              Últimas Operaciones
-            </CardTitle>
-            <Link 
-              href="/oficina/operaciones" 
-              className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
-            >
-              Ver todas <ArrowUpRight className="h-3 w-3" />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/50">
-                    <th className="py-2 px-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Tipo</th>
-                    <th className="py-2 px-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cliente</th>
-                    <th className="py-2 px-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Propiedad</th>
-                    <th className="py-2 px-3 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Estado</th>
-                    <th className="py-2 px-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Fecha</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.recent_operations.map((op) => (
-                    <tr 
-                      key={op.id} 
-                      className="border-b border-border/30 hover:bg-muted/30 transition-colors cursor-pointer"
-                      onClick={() => window.location.href = `/oficina/operaciones/${op.id}`}
-                    >
-                      <td className="py-3 px-3">
-                        <span className="text-xs font-bold px-2 py-1 rounded-md bg-muted/50">
-                          {op.type === "SALE" ? "Venta" : "Alquiler"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 font-medium">{op.client_name}</td>
-                      <td className="py-3 px-3 text-muted-foreground truncate max-w-[200px]">{op.property_title}</td>
-                      <td className="py-3 px-3">
-                        <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS_COLORS[op.status] || "bg-muted text-foreground"}`}>
-                          {STATUS_LABELS[op.status] || op.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3 text-right text-xs text-muted-foreground">
-                        {format(new Date(op.created_at), "d MMM yyyy", { locale: es })}
-                      </td>
+      {/* 4. Bottom Section: Properties Table */}
+      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+        <div className="px-6 py-5 border-b border-border flex items-center justify-between">
+           <h3 className="text-lg font-bold text-foreground">Últimas Propiedades</h3>
+           <div className="flex gap-2">
+              <button className="p-1.5 rounded hover:bg-muted text-muted-foreground transition-colors">
+                 <MoreHorizontal className="w-5 h-5" />
+              </button>
+           </div>
+        </div>
+        <div className="overflow-x-auto">
+           <table className="w-full text-sm text-left">
+              <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs">
+                 <tr>
+                    <th className="px-6 py-4">Propiedad</th>
+                    <th className="px-6 py-4">Estado</th>
+                    <th className="px-6 py-4">Precio</th>
+                    <th className="px-6 py-4">Agente</th>
+                    <th className="px-6 py-4 text-right">Acción</th>
+                 </tr>
+              </thead>
+              <tbody className="divide-y divide-border/50">
+                 {isLoading ? (
+                    <tr><td colSpan={5} className="p-8 text-center"><div className="w-full h-8 bg-muted animate-pulse rounded" /></td></tr>
+                 ) : data?.recent_properties.map((prop) => (
+                    <tr key={prop.id} className="hover:bg-muted/30 transition-colors">
+                       <td className="px-6 py-4 max-w-[300px]">
+                          <div className="flex items-center gap-3">
+                             <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0 overflow-hidden">
+                                <Building2 className="w-5 h-5" />
+                             </div>
+                             <div className="min-w-0">
+                                <p className="font-semibold text-foreground truncate">{prop.title}</p>
+                                <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                                   <MapPin className="w-3 h-3" /> {prop.city}
+                                </p>
+                             </div>
+                          </div>
+                       </td>
+                       <td className="px-6 py-4">
+                          <span className={cn(
+                             "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border",
+                             getStatusStyle(prop.status)
+                          )}>
+                             {STATUS_LABELS[prop.status] || prop.status}
+                          </span>
+                       </td>
+                       <td className="px-6 py-4 font-medium text-foreground whitespace-nowrap">
+                          {prop.price_amount 
+                             ? new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(prop.price_amount)
+                             : "Consultar"}
+                       </td>
+                       <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                             <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-[10px] font-bold">
+                                ME
+                             </div>
+                             <span className="text-sm text-muted-foreground">Yo</span>
+                          </div>
+                       </td>
+                       <td className="px-6 py-4 text-right">
+                          <Link 
+                             href={`/oficina/propiedades/${prop.id}`}
+                             className="text-muted-foreground hover:text-primary transition-colors inline-block p-1"
+                          >
+                             <ArrowUpRight className="w-5 h-5" />
+                          </Link>
+                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Nueva Propiedad", href: "/oficina/propiedades/nueva", icon: Home, color: "text-primary" },
-          { label: "Nuevo Cliente", href: "/oficina/clientes/nuevo", icon: Users, color: "text-blue-500" },
-          { label: "Agenda", href: "/oficina/agenda", icon: Calendar, color: "text-amber-500" },
-          { label: "Operaciones", href: "/oficina/operaciones", icon: Briefcase, color: "text-emerald-500" },
-        ].map((action) => (
-          <Link key={action.label} href={action.href}>
-            <Card className="border-none shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group hover:scale-[1.02] bg-white dark:bg-card">
-              <CardContent className="flex items-center gap-3 py-4 px-4">
-                <action.icon className={`h-5 w-5 ${action.color} group-hover:scale-110 transition-transform`} />
-                <span className="text-sm font-medium group-hover:text-primary transition-colors">
-                  {action.label}
-                </span>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+                 ))}
+                 {!isLoading && (!data || data.recent_properties.length === 0) && (
+                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No hay propiedades recientes</td></tr>
+                 )}
+              </tbody>
+           </table>
+        </div>
       </div>
+
     </div>
   );
 }

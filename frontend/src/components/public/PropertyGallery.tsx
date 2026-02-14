@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
-import { cn } from "@/lib/utils";
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -30,24 +29,11 @@ export function PropertyGallery({ images }: PropertyGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [emblaMainRef, emblaMainApi] = useEmblaCarousel({ loop: true }, [Autoplay()]);
-  const [emblaThumbsRef, emblaThumbsApi] = useEmblaCarousel({
-    containScroll: "keepSnaps",
-    dragFree: true,
-  });
-
-  const onThumbClick = useCallback(
-    (index: number) => {
-      if (!emblaMainApi || !emblaThumbsApi) return;
-      emblaMainApi.scrollTo(index);
-    },
-    [emblaMainApi, emblaThumbsApi]
-  );
 
   const onSelect = useCallback(() => {
-    if (!emblaMainApi || !emblaThumbsApi) return;
+    if (!emblaMainApi) return;
     setSelectedIndex(emblaMainApi.selectedScrollSnap());
-    emblaThumbsApi.scrollTo(emblaMainApi.selectedScrollSnap());
-  }, [emblaMainApi, emblaThumbsApi, setSelectedIndex]);
+  }, [emblaMainApi, setSelectedIndex]);
 
   useEffect(() => {
     if (!emblaMainApi) return;
@@ -66,103 +52,86 @@ export function PropertyGallery({ images }: PropertyGalleryProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Main viewport */}
-      <div className="relative group overflow-hidden rounded-2xl bg-muted shadow-2xl ring-1 ring-white/10">
-        <div className="overflow-hidden" ref={emblaMainRef}>
-          <div className="flex touch-pan-y">
-            {images.map((image, index) => (
-              <div 
-                key={image.id} 
-                className="relative flex-[0_0_100%] min-w-0 aspect-video md:aspect-video"
-              >
+    <div className="relative w-full h-[60vh] min-h-[500px] overflow-hidden group bg-background">
+      <div className="relative w-full h-full" ref={emblaMainRef}>
+        <div className="flex h-full touch-pan-y">
+          {images.map((image, index) => (
+            <div className="flex-[0_0_100%] min-w-0 relative h-full" key={image.id}>
+              <div className="absolute inset-0">
                 <Image
                   src={image.public_url}
-                  alt={image.alt_text || "Propiedad"}
+                  alt={image.alt_text || "Vista de la propiedad"}
                   fill
-                  unoptimized
+                  className="object-cover select-none"
                   priority={index === 0}
-                  className="object-cover transition-transform duration-700 hover:scale-105"
-                  sizes="(max-width: 1280px) 100vw, 850px"
+                  sizes="100vw"
                 />
-                <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
-            ))}
-          </div>
+              
+              {/* Cover Gradient Overlay */}
+              <div className="absolute inset-0 bg-linear-to-t from-black/30 via-transparent to-transparent opacity-60 pointer-events-none" />
+            </div>
+          ))}
         </div>
+      </div>
 
-        {/* Floating Badges */}
-        <div className="absolute top-4 left-4 flex gap-2 z-10">
-          <Badge className="bg-black/40 backdrop-blur-md text-white border-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-            {selectedIndex + 1} / {images.length}
-          </Badge>
-          {images[selectedIndex].is_cover && (
-            <Badge className="bg-primary/80 backdrop-blur-md text-white border-none px-3 py-1 text-xs font-semibold uppercase tracking-wider">
+      {/* Top Badges */}
+      <div className="absolute top-6 left-6 flex gap-2 z-10">
+          {images[selectedIndex]?.is_cover && (
+            <Badge className="bg-primary hover:bg-primary text-white border-none px-3 py-1.5 text-xs font-semibold uppercase tracking-wider shadow-lg">
               Destacada
             </Badge>
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="absolute bottom-4 right-4 flex gap-2 z-10 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300">
+      {/* Bottom Controls Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 z-10 bg-linear-to-t from-black/70 to-transparent">
+        <div className="max-w-7xl mx-auto w-full flex justify-between items-end">
+          <div className="hidden sm:block">
+            <button 
+              onClick={() => setIsLightboxOpen(true)}
+              className="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all border border-white/30 shadow-sm"
+            >
+              <Maximize2 className="h-4 w-4" />
+              <span className="font-medium text-sm">Ver las {images.length} fotos</span>
+            </button>
+          </div>
+          
+          <div className="hidden sm:block bg-black/40 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-medium border border-white/10 shadow-sm">
+             {selectedIndex + 1} / {images.length}
+          </div>
+        </div>
+      </div>
+
+      {/* Nav Controls */}
+      {images.length > 1 && (
+        <>
           <button
+            onClick={() => emblaMainApi?.scrollPrev()}
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-lg transition-all opacity-0 group-hover:opacity-100 duration-300 z-20 active:scale-95 transform -translate-x-2 group-hover:translate-x-0"
+            aria-label="Cargar imagen anterior"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <button
+            onClick={() => emblaMainApi?.scrollNext()}
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/90 hover:bg-white text-gray-800 shadow-lg transition-all opacity-0 group-hover:opacity-100 duration-300 z-20 active:scale-95 transform translate-x-2 group-hover:translate-x-0"
+            aria-label="Cargar siguiente imagen"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+        </>
+      )}
+
+      {/* Mobile Only overlay button */}
+      <div className="absolute bottom-4 right-4 sm:hidden z-20">
+          <button 
             onClick={() => setIsLightboxOpen(true)}
-            className="p-3 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/20 transition-all shadow-lg active:scale-90"
-            title="Ampliar imagen"
+            className="p-3 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20 shadow-lg"
           >
             <Maximize2 className="h-5 w-5" />
           </button>
-        </div>
-
-        {/* Nav Controls */}
-        {images.length > 1 && (
-          <>
-            <button
-              onClick={() => emblaMainApi?.scrollPrev()}
-              className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md text-white border border-white/10 transition-all opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 duration-300 z-10 active:scale-95"
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </button>
-            <button
-              onClick={() => emblaMainApi?.scrollNext()}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black/20 hover:bg-black/40 backdrop-blur-md text-white border border-white/10 transition-all opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 duration-300 z-10 active:scale-95"
-            >
-              <ChevronRight className="h-6 w-6" />
-            </button>
-          </>
-        )}
       </div>
-
-      {/* Thumbs Gallery */}
-      {images.length > 1 && (
-        <div className="relative px-1 pt-2">
-          <div className="overflow-hidden" ref={emblaThumbsRef}>
-            <div className="flex gap-4">
-              {images.map((image, index) => (
-                <button
-                  key={image.id}
-                  onClick={() => onThumbClick(index)}
-                  className={cn(
-                    "relative flex-[0_0_20%] sm:flex-[0_0_15%] md:flex-[0_0_12%] aspect-square rounded-xl overflow-hidden min-w-0 transition-all duration-300 border-2",
-                    index === selectedIndex
-                      ? "border-primary scale-105 shadow-md shadow-primary/20 brightness-110"
-                      : "border-transparent opacity-60 hover:opacity-100 grayscale-[0.5] hover:grayscale-0"
-                  )}
-                >
-                  <Image
-                    src={image.public_url}
-                    alt={image.alt_text || `Miniatura ${index + 1}`}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                    sizes="100px"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Lightbox / Overlay */}
       <AnimatePresence>
@@ -186,7 +155,7 @@ export function PropertyGallery({ images }: PropertyGalleryProps) {
                     key={selectedIndex}
                     initial={{ scale: 0.9, opacity: 0, x: 20 }}
                     animate={{ scale: 1, opacity: 1, x: 0 }}
-                    className="relative w-full h-full max-h-[80vh]"
+                    className="relative w-full h-full max-h-[80vh] flex items-center justify-center"
                  >
                     <Image
                       src={images[selectedIndex].public_url}
@@ -200,18 +169,18 @@ export function PropertyGallery({ images }: PropertyGalleryProps) {
               </div>
 
               {/* Lightbox Controls */}
-              <div className="flex items-center justify-between mt-auto w-full max-w-2xl mx-auto px-4">
+              <div className="flex items-center justify-between mt-auto w-full max-w-2xl mx-auto px-4 py-4">
                 <button
                   onClick={() => {
                     const prev = (selectedIndex - 1 + images.length) % images.length;
                     setSelectedIndex(prev);
                     emblaMainApi?.scrollTo(prev);
                   }}
-                  className="p-4 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all active:scale-90"
+                  className="p-4 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all active:scale-90 backdrop-blur-md"
                 >
                   <ChevronLeft className="h-8 w-8" />
                 </button>
-                <div className="text-white/80 font-mono text-lg tracking-widest tabular-nums">
+                <div className="text-white/90 font-mono text-lg tracking-widest tabular-nums">
                   {selectedIndex + 1} <span className="text-white/30 ml-2 mr-3">/</span> {images.length}
                 </div>
                 <button
@@ -220,7 +189,7 @@ export function PropertyGallery({ images }: PropertyGalleryProps) {
                     setSelectedIndex(next);
                     emblaMainApi?.scrollTo(next);
                   }}
-                  className="p-4 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all active:scale-90"
+                  className="p-4 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all active:scale-90 backdrop-blur-md"
                 >
                   <ChevronRight className="h-8 w-8" />
                 </button>
