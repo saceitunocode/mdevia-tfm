@@ -1,102 +1,77 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Home, MapPin, Key } from "lucide-react";
+import { HeroSection } from "@/components/home/HeroSection";
+import { FeaturedProperties } from "@/components/home/FeaturedProperties";
+import { Award, ShieldCheck, Clock } from "lucide-react";
 
 export default function HomePage() {
   return (
-    <div className="space-y-20 pb-20">
-      {/* Hero Section */}
-      <section className="relative h-[600px] flex items-center justify-center overflow-hidden bg-primary px-4">
-        <div className="absolute inset-0 bg-black/20 z-10" />
-        <div className="container relative z-20 text-center text-white space-y-6">
-          <h1 className="text-5xl md:text-7xl font-heading font-bold tracking-tighter uppercase whitespace-pre-line">
-            Encuentra tu hogar{"\n"}en Córdoba & Andújar
-          </h1>
-          <p className="text-xl md:text-2xl font-sans max-w-2xl mx-auto text-white/90">
-            Más de 20 años conectando familias con sus sueños. Confianza total en cada gestión.
+    <div className="flex flex-col min-h-screen">
+      <HeroSection />
+      
+      <FeaturedProperties />
+
+      {/* Services / Value Prop Section */}
+      <section className="py-20 bg-muted/20 border-b border-border/50">
+        <div className="container px-4 mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
+             <h2 className="text-3xl font-heading font-bold tracking-tight">
+               Por qué elegir FR Inmobiliaria
+             </h2>
+             <p className="text-muted-foreground text-lg">
+               Combinamos experiencia tradicional con las últimas tecnologías para ofrecerte un servicio transparente y eficaz.
+             </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              { 
+                icon: ShieldCheck, 
+                title: "Confianza Total", 
+                desc: "Más de 20 años de experiencia garantizan una gestión segura y sin sorpresas." 
+              },
+              { 
+                icon: Award, 
+                title: "Servicio Premium", 
+                desc: "Atención personalizada y exclusiva para compradores y vendedores exigentes." 
+              },
+              { 
+                icon: Clock, 
+                title: "Agilidad", 
+                desc: "Procesos optimizados digitalmente para cerrar operaciones en tiempo récord." 
+              }
+            ].map((feature, i) => (
+              <div key={i} className="flex flex-col items-center text-center p-6 space-y-4 bg-background rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-all">
+                <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-2">
+                  <feature.icon size={32} />
+                </div>
+                <h3 className="text-xl font-bold">{feature.title}</h3>
+                <p className="text-muted-foreground">{feature.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 bg-primary text-primary-foreground relative overflow-hidden">
+        {/* Abstract background elements */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/3" />
+        
+        <div className="container px-4 mx-auto text-center relative z-10 space-y-8">
+          <h2 className="text-4xl md:text-5xl font-heading font-bold tracking-tight max-w-4xl mx-auto">
+            ¿Listo para encontrar tu lugar en el mundo?
+          </h2>
+          <p className="text-xl text-primary-foreground/80 max-w-2xl mx-auto">
+            Nuestro equipo de expertos está esperando para guiarte en cada paso del camino.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-            <Link href="/propiedades">
-              <Button size="lg" className="bg-accent hover:bg-accent/90 text-white border-none shadow-xl w-full sm:w-auto">
-                Ver Propiedades
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white/10 w-full sm:w-auto">
-              Contactar
-            </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+             <button className="bg-white text-primary px-8 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-gray-100 transition-colors w-full sm:w-auto">
+               Contactar Ahora
+             </button>
+             <button className="bg-transparent border-2 border-white/30 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-colors w-full sm:w-auto">
+               Ver Inmuebles
+             </button>
           </div>
-        </div>
-      </section>
-
-      {/* Categories / Quick Search */}
-      <section className="container mx-auto px-4 -mt-16 relative z-30">
-        <Card className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-border shadow-2xl">
-          <div className="p-8 flex items-center space-x-4">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <Key size={24} />
-            </div>
-            <div>
-              <h3 className="font-heading font-bold uppercase text-sm">Alquiler</h3>
-              <p className="text-muted-foreground text-xs font-sans">Busca el piso perfecto para ti.</p>
-            </div>
-          </div>
-          <div className="p-8 flex items-center space-x-4">
-            <div className="h-12 w-12 rounded-full bg-accent/10 flex items-center justify-center text-accent">
-              <Home size={24} />
-            </div>
-            <div>
-              <h3 className="font-heading font-bold uppercase text-sm">Venta</h3>
-              <p className="text-muted-foreground text-xs font-sans">Casas, chalets y terrenos.</p>
-            </div>
-          </div>
-          <div className="p-8 flex items-center space-x-4">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-              <MapPin size={24} />
-            </div>
-            <div>
-              <h3 className="font-heading font-bold uppercase text-sm">Suelos</h3>
-              <p className="text-muted-foreground text-xs font-sans">Oportunidades de inversión.</p>
-            </div>
-          </div>
-        </Card>
-      </section>
-
-      {/* Design System Reference (Moved to bottom or kept as showcase) */}
-      <section className="container mx-auto px-4 space-y-12">
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-heading font-bold tracking-tight uppercase">Base Tecnológica</h2>
-          <p className="text-muted-foreground font-sans">Fundaciones visuales de la plataforma.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Tipografía Corporativa</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1">
-                <p className="text-xs uppercase text-muted-foreground font-bold">Outfit (Headings)</p>
-                <p className="text-2xl font-heading font-bold text-primary">FR Inmobiliaria</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs uppercase text-muted-foreground font-bold">Inter (Body)</p>
-                <p className="text-sm font-sans text-foreground leading-relaxed">
-                  Sistema optimizado para legibilidad extrema y rendimiento.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Colores Oficiales</CardTitle>
-            </CardHeader>
-            <CardContent className="flex gap-4">
-              <div className="h-12 w-12 bg-primary rounded shadow-sm border border-black/5" title="FR Blue" />
-              <div className="h-12 w-12 bg-accent rounded shadow-sm border border-black/5" title="FR Green" />
-              <div className="h-12 w-12 bg-background rounded shadow-sm border border-border" title="Pure White" />
-              <div className="h-12 w-12 bg-foreground rounded shadow-sm border border-black/5" title="Pure Black" />
-            </CardContent>
-          </Card>
         </div>
       </section>
     </div>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { Plus, Users, Mail, Phone, Search, Filter, FileEdit, Eye } from "lucide-react";
+import { Plus, Users, Mail, Phone, Search, Filter, FileEdit, Eye, TrendingUp, Zap, Star, Clock } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -43,12 +43,22 @@ export default function AdminClientesPage() {
   }, []);
 
   const getTypeBadge = (type: string) => {
-    switch (type) {
-      case "BUYER": return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">Comprador</span>;
-      case "OWNER": return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">Propietario</span>;
-      case "TENANT": return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800">Inquilino</span>;
-      default: return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700">{type}</span>;
-    }
+    const styles = {
+      BUYER: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
+      OWNER: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
+      TENANT: "bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",
+      DEFAULT: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
+    };
+    
+    const style = styles[type as keyof typeof styles] || styles.DEFAULT;
+    const label = { BUYER: "Comprador", OWNER: "Propietario", TENANT: "Inquilino" }[type] || type;
+
+    return (
+      <span className={cn("inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border", style)}>
+        <span className={cn("h-1.5 w-1.5 rounded-full mr-1.5", type === 'BUYER' ? 'bg-blue-600' : type === 'OWNER' ? 'bg-emerald-600' : 'bg-purple-600')} />
+        {label}
+      </span>
+    );
   };
 
   const filteredClients = clients.filter(client => {
@@ -57,6 +67,22 @@ export default function AdminClientesPage() {
     const matchesType = filterType === "ALL" || client.type === filterType;
     return matchesSearch && matchesType;
   });
+
+  // Mock colors for avatars
+  const avatarColors = [
+    "bg-red-100 text-red-700",
+    "bg-yellow-100 text-yellow-700", 
+    "bg-green-100 text-green-700",
+    "bg-blue-100 text-blue-700",
+    "bg-indigo-100 text-indigo-700",
+    "bg-purple-100 text-purple-700",
+    "bg-pink-100 text-pink-700",
+  ];
+
+  const getAvatarColor = (name: string) => {
+    const index = name.length % avatarColors.length;
+    return avatarColors[index];
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -74,8 +100,65 @@ export default function AdminClientesPage() {
         </Link>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Total Clientes</p>
+              <h3 className="text-2xl font-bold mt-1">{clients.length}</h3>
+            </div>
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
+              <Users className="h-5 w-5" />
+            </div>
+          </div>
+          <div className="mt-2 flex items-center text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+             <TrendingUp className="h-3 w-3 mr-1" /> +12% este mes
+          </div>
+        </div>
+
+        <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Alta Prioridad</p>
+              <h3 className="text-2xl font-bold mt-1">{Math.floor(clients.length * 0.2)}</h3>
+            </div>
+            <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg text-red-600 dark:text-red-400">
+              <Zap className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">Requieren atención inmediata</p>
+        </div>
+
+        <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
+           <div className="flex justify-between items-start">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Tratos Activos</p>
+              <h3 className="text-2xl font-bold mt-1">12</h3>
+            </div>
+            <div className="p-2 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg text-emerald-600 dark:text-emerald-400">
+              <Star className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">4 cierres previstos esta semana</p>
+        </div>
+
+        <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
+           <div className="flex justify-between items-start">
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Nuevos Leads</p>
+              <h3 className="text-2xl font-bold mt-1">5</h3>
+            </div>
+            <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg text-orange-600 dark:text-orange-400">
+              <Clock className="h-5 w-5" />
+            </div>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">Últimos 7 días</p>
+        </div>
+      </div>
+
       {/* Filters & Search */}
-      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm">
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm mt-8">
         <div className="relative w-full sm:w-96">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-4 w-4 text-muted-foreground" />
@@ -148,6 +231,7 @@ export default function AdminClientesPage() {
                   <th className="px-6 py-4 font-medium">Cliente</th>
                   <th className="px-6 py-4 font-medium">Contacto</th>
                   <th className="px-6 py-4 font-medium">Tipo</th>
+                  <th className="px-6 py-4 font-medium">Últ. Contacto</th>
                   <th className="px-6 py-4 font-medium">Estado</th>
                   <th className="px-6 py-4 font-medium text-right">Acciones</th>
                 </tr>
@@ -157,7 +241,7 @@ export default function AdminClientesPage() {
                   <tr key={client.id} className="group hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-4">
                        <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0 uppercase">
+                          <div className={cn("h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 uppercase", getAvatarColor(client.full_name))}>
                              {client.full_name.charAt(0)}
                           </div>
                           <div>
@@ -185,24 +269,28 @@ export default function AdminClientesPage() {
                     <td className="px-6 py-4">
                        {getTypeBadge(client.type)}
                     </td>
+                    <td className="px-6 py-4 text-muted-foreground text-xs">
+                        {/* Mock date */}
+                       {new Date().toLocaleDateString()}
+                    </td>
                     <td className="px-6 py-4">
                        <span className={cn(
-                          "inline-flex items-center w-2 h-2 rounded-full mr-2",
-                          client.is_active ? "bg-emerald-500" : "bg-gray-300"
-                       )} />
-                       <span className="text-muted-foreground font-medium">
+                          "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
+                          client.is_active ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-gray-100 text-gray-600"
+                       )}>
+                          <span className={cn("h-1.5 w-1.5 rounded-full", client.is_active ? "bg-emerald-600" : "bg-gray-400")} />
                           {client.is_active ? "Activo" : "Inactivo"}
                        </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                       <div className="flex items-center justify-end gap-2">
+                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <Link href={`/oficina/clientes/${client.id}`}>
-                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary">
+                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary hover:bg-primary/10">
                                 <Eye className="h-4 w-4" />
                              </Button>
                           </Link>
                           <Link href={`/oficina/clientes/${client.id}/editar`}>
-                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-blue-500">
+                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-blue-500 hover:bg-blue-50">
                                 <FileEdit className="h-4 w-4" />
                              </Button>
                           </Link>
