@@ -66,12 +66,10 @@ export function PropertyFilters() {
 
   // Effect for immediate updates (toggles, radios, buttons)
   useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false;
-      return;
+    if (!isInitialMount.current) {
+      applyFilters();
     }
-    applyFilters();
-  }, [operationType, propertyTypes, amenities, rooms, baths, hasElevator, applyFilters]);
+  }, [operationType, propertyTypes, amenities, rooms, baths, hasElevator]);
 
   // Effect for debounced updates (text inputs)
   useEffect(() => {
@@ -81,7 +79,11 @@ export function PropertyFilters() {
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [city, priceMin, priceMax, applyFilters]);
+  }, [city, priceMin, priceMax]);
+
+  useEffect(() => {
+    isInitialMount.current = false;
+  }, []);
 
   // Sync state with URL when searchParams change externally (e.g. back/forward navigation)
   useEffect(() => {
@@ -99,6 +101,16 @@ export function PropertyFilters() {
 
     const paramsPriceMax = searchParams.get("price_max") || "";
     if (paramsPriceMax !== priceMax) setPriceMax(paramsPriceMax);
+
+    const paramsRooms = searchParams.get("rooms") || "";
+    if (paramsRooms !== rooms) setRooms(paramsRooms);
+
+    const paramsBaths = searchParams.get("baths") || "";
+    if (paramsBaths !== baths) setBaths(paramsBaths);
+
+    const paramsElevator = searchParams.get("has_elevator");
+    const elevatorVal = paramsElevator === "true" ? true : paramsElevator === "false" ? false : null;
+    if (elevatorVal !== hasElevator) setHasElevator(elevatorVal);
     
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui/Card";
-import { MapPin, BedDouble, Bath, Maximize, Heart } from "lucide-react";
+import { MapPin, BedDouble, Bath, Maximize } from "lucide-react";
 
 export interface PropertyCardData {
   id: string;
