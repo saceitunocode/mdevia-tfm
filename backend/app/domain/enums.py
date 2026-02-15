@@ -19,7 +19,6 @@ class PropertyType(str, Enum):
     APARTMENT = "APARTMENT"
     OFFICE = "OFFICE"
     LAND = "LAND"
-    CHALET = "CHALET"
 
 class VisitStatus(str, Enum):
     PENDING = "PENDING"

@@ -207,8 +207,8 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                   <div className="flex justify-between border-b border-border/50 pb-2">
                     <span className="text-muted-foreground">Tipo de inmueble</span>
                     <span className="font-medium">
-                      {property.type === "HOUSE" ? "Casa/Chalet" : 
-                       property.type === "APARTMENT" ? "Piso/Apartamento" : 
+                      {property.type === "HOUSE" ? "Casa" : 
+                       property.type === "APARTMENT" ? "Piso" : 
                        property.type === "OFFICE" ? "Oficina" : 
                        property.type === "LAND" ? "Terreno" : property.type}
                     </span>

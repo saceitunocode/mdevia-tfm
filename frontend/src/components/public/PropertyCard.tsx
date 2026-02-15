@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui/Card";
-import { MapPin, BedDouble, Bath, Maximize, Heart } from "lucide-react";
+import { MapPin, BedDouble, Bath, Maximize } from "lucide-react";
 
 export interface PropertyCardData {
   id: string;
@@ -66,14 +66,6 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
             {isForRent ? "Alquiler" : "Venta"}
           </span>
         </div>
-
-        {/* Favorite Button - Higher z-index to be clickable */}
-        <button 
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); /* handle favorite logic */ }}
-          className="absolute top-4 right-4 p-2 bg-white/90 dark:bg-black/50 backdrop-blur-sm rounded-full text-foreground/70 hover:text-red-500 transition-colors z-20"
-        >
-          <Heart className="h-5 w-5" />
-        </button>
 
         {/* Price Overlay */}
         <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 z-20">

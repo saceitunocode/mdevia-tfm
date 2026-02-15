@@ -53,8 +53,8 @@ export function HeroSection() {
                 </div>
                 <select className="block w-full pl-10 pr-10 py-3 border border-border rounded-xl bg-transparent focus:ring-2 focus:ring-primary focus:border-primary sm:text-sm transition-colors appearance-none outline-none">
                   <option>Tipo de Propiedad</option>
-                  <option>Piso / Apartamento</option>
-                  <option>Casa / Chalet</option>
+                  <option>Piso</option>
+                  <option>Casa</option>
                   <option>Local Comercial</option>
                   <option>Terreno</option>
                 </select>
