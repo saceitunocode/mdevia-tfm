@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/Label";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/Card";
 import { ArrowLeft, Save, UserCog, Power, KeyRound } from "lucide-react";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { apiRequest } from "@/lib/api";
 import { toast } from "sonner";
@@ -153,15 +154,6 @@ export default function DetalleUsuarioPage() {
           </Link>
           <h1 className="text-3xl font-heading font-bold">Configuración de Usuario</h1>
         </div>
-        <Button 
-          variant={formData.is_active ? "destructive" : "default"}
-          onClick={toggleStatus}
-          disabled={isSaving}
-          className="gap-2"
-        >
-          <Power className="h-4 w-4" />
-          {formData.is_active ? "Desactivar" : "Activar"} Acceso
-        </Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
@@ -275,6 +267,26 @@ export default function DetalleUsuarioPage() {
                     <Badge variant="destructive" className="w-fit mx-auto">INACTIVO</Badge>
                   )}
                 </div>
+              </div>
+
+              <div className="w-full pt-8 px-4">
+                <Button 
+                  variant={formData.is_active ? "outline" : "default"}
+                  onClick={toggleStatus}
+                  disabled={isSaving}
+                  className={cn(
+                    "w-full gap-2 rounded-xl py-6 font-bold transition-all duration-300",
+                    formData.is_active 
+                      ? "text-destructive border-destructive/20 hover:bg-destructive hover:text-white" 
+                      : "bg-primary shadow-lg shadow-primary/20"
+                  )}
+                >
+                  <Power className="h-4 w-4" />
+                  {formData.is_active ? "Desactivar" : "Activar"} Acceso
+                </Button>
+                <p className="text-[10px] text-muted-foreground mt-3 font-medium uppercase tracking-widest">
+                  {formData.is_active ? "El usuario perderá acceso inmediato" : "El usuario recuperará acceso al sistema"}
+                </p>
               </div>
             </CardContent>
             <CardFooter className="border-t bg-muted/30 pt-6 text-xs text-center text-muted-foreground">
