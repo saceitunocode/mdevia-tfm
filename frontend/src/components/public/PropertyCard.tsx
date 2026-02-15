@@ -67,14 +67,6 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
           </span>
         </div>
 
-        {/* Favorite Button - Higher z-index to be clickable */}
-        <button 
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); /* handle favorite logic */ }}
-          className="absolute top-4 right-4 p-2 bg-white/90 dark:bg-black/50 backdrop-blur-sm rounded-full text-foreground/70 hover:text-red-500 transition-colors z-20"
-        >
-          <Heart className="h-5 w-5" />
-        </button>
-
         {/* Price Overlay */}
         <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 z-20">
            <span className="text-white font-bold text-2xl shadow-sm text-shadow">

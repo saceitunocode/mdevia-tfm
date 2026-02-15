@@ -11,7 +11,7 @@ def seed_dense_agenda(db, agents, clients, properties):
     # Generate ~50 random events across the next 30 days to make the calendar look alive
     event_titles = {
         EventType.REMINDER: ["Seguimiento clientes", "Actualizar precios", "Revisar contratos", "Llamar banco", "Preparar documentación"],
-        EventType.CAPTATION: ["Visita captación portal 4", "Reunión comunidad vecinos", "Valoración piso Pozuelo", "Captación chalet centro"],
+        EventType.CAPTATION: ["Visita captación portal 4", "Reunión comunidad vecinos", "Valoración piso Pozuelo", "Captación casa centro"],
         EventType.NOTE: ["Bloquear tarde para curso", "Reunión equipo FR", "Almuerzo con socio", "Revisión portal inmobiliario"],
         EventType.VISIT: ["Visita rutinaria", "Entrega de llaves", "Firma reserva", "Enseñar local"]
     }

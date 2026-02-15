@@ -109,7 +109,7 @@ function ShowcaseContent() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Filters sidebar - Occupies full height from header level */}
         <aside className="w-full lg:w-72 lg:shrink-0">
-            <PropertyFilters key={searchParams.toString()} />
+            <PropertyFilters />
         </aside>
 
         {/* Content Area */}

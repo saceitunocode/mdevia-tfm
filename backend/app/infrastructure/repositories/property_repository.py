@@ -1,6 +1,7 @@
 from typing import List, Optional, Union, Dict, Any
 from decimal import Decimal
 import uuid
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 from app.infrastructure.database.models.property import Property
 from app.infrastructure.database.models.property_note import PropertyNote
@@ -85,7 +86,7 @@ class PropertyRepository:
         )
 
         if city is not None:
-            query = query.filter(Property.city.ilike(city))
+            query = query.filter(or_(Property.city.ilike(f"%{city}%"), Property.postal_code.ilike(f"%{city}%")))
         if price_min is not None:
             query = query.filter(Property.price_amount >= price_min)
         if price_max is not None:

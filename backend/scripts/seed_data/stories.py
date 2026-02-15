@@ -40,7 +40,7 @@ def seed_stories(db: Session, agents: list, clients: list):
             "notes": ["Reformado recientemente", "Comunidad: 50€/mes"]
         },
         {
-            "title": "Chalet con Jardín", "city": "Las Rozas", "price": 450000, "rooms": 5, "sqm": 250, "type": OperationType.SALE, 
+            "title": "Casa con Jardín", "city": "Las Rozas", "price": 450000, "rooms": 5, "sqm": 250, "type": OperationType.SALE, 
             "images": [photos["exterior"][0], photos["living"][1], photos["kitchen"][1], photos["bedroom"][1], photos["bathroom"][1], photos["exterior"][4], photos["detail"][1]],
             "notes": ["Piscina climatizada", "Garaje para 2 coches"]
         },
@@ -103,7 +103,7 @@ def seed_stories(db: Session, agents: list, clients: list):
         is_featured = i in [1, 2, 3, 6, 8, 9]  # Mark exactly 6 as featured
         
         # New Field Logic
-        p_type = random.choice([PropertyType.APARTMENT, PropertyType.HOUSE, PropertyType.CHALET])
+        p_type = random.choice([PropertyType.APARTMENT, PropertyType.HOUSE])
         # Ensure consistency with p_info type if possible, or just use what we have
         op_type = p_info["type"]
         
