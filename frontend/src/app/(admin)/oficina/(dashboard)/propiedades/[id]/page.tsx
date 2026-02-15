@@ -8,9 +8,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { 
     Loader2, ArrowLeft, Edit, MapPin, Ruler, BedDouble, 
-    Tag, User, Plus, Calendar, Briefcase, Activity, 
+    User as UserIcon, Plus, Calendar, Briefcase, Activity, 
     ArrowUpRight, ArrowDownRight, TrendingUp, Clock,
-    ChevronRight
+    ChevronRight, Bath, Layers, ArrowUp, Mail, Shield
 } from "lucide-react";
 import Link from "next/link";
 import { PropertyGallery } from "@/components/public/PropertyGallery";
@@ -146,13 +146,35 @@ export default function PropertyDetailPage() {
             </div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-heading font-bold">{property.title}</h1>
-              <Badge variant={property.status === PropertyStatus.AVAILABLE ? 'default' : 'secondary'} className="text-sm px-3 py-1 uppercase tracking-wide">
-                  {property.status}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={property.status === PropertyStatus.AVAILABLE ? 'default' : 'secondary'} className="text-sm px-3 py-1 uppercase tracking-wide">
+                    {property.status}
+                </Badge>
+                {property.is_featured && (
+                    <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-200 text-xs font-bold uppercase tracking-wider">
+                        Destacado
+                    </Badge>
+                )}
+                {property.is_published ? (
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 text-xs font-bold uppercase tracking-wider">
+                        Publicado
+                    </Badge>
+                ) : (
+                    <Badge variant="outline" className="bg-slate-100 text-slate-500 border-slate-200 text-xs font-bold uppercase tracking-wider">
+                        Borrador
+                    </Badge>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
                 <MapPin className="h-4 w-4 text-primary" />
-                <span>{property.address_line1}, {property.city}</span>
+                <span>
+                    {property.address_line1}
+                    {property.address_line2 ? `, ${property.address_line2}` : ''}
+                    {property.postal_code ? ` (${property.postal_code})` : ''}, {property.city}
+                </span>
+                <span className="mx-1">•</span>
+                <span className="font-medium text-foreground/80">{property.property_type === 'APARTMENT' ? 'Piso' : property.property_type === 'HOUSE' ? 'Casa' : property.property_type === 'OFFICE' ? 'Oficina' : 'Terreno'} en {property.operation_type === 'SALE' ? 'Venta' : 'Alquiler'}</span>
             </div>
           </div>
         </div>
@@ -163,24 +185,112 @@ export default function PropertyDetailPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Gallery & Description */}
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Main Column: Gallery, Price/Specs, Description */}
+        <div className="lg:col-span-8 space-y-6">
             <PropertyGallery images={property.images || []} />
 
-            {/* Description */}
+            {/* Price & Specs Block - MOVED HERE with ORIGINAL STYLE */}
+            <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm">
+                <CardContent className="p-6 space-y-6">
+                    <div className="flex items-baseline justify-between border-b pb-4">
+                        <span className="text-muted-foreground font-medium">Precio</span>
+                        <span className="text-3xl font-bold text-primary flex items-center gap-1">
+                            {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(property.price_amount)}
+                        </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="flex flex-col gap-1 p-4 rounded-xl bg-muted/40 text-center transition-all hover:bg-muted/60">
+                            <div className="flex items-center justify-center text-primary mb-1">
+                                <Ruler className="h-6 w-6" />
+                            </div>
+                            <span className="text-2xl font-bold">{property.sqm}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Metros ²</span>
+                        </div>
+                        <div className="flex flex-col gap-1 p-4 rounded-xl bg-muted/40 text-center transition-all hover:bg-muted/60">
+                            <div className="flex items-center justify-center text-primary mb-1">
+                                <BedDouble className="h-6 w-6" />
+                            </div>
+                            <span className="text-2xl font-bold">{property.rooms}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Habitaciones</span>
+                        </div>
+                        <div className="flex flex-col gap-1 p-4 rounded-xl bg-muted/40 text-center transition-all hover:bg-muted/60">
+                            <div className="flex items-center justify-center text-primary mb-1">
+                                <Bath className="h-6 w-6" />
+                            </div>
+                            <span className="text-2xl font-bold">{property.baths}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Baños</span>
+                        </div>
+                        <div className="flex flex-col gap-1 p-4 rounded-xl bg-muted/40 text-center transition-all hover:bg-muted/60 relative overflow-hidden">
+                            <div className="flex items-center justify-center text-primary mb-1">
+                                <Layers className="h-6 w-6" />
+                            </div>
+                            <span className="text-2xl font-bold">{property.floor !== null ? `${property.floor}ª` : 'Bajo'}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider mb-1">Planta</span>
+                            
+                            {property.has_elevator ? (
+                                <div className="mt-1 py-0.5 px-2 bg-emerald-500 text-white text-[9px] font-black uppercase rounded-full inline-flex items-center justify-center gap-1 mx-auto">
+                                    <ArrowUp className="h-2.5 w-2.5" /> Ascensor
+                                </div>
+                            ) : (
+                                <div className="mt-1 py-0.5 px-2 bg-slate-200 text-slate-500 text-[9px] font-bold uppercase rounded-full inline-flex items-center justify-center mx-auto">
+                                    Sin Ascensor
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+            
             <Card className="border-none shadow-sm">
                 <CardHeader>
                     <CardTitle className="text-xl font-heading">Descripción</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap text-sm">
                         {property.public_description || "Sin descripción pública disponible."}
                     </p>
                 </CardContent>
             </Card>
+        </div>
 
-            {/* Visits Section */}
+        {/* Sidebar: Management Blocks with ORIGINAL STYLES */}
+        <div className="lg:col-span-4 space-y-6">
+            {/* Owner Section - Original Green Style */}
+            <Card className="border-l-4 border-l-green-500 shadow-sm overflow-hidden">
+                <CardHeader className="pb-2 bg-green-50/50">
+                    <CardTitle className="text-lg font-heading flex items-center gap-2">
+                        <UserIcon className="h-5 w-5 text-green-600" /> Propietario
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 px-0">
+                    {property.owner_client ? (
+                        <Link href={`/oficina/clientes/${property.owner_client.id}`} className="block hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center justify-between p-4 group">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center text-green-700">
+                                        <UserIcon size={20} />
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <p className="font-bold text-sm group-hover:text-primary transition-colors">{property.owner_client.full_name}</p>
+                                        <p className="text-xs text-muted-foreground">
+                                            {property.owner_client.email || "Sin email"} • {property.owner_client.phone || "Sin teléfono"}
+                                        </p>
+                                    </div>
+                                </div>
+                                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                            </div>
+                        </Link>
+                    ) : (
+                        <div className="text-center py-6 text-muted-foreground text-sm italic">
+                            Sin propietario asignado.
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+
+            {/* Visits Section - Original Primary Style */}
             <Card className="border-l-4 border-l-primary shadow-sm overflow-hidden">
                 <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/10">
                     <CardTitle className="text-lg font-heading flex items-center gap-2">
@@ -195,7 +305,7 @@ export default function PropertyDetailPage() {
                 </CardContent>
             </Card>
 
-            {/* Operations Section */}
+            {/* Operations Section - Original Blue Style */}
             <Card className="border-l-4 border-l-blue-500 shadow-sm overflow-hidden">
                 <CardHeader className="pb-2 bg-blue-50/50">
                     <CardTitle className="text-lg font-heading flex items-center gap-2">
@@ -208,12 +318,12 @@ export default function PropertyDetailPage() {
                             No hay operaciones asociadas a esta propiedad.
                         </div>
                     ) : (
-                        <OperationList operations={property.operations} isLoading={false} />
+                        <OperationList operations={property.operations || []} isLoading={false} />
                     )}
                 </CardContent>
             </Card>
 
-            {/* Change History (Prices & Status) */}
+            {/* Change History - Original Orange Style */}
             <Card className="border-l-4 border-l-orange-500 shadow-sm overflow-hidden">
                 <CardHeader className="pb-2 bg-orange-50/50">
                     <CardTitle className="text-lg font-heading flex items-center gap-2">
@@ -261,11 +371,6 @@ export default function PropertyDetailPage() {
                                                     </span>
                                                 </div>
                                             )}
-                                            {change.note && (
-                                                <p className="text-xs text-muted-foreground italic bg-muted/20 p-2 rounded">
-                                                    {change.note}
-                                                </p>
-                                            )}
                                         </div>
                                     </div>
                                 ))}
@@ -274,89 +379,35 @@ export default function PropertyDetailPage() {
                     </div>
                 </CardContent>
             </Card>
-        </div>
 
-        {/* Right Column: Key Details & Notes */}
-        <div className="space-y-6">
-            {/* Price & Specs */}
-            <Card className="border-none shadow-lg bg-card/50 backdrop-blur-sm sticky top-6">
-                <CardContent className="p-6 space-y-6">
-                    <div className="flex items-baseline justify-between border-b pb-4">
-                        <span className="text-muted-foreground font-medium">Precio</span>
-                        <span className="text-3xl font-bold text-primary flex items-center gap-1">
-                            {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(property.price_amount)}
-                        </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1 p-3 rounded-lg bg-muted/40 text-center">
-                            <div className="flex items-center justify-center text-primary mb-1">
-                                <Ruler className="h-5 w-5" />
-                            </div>
-                            <span className="text-2xl font-bold">{property.sqm}</span>
-                            <span className="text-xs text-muted-foreground uppercase font-medium">Metros ²</span>
-                        </div>
-                        <div className="flex flex-col gap-1 p-3 rounded-lg bg-muted/40 text-center">
-                            <div className="flex items-center justify-center text-primary mb-1">
-                                <BedDouble className="h-5 w-5" />
-                            </div>
-                            <span className="text-2xl font-bold">{property.rooms}</span>
-                            <span className="text-xs text-muted-foreground uppercase font-medium">Habitaciones</span>
-                        </div>
-                    </div>
-
-                    <div className="space-y-3 pt-2">
-                         <div className="flex items-center justify-between text-sm">
-                            <span className="flex items-center gap-2 text-muted-foreground">
-                                <Tag className="h-4 w-4" /> Referencia
-                            </span>
-                            <span className="font-mono text-xs">{property.id.substring(0, 8)}</span>
-                         </div>
-                         
-                         <div className="flex items-center justify-between text-sm">
-                            <span className="flex items-center gap-2 text-muted-foreground">
-                                <Clock className="h-4 w-4" /> Captador
-                            </span>
-                            <span className="font-medium">Admin (Tú)</span>
-                         </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* Owner Section */}
-            <Card className="border-l-4 border-l-green-500 shadow-sm overflow-hidden">
-                <CardHeader className="pb-2 bg-green-50/50">
+            {/* Captor Agent Section - Original Purple Style */}
+            <Card className="border-l-4 border-l-purple-500 shadow-sm overflow-hidden">
+                <CardHeader className="pb-2 bg-purple-50/50">
                     <CardTitle className="text-lg font-heading flex items-center gap-2">
-                        <User className="h-5 w-5 text-green-600" /> Propietario
+                        <Shield className="h-5 w-5 text-purple-600" /> Agente Captador
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4 px-0">
-                    {property.owner_client ? (
-                        <Link href={`/oficina/clientes/${property.owner_client.id}`} className="block hover:bg-muted/50 transition-colors">
-                            <div className="flex items-center justify-between p-4 group">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center text-green-700">
-                                        <User size={20} />
-                                    </div>
-                                    <div className="space-y-0.5">
-                                        <p className="font-bold text-sm group-hover:text-primary transition-colors">{property.owner_client.full_name}</p>
-                                        <p className="text-xs text-muted-foreground">
-                                            {property.owner_client.email || "Sin email"} • {property.owner_client.phone || "Sin teléfono"}
-                                        </p>
-                                    </div>
-                                </div>
-                                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+                <CardContent className="pt-4 p-4">
+                    {property.captor_agent ? (
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
+                                <UserIcon size={20} />
                             </div>
-                        </Link>
-                    ) : (
-                        <div className="text-center py-6 text-muted-foreground text-sm italic">
-                            Sin propietario asignado.
+                            <div className="space-y-0.5">
+                                <p className="font-bold text-sm">{property.captor_agent.full_name}</p>
+                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                    <Mail className="h-3 w-3" />
+                                    {property.captor_agent.email}
+                                </div>
+                            </div>
                         </div>
+                    ) : (
+                        <p className="text-sm text-muted-foreground text-center py-2">No se ha asignado un agente captador.</p>
                     )}
                 </CardContent>
             </Card>
 
-            {/* Internal & Dynamic Notes */}
+            {/* Notes Section - Original Style */}
             <div className="space-y-4">
                 <Card className="border-none shadow-sm h-full">
                     <CardHeader className="pb-2">

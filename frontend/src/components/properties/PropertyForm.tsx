@@ -13,17 +13,28 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { ImageUpload } from "./ImageUpload";
 import { PropertyGalleryManager } from "./PropertyGalleryManager";
 import { toast } from "sonner";
+import { Combobox } from "@/components/ui/Combobox";
+import { Controller } from "react-hook-form";
+import { PropertyStatus, PropertyType, OperationType } from "@/types/property";
 
 const propertySchema = z.object({
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
   address_line1: z.string().min(1, "La dirección es obligatoria"),
+  address_line2: z.string().nullable().optional().transform(v => v ?? ""),
   city: z.string().min(1, "La ciudad es obligatoria"),
+  postal_code: z.string().nullable().optional().transform(v => v ?? ""),
   sqm: z.coerce.number().positive("Los metros cuadrados deben ser positivos"),
   rooms: z.coerce.number().int().nonnegative(),
+  baths: z.coerce.number().int().min(1, "Debe tener al menos 1 baño"),
+  floor: z.coerce.number().int().nullable().optional(),
+  has_elevator: z.boolean().default(false),
   price_amount: z.coerce.number().positive("El precio debe ser positivo"),
   owner_client_id: z.string().uuid("Debes seleccionar un propietario"),
-  status: z.enum(["AVAILABLE", "SOLD", "RENTED"]),
+  status: z.nativeEnum(PropertyStatus),
+  property_type: z.nativeEnum(PropertyType),
+  operation_type: z.nativeEnum(OperationType),
   is_published: z.boolean().default(true),
+  is_featured: z.boolean().default(false),
   public_description: z.string().nullable().optional().transform(v => v ?? ""),
   internal_notes: z.string().nullable().optional().transform(v => v ?? ""),
 });
@@ -46,19 +57,26 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
   const {
     register,
     handleSubmit,
+    control,
   } = useForm<PropertyFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(propertySchema) as any,
     defaultValues: {
       rooms: 1,
+      baths: 1,
       sqm: 0,
       price_amount: 0,
       title: "",
       address_line1: "",
+      address_line2: "",
       city: "",
+      postal_code: "",
       owner_client_id: "",
-      status: "AVAILABLE",
+      status: PropertyStatus.AVAILABLE,
+      property_type: PropertyType.APARTMENT,
+      operation_type: OperationType.SALE,
       is_published: true,
+      is_featured: false,
       public_description: "",
       internal_notes: "",
       ...initialValues,
@@ -67,7 +85,8 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
         public_description: initialValues.public_description ?? "",
         internal_notes: initialValues.internal_notes ?? "",
       }),
-    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any, 
   });
 
   const onFormSubmit = (values: PropertyFormValues) => {
@@ -112,7 +131,26 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="address_line1">Dirección</Label>
+                    <Label htmlFor="property_type">Tipo de Inmueble</Label>
+                    <Select id="property_type" className="h-11" {...register("property_type")}>
+                      <option value="APARTMENT">Piso / Apartamento</option>
+                      <option value="HOUSE">Casa / Chalet</option>
+                      <option value="OFFICE">Oficina</option>
+                      <option value="LAND">Terreno</option>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="operation_type">Tipo de Operación</Label>
+                    <Select id="operation_type" className="h-11" {...register("operation_type")}>
+                      <option value="SALE">Venta</option>
+                      <option value="RENT">Alquiler</option>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="address_line1">Dirección (Línea 1)</Label>
                     <Input
                       id="address_line1"
                       placeholder="Calle, número, piso"
@@ -120,6 +158,18 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                       {...register("address_line1")}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address_line2">Dirección (Línea 2)</Label>
+                    <Input
+                      id="address_line2"
+                      placeholder="Bloque, puerta, etc. (opcional)"
+                      className="h-11"
+                      {...register("address_line2")}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="city">Ciudad</Label>
                     <Input
@@ -129,9 +179,18 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                       {...register("city")}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="postal_code">Código Postal</Label>
+                    <Input
+                      id="postal_code"
+                      placeholder="Ej: 28001"
+                      className="h-11"
+                      {...register("postal_code")}
+                    />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="sqm">Superficie (m²)</Label>
                     <Input
@@ -151,48 +210,97 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="price_amount">Precio (€)</Label>
+                    <Label htmlFor="baths">Baños</Label>
                     <Input
-                      id="price_amount"
+                      id="baths"
                       type="number"
-                      className="h-11 font-bold text-primary"
-                      {...register("price_amount")}
+                      className="h-11"
+                      {...register("baths")}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="floor">Planta</Label>
+                    <Input
+                      id="floor"
+                      type="number"
+                      placeholder="0 para bajo"
+                      className="h-11"
+                      {...register("floor")}
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="status">Estado</Label>
+                    <Label htmlFor="price_amount">Precio (€)</Label>
+                    <Input
+                      id="price_amount"
+                      type="number"
+                      className="h-11 font-bold text-xl text-primary"
+                      {...register("price_amount")}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Estado Comercial</Label>
                     <Select id="status" className="h-11" {...register("status")}>
                       <option value="AVAILABLE">Disponible</option>
                       <option value="SOLD">Vendido</option>
                       <option value="RENTED">Alquilado</option>
                     </Select>
                   </div>
-                  <div className="flex items-center space-x-2 pt-8">
+                </div>
+
+                <div className="grid grid-cols-3 gap-4 border p-4 rounded-lg bg-muted/20">
+                    <div className="flex items-center space-x-2">
+                        <input
+                            type="checkbox"
+                            id="has_elevator"
+                            className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                            {...register("has_elevator")}
+                        />
+                        <Label htmlFor="has_elevator" className="cursor-pointer font-medium text-xs">
+                            Ascensor
+                        </Label>
+                    </div>
+                  <div className="flex items-center space-x-2">
                     <input
                         type="checkbox"
                         id="is_published"
                         className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
                         {...register("is_published")}
                     />
-                    <Label htmlFor="is_published" className="cursor-pointer font-medium">
-                        Publicar en el sitio web
+                    <Label htmlFor="is_published" className="cursor-pointer font-medium text-xs">
+                        Publicado
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        id="is_featured"
+                        className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                        {...register("is_featured")}
+                    />
+                    <Label htmlFor="is_featured" className="cursor-pointer font-medium text-xs">
+                        Destacado
                     </Label>
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="owner_client_id">Propietario / Cliente</Label>
-                  <Select id="owner_client_id" className="h-11" {...register("owner_client_id")}>
-                    <option value="">Selecciona un cliente</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.full_name}
-                      </option>
-                    ))}
-                  </Select>
+                  <Controller
+                    name="owner_client_id"
+                    control={control}
+                    render={({ field }) => (
+                      <Combobox
+                        options={clients.map(c => ({ value: c.id, label: c.full_name }))}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Buscar propietario..."
+                        searchPlaceholder="Escribe el nombre del cliente..."
+                      />
+                    )}
+                  />
                 </div>
 
                 <div className="space-y-2">

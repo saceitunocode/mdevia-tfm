@@ -115,6 +115,7 @@ class Property(PropertyBase):
     visits: List["VisitPublic"] = []
     operations: List["OperationPublic"] = []
     owner_client: Optional["Client"] = None
+    captor_agent: Optional["User"] = None
     status_history: List[PropertyStatusHistory] = []
     is_active: bool
     created_at: datetime
