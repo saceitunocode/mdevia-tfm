@@ -181,7 +181,7 @@ export function PropertyFilters() {
             </button>
             <button
               onClick={() => setOperationType("RENT")}
-              className={`text-xs py-1.5 rounded-md font-medium transition-all ${operationType === "RENT" ? 'bg-secondary text-secondary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`text-xs py-1.5 rounded-md font-medium transition-all ${operationType === "RENT" ? 'bg-accent text-accent-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
             >
               Alquiler
             </button>

@@ -62,7 +62,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
         
         {/* Status Badge */}
         <div className="absolute top-4 left-4 z-20">
-          <span className={`px-3 py-1 text-xs font-bold uppercase rounded-md shadow-sm tracking-wide text-white ${isForRent ? 'bg-secondary' : 'bg-primary'}`}>
+          <span className={`px-3 py-1 text-xs font-bold uppercase rounded-md shadow-sm tracking-wide text-white ${isForRent ? 'bg-accent' : 'bg-primary'}`}>
             {isForRent ? "Alquiler" : "Venta"}
           </span>
         </div>

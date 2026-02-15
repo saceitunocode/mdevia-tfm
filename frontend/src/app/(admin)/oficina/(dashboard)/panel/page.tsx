@@ -11,6 +11,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { getStatusConfig } from "@/constants/status";
 
 // --- Types ---
 interface DashboardStats {
@@ -57,28 +58,6 @@ interface DashboardData {
   recent_operations: RecentOperation[];
 }
 
-// --- Configuration ---
-const STATUS_STYLES: Record<string, string> = {
-  AVAILABLE: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
-  SOLD: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
-  RENTED: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800",
-  PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
-  DEFAULT: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
-};
-
-const getStatusStyle = (status: string) => STATUS_STYLES[status] || STATUS_STYLES.DEFAULT;
-
-const STATUS_LABELS: Record<string, string> = {
-  AVAILABLE: "Disponible",
-  SOLD: "Vendido",
-  RENTED: "Alquilado",
-  INTEREST: "Interés",
-  NEGOTIATION: "Negociación",
-  RESERVED: "Reservado",
-  CLOSED: "Cerrado",
-  CANCELLED: "Cancelado",
-  PENDING: "Pendiente",
-};
 
 // --- Components ---
 
@@ -200,12 +179,12 @@ export default function AdminDashboard() {
 
   // Prepare chart data (simple normalization for visual bars)
   const chartData = data ? [
-    { label: "Disp", value: data.stats.available_properties, color: "bg-emerald-500", labelFull: "Disponibles" },
-    { label: "Vend", value: data.stats.sold_properties, color: "bg-blue-500", labelFull: "Vendidas" },
-    { label: "Alq", value: data.stats.rented_properties, color: "bg-amber-500", labelFull: "Alquiladas" },
-    { label: "Ops", value: data.stats.active_operations, color: "bg-purple-500", labelFull: "Operaciones" },
-    { label: "Vis", value: data.stats.pending_visits, color: "bg-orange-500", labelFull: "Visitas" },
-    { label: "Clt", value: data.stats.total_clients > 20 ? 20 : data.stats.total_clients, color: "bg-cyan-500", labelFull: "Clientes (Scale)" }, // Cap for visual scale
+    { label: "Disp", value: data.stats.available_properties, colorClass: getStatusConfig('property', 'AVAILABLE').bg.replace('bg-', 'from-').replace(' dark:', ' dark:from-') + ' to-emerald-500', labelFull: "Disponibles" },
+    { label: "Vend", value: data.stats.sold_properties, colorClass: getStatusConfig('property', 'SOLD').bg.replace('bg-', 'from-').replace(' dark:', ' dark:from-') + ' to-blue-500', labelFull: "Vendidas" },
+    { label: "Alq", value: data.stats.rented_properties, colorClass: getStatusConfig('property', 'RENTED').bg.replace('bg-', 'from-').replace(' dark:', ' dark:from-') + ' to-amber-500', labelFull: "Alquiladas" },
+    { label: "Ops", value: data.stats.active_operations, colorClass: "from-purple-100 to-purple-500 dark:from-purple-900/20", labelFull: "Operaciones" },
+    { label: "Vis", value: data.stats.pending_visits, colorClass: "from-orange-100 to-orange-500 dark:from-orange-900/20", labelFull: "Visitas" },
+    { label: "Clt", value: data.stats.total_clients > 20 ? 20 : data.stats.total_clients, colorClass: "from-cyan-100 to-cyan-500 dark:from-cyan-900/20", labelFull: "Clientes (Escala)" },
   ] : [];
 
   const maxChartValue = Math.max(...chartData.map(d => d.value), 10); // Avoid div by zero
@@ -288,8 +267,8 @@ export default function AdminDashboard() {
                    <div key={idx} className="flex flex-col items-center flex-1 group h-full justify-end">
                       <div className="w-full bg-muted/30 rounded-t-lg relative flex items-end h-full hover:bg-muted/50 transition-colors">
                          <div 
-                           className={cn("w-full rounded-t-lg transition-all duration-700 ease-out", item.color)} 
-                           style={{ height: `${heightPercent}%`, opacity: 0.8 }}
+                           className={cn("w-full rounded-t-lg transition-all duration-1000 ease-out bg-linear-to-t shadow-sm group-hover:shadow-md", item.colorClass)} 
+                           style={{ height: `${heightPercent}%` }}
                          ></div>
                       </div>
                       <span className="text-xs text-muted-foreground mt-3 font-medium truncate w-full text-center" title={item.labelFull}>
@@ -412,9 +391,11 @@ export default function AdminDashboard() {
                        <td className="px-6 py-4">
                           <span className={cn(
                              "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border",
-                             getStatusStyle(prop.status)
+                             getStatusConfig('property', prop.status).bg,
+                             getStatusConfig('property', prop.status).color,
+                             getStatusConfig('property', prop.status).border
                           )}>
-                             {STATUS_LABELS[prop.status] || prop.status}
+                             {getStatusConfig('property', prop.status).label}
                           </span>
                        </td>
                        <td className="px-6 py-4 font-medium text-foreground whitespace-nowrap">
