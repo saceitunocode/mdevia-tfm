@@ -12,7 +12,6 @@ import {
   MapPin, 
   BedDouble, 
   Maximize, 
-  CheckCircle2, 
   Info
 } from "lucide-react";
 
@@ -205,98 +204,55 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                 {property.public_description || "Sin descripción detallada."}
               </p>
             </div>
-
-            {/* Detailed Features */}
-            <div>
-              <h3 className="text-xl font-bold font-heading mb-6">Características detalladas</h3>
-              <div className="bg-muted/30 rounded-xl p-6 border border-border">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
-                  <div className="flex justify-between border-b border-border/50 pb-2">
-                    <span className="text-muted-foreground">Tipo de inmueble</span>
-                    <span className="font-medium">
-                      {property.type === "HOUSE" ? "Casa" : 
-                       property.type === "APARTMENT" ? "Piso" : 
-                       property.type === "OFFICE" ? "Oficina" : 
-                       property.type === "LAND" ? "Terreno" : property.type}
-                    </span>
-                  </div>
-                  <div className="flex justify-between border-b border-border/50 pb-2">
-                    <span className="text-muted-foreground">Certificado Energético</span>
-                    <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">A - Eficiente</Badge>
-                  </div>
-                   <div className="flex justify-between border-b border-border/50 pb-2">
-                    <span className="text-muted-foreground">Año de construcción</span>
-                    <span className="font-medium">2019</span>
-                  </div>
-                   <div className="flex justify-between border-b border-border/50 pb-2">
-                    <span className="text-muted-foreground">Estado</span>
-                    <span className="font-medium">Excelente</span>
-                  </div>
-                </div>
-
-                <h4 className="font-bold mt-6 mb-4">Extras y Equipamiento</h4>
-                <div className="flex flex-wrap gap-2">
-                  {property.has_elevator && (
-                     <Badge variant="secondary" className="px-3 py-1">Ascensor</Badge>
-                  )}
-                  <Badge variant="secondary" className="px-3 py-1">Aire Acondicionado</Badge>
-                  <Badge variant="secondary" className="px-3 py-1">Calefacción</Badge>
-                  <Badge variant="secondary" className="px-3 py-1">Terraza</Badge>
-                </div>
-              </div>
-            </div>
             
           </div>
 
           {/* Sticky Sidebar */}
           <div className="lg:col-span-4">
              <div className="sticky top-24 space-y-6">
-                <Card className="overflow-hidden border-border shadow-lg">
-                   <div className="p-6 bg-linear-to-r from-primary to-primary/80 text-primary-foreground">
-                      <div className="flex items-center gap-4">
-                         <div className="h-16 w-16 rounded-full bg-white/20 border-2 border-white/30" />
-                         <div>
-                            <p className="text-xs uppercase tracking-wider text-primary-foreground/80 font-bold">Tu Asesor</p>
-                            <h3 className="font-bold text-lg">{property.captor_agent?.full_name || "Agente FR"}</h3>
-                            <div className="flex items-center text-xs mt-1">
-                               <CheckCircle2 className="h-3 w-3 mr-1" />
-                               {property.captor_agent?.email || "Agente Certificado"}
-                            </div>
-                         </div>
-                      </div>
-                   </div>
-                   
-                   <div className="p-6 space-y-4">
-                      <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Nombre</label>
-                            <input className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder="Tu nombre" />
-                         </div>
-                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Email</label>
-                            <input className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder="tu@email.com" />
-                         </div>
-                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Teléfono</label>
-                            <input className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder={property.captor_agent?.phone_number || "+34 600 000 000"} />
-                         </div>
-                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Mensaje</label>
-                            <textarea className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" rows={3} defaultValue={`Hola, estoy interesado en ${property.title}.`} />
-                         </div>
-                         
-                         <Button className="w-full font-bold text-md h-12" size="lg">SOLICITAR VISITA</Button>
-                      </form>
+                <Card className="overflow-hidden border-2 border-primary/20 shadow-xl">
+                    <div className="p-8 text-center bg-linear-to-b from-primary/5 to-transparent border-b border-border/50">
+                       <div className="mx-auto h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center font-bold text-3xl text-primary mb-4 border-2 border-primary/20 shadow-inner">
+                          {property.captor_agent?.full_name?.charAt(0).toUpperCase() || "A"}
+                       </div>
+                       <p className="text-[10px] uppercase tracking-[0.2em] text-primary font-black mb-1">Agente Responsable</p>
+                       <h3 className="font-heading font-bold text-2xl text-foreground mb-1">
+                          {property.captor_agent?.full_name || "Asesor Inmobiliario"}
+                       </h3>
+                       <p className="text-sm text-muted-foreground">
+                          {property.captor_agent?.email || "info@mdevia.com"}
+                       </p>
+                    </div>
+                    
+                    <div className="p-6 space-y-6">
+                       <div className="text-center space-y-2">
+                          <p className="text-sm font-medium text-foreground px-4">
+                             Contacta directamente con el agente para coordinar una visita o resolver tus dudas.
+                          </p>
+                       </div>
 
-                      <div className="pt-4 border-t border-border flex justify-center gap-4">
-                         <Button variant="outline" className="flex-1 gap-2" onClick={() => window.location.href = `tel:${property.captor_agent?.phone_number || ""}`}>
-                            Llamar
-                         </Button>
-                         <Button variant="outline" className="flex-1 gap-2" onClick={() => window.open(`https://wa.me/${property.captor_agent?.phone_number?.replace(/\s+/g, '') || ""}`, '_blank')}>
-                            WhatsApp
-                         </Button>
-                      </div>
-                   </div>
+                       <div className="grid grid-cols-1 gap-3">
+                          <Button 
+                             className="w-full h-14 font-black text-lg gap-3 shadow-lg shadow-primary/20" 
+                             size="lg"
+                             onClick={() => window.location.href = `tel:${property.captor_agent?.phone_number || ""}`}
+                          >
+                             <span className="text-xl">📞</span> LLAMAR AHORA
+                          </Button>
+                          <Button 
+                             variant="outline" 
+                             className="w-full h-14 font-black text-lg gap-3 border-2 border-emerald-500/20 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-500/40 transition-all" 
+                             size="lg"
+                             onClick={() => window.open(`https://wa.me/${property.captor_agent?.phone_number?.replace(/\s+/g, '') || ""}`, '_blank')}
+                          >
+                             <span className="text-xl">💬</span> WHATSAPP
+                          </Button>
+                       </div>
+
+                       <p className="text-center text-[10px] text-muted-foreground pt-2">
+                          Disponibilidad inmediata para atenderte
+                       </p>
+                    </div>
                 </Card>
 
              </div>
@@ -309,15 +265,11 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
               <div className="text-primary-foreground">
                  <h3 className="text-2xl font-bold font-heading mb-2">¿Necesitas financiación?</h3>
-                 <p className="max-w-xl text-primary-foreground/90">Calcula tu cuota hipotecaria y descubre las mejores condiciones con nuestros partners financieros.</p>
+                 <p className="max-w-xl text-primary-foreground/90 font-medium">Contamos con los mejores asesores financieros para conseguirte las condiciones que mejor se adaptan a ti.</p>
               </div>
-              <Button size="lg" variant="secondary" className="font-bold whitespace-nowrap text-primary">
-                 Calcular Hipoteca
-              </Button>
            </div>
         </div>
       </div>
     </div>
   );
 }
-

@@ -50,7 +50,7 @@ function CalendarHeader({ currentDate, view, onPrev, onNext, onToday, onViewChan
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-card p-4 rounded-xl border border-border/50 shadow-sm">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4 bg-card p-4 rounded-xl border border-border/50 shadow-sm">
       {/* Left: Navigation & Date */}
       <div className="flex items-center gap-6 w-full sm:w-auto">
         <div className="flex items-center gap-4">
@@ -406,7 +406,7 @@ function CalendarPageContent() {
   };
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col p-4 md:p-6 bg-background">
+    <div className="flex-1 min-h-0 flex flex-col bg-background">
         
         <CalendarHeader
           currentDate={currentDate}
