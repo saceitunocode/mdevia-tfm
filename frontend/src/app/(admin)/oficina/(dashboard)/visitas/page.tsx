@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
-import { MapPin, Plus, Filter, Calendar, Building2, CheckCircle2, XCircle, Clock, Check, ArrowRight } from "lucide-react";
+import { MapPin, Plus, Filter, Calendar, Building2, CheckCircle2, XCircle, Clock, Check } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { RegisterVisitDialog } from "@/components/visits/RegisterVisitDialog";
 import { CompleteVisitDialog } from "@/components/visits/CompleteVisitDialog";

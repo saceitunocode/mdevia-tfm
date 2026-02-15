@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useForm, FieldErrors, Controller } from "react-hook-form";
+import React, { useState } from "react";
+import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
@@ -18,7 +18,6 @@ import {
     DialogTitle, 
     DialogFooter 
 } from "@/components/ui/Dialog";
-import { Select } from "@/components/ui/Select";
 import { apiRequest } from "@/lib/api";
 import { EventType, CalendarEvent, CalendarEventUpdate } from "@/types/calendar";
 import { Visit } from "@/types/visit";
@@ -89,7 +88,6 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
         setIsSubmitting(false);
         setIsDeleting(false);
         const start = new Date(event.starts_at);
-        const end = new Date(event.ends_at);
         
         form.reset({
             title: event.title,
