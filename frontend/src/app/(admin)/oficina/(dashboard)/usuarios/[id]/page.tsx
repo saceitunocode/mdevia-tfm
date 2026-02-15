@@ -274,14 +274,14 @@ export default function DetalleUsuarioPage() {
               <div className="flex-1 flex flex-col justify-center items-center w-full px-4">
                 <div className="w-full">
                   <Button 
-                    variant={formData.is_active ? "outline" : "default"}
+                    variant="outline"
                     onClick={toggleStatus}
                     disabled={isSaving}
                     className={cn(
                       "w-full gap-2 rounded-xl py-6 font-bold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]",
                       formData.is_active 
-                        ? "text-destructive border-destructive/30 hover:bg-destructive hover:text-white hover:border-destructive" 
-                        : "bg-primary shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30"
+                        ? "bg-white text-destructive border-destructive/40 hover:bg-destructive/10 hover:border-destructive/60 hover:text-destructive" 
+                        : "bg-primary text-white shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30"
                     )}
                   >
                     <Power className="h-4 w-4" />
