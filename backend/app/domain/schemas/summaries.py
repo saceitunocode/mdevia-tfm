@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, ConfigDict
 from uuid import UUID
 
@@ -9,6 +10,7 @@ class UserSummary(BaseModel):
 class ClientSummary(BaseModel):
     id: UUID
     full_name: str
+    phone: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 class PropertySummary(BaseModel):
