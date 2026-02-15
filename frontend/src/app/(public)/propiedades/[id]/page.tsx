@@ -38,6 +38,7 @@ interface PropertyDetail {
     id: string;
     full_name: string;
     email: string;
+    phone_number?: string;
   };
 }
 
@@ -256,7 +257,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                          <div className="h-16 w-16 rounded-full bg-white/20 border-2 border-white/30" />
                          <div>
                             <p className="text-xs uppercase tracking-wider text-primary-foreground/80 font-bold">Tu Asesor</p>
-                            <h3 className="font-bold text-lg">{property.captor_agent?.full_name || "Agente MDEVIA"}</h3>
+                            <h3 className="font-bold text-lg">{property.captor_agent?.full_name || "Agente FR"}</h3>
                             <div className="flex items-center text-xs mt-1">
                                <CheckCircle2 className="h-3 w-3 mr-1" />
                                {property.captor_agent?.email || "Agente Certificado"}
@@ -277,7 +278,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                          </div>
                          <div className="space-y-2">
                             <label className="text-sm font-medium">Teléfono</label>
-                            <input className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder="+34 600 000 000" />
+                            <input className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder={property.captor_agent?.phone_number || "+34 600 000 000"} />
                          </div>
                          <div className="space-y-2">
                             <label className="text-sm font-medium">Mensaje</label>
@@ -288,10 +289,10 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                       </form>
 
                       <div className="pt-4 border-t border-border flex justify-center gap-4">
-                         <Button variant="outline" className="flex-1 gap-2">
+                         <Button variant="outline" className="flex-1 gap-2" onClick={() => window.location.href = `tel:${property.captor_agent?.phone_number || ""}`}>
                             Llamar
                          </Button>
-                         <Button variant="outline" className="flex-1 gap-2">
+                         <Button variant="outline" className="flex-1 gap-2" onClick={() => window.open(`https://wa.me/${property.captor_agent?.phone_number?.replace(/\s+/g, '') || ""}`, '_blank')}>
                             WhatsApp
                          </Button>
                       </div>

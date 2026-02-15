@@ -84,6 +84,7 @@ class PropertyAgentPublic(BaseModel):
     id: uuid.UUID
     full_name: Optional[str] = None
     email: str
+    phone_number: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 
