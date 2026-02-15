@@ -78,17 +78,27 @@ interface PropertyMapViewProps {
   isPublic?: boolean;
 }
 
+// City center coordinates for positioning
+const CITY_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  "Andújar": { lat: 38.0384, lng: -4.0484 },
+  "Córdoba": { lat: 37.8882, lng: -4.7794 },
+  "Marmolejo": { lat: 38.0449, lng: -4.1693 },
+  "Madrid": { lat: 40.4168, lng: -3.7038 }, // Fallback
+};
+
 // Custom Marker component
 function PropertyMarker({ property, isPublic }: { property: MapProperty; isPublic: boolean }) {
   const statusConfig = getStatusConfig('property', property.status);
   const isForRent = property.operation_type === "RENT";
   
   const idHash = property.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const latOffset = (idHash % 100) / 1000 - 0.05;
-  const lngOffset = (idHash % 120) / 1000 - 0.06;
+  // Smaller offset to keep them closer to the city center but distinct
+  const latOffset = (idHash % 100) / 4000 - 0.0125; 
+  const lngOffset = (idHash % 120) / 4000 - 0.015;
   
-  const lat = 40.4168 + latOffset;
-  const lng = -3.7038 + lngOffset;
+  const baseCoords = CITY_COORDINATES[property.city] || CITY_COORDINATES["Madrid"];
+  const lat = baseCoords.lat + latOffset;
+  const lng = baseCoords.lng + lngOffset;
 
   const coverImage = property.images?.find(img => img.is_cover) || property.images?.[0];
   const price = typeof property.price_amount === "string" ? parseFloat(property.price_amount) : (property.price_amount || 0);
@@ -148,8 +158,13 @@ function SetBounds({ properties }: { properties: MapProperty[] }) {
         
         const points = properties.map(p => {
             const idHash = p.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            const lat = 40.4168 + ((idHash % 100) / 1000 - 0.05);
-            const lng = -3.7038 + ((idHash % 120) / 1000 - 0.06);
+            const latOffset = (idHash % 100) / 4000 - 0.0125;
+            const lngOffset = (idHash % 120) / 4000 - 0.015;
+            
+            const baseCoords = CITY_COORDINATES[p.city] || CITY_COORDINATES["Madrid"];
+            const lat = baseCoords.lat + latOffset;
+            const lng = baseCoords.lng + lngOffset;
+            
             return [lat, lng] as [number, number];
         });
         
@@ -159,8 +174,7 @@ function SetBounds({ properties }: { properties: MapProperty[] }) {
     
     return null;
 }
-
-export default function PropertyMapView({ properties, center = [40.4168, -3.7038], zoom = 13, isPublic = false }: PropertyMapViewProps) {
+export default function PropertyMapView({ properties, center = [38.0384, -4.0484], zoom = 13, isPublic = false }: PropertyMapViewProps) {
   useEffect(() => {
     fixLeafletIcon();
   }, []);

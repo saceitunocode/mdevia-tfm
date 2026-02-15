@@ -174,7 +174,7 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                     <Label htmlFor="city">Ciudad</Label>
                     <Input
                       id="city"
-                      placeholder="Ej: Madrid"
+                      placeholder="Ej: Andújar"
                       className="h-11"
                       {...register("city")}
                     />
@@ -183,7 +183,7 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                     <Label htmlFor="postal_code">Código Postal</Label>
                     <Input
                       id="postal_code"
-                      placeholder="Ej: 28001"
+                      placeholder="Ej: 23740"
                       className="h-11"
                       {...register("postal_code")}
                     />
