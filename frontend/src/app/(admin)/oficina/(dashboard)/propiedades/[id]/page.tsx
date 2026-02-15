@@ -10,7 +10,7 @@ import {
     Loader2, ArrowLeft, Edit, MapPin, Ruler, BedDouble, 
     User as UserIcon, Plus, Calendar, Briefcase, Activity, 
     ArrowUpRight, ArrowDownRight, TrendingUp, Clock,
-    ChevronRight, Bath, Layers, ArrowUp, Mail, Shield
+    ChevronRight, Bath, Layers, ArrowUp
 } from "lucide-react";
 import Link from "next/link";
 import { PropertyGallery } from "@/components/public/PropertyGallery";
@@ -22,6 +22,7 @@ import { StickyNote, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Property, PropertyNote, PropertyStatus } from "@/types/property";
 import { OperationList } from "@/components/operations/OperationList";
+import { AgentCard } from "@/components/users/AgentCard";
 
 
 export default function PropertyDetailPage() {
@@ -257,6 +258,14 @@ export default function PropertyDetailPage() {
 
         {/* Sidebar: Management Blocks with ORIGINAL STYLES */}
         <div className="lg:col-span-4 space-y-6">
+
+            {/* Captor Agent Section - Reusable Component */}
+            <AgentCard 
+                agent={property.captor_agent} 
+                title="Agente Captador" 
+                emptyMessage="No se ha asignado un agente captador."
+            />
+
             {/* Owner Section - Original Green Style */}
             <Card className="border-l-4 border-l-green-500 shadow-sm overflow-hidden">
                 <CardHeader className="pb-2 bg-green-50/50">
@@ -377,33 +386,6 @@ export default function PropertyDetailPage() {
                             </div>
                         )}
                     </div>
-                </CardContent>
-            </Card>
-
-            {/* Captor Agent Section - Original Purple Style */}
-            <Card className="border-l-4 border-l-purple-500 shadow-sm overflow-hidden">
-                <CardHeader className="pb-2 bg-purple-50/50">
-                    <CardTitle className="text-lg font-heading flex items-center gap-2">
-                        <Shield className="h-5 w-5 text-purple-600" /> Agente Captador
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4 p-4">
-                    {property.captor_agent ? (
-                        <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center text-purple-700">
-                                <UserIcon size={20} />
-                            </div>
-                            <div className="space-y-0.5">
-                                <p className="font-bold text-sm">{property.captor_agent.full_name}</p>
-                                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                    <Mail className="h-3 w-3" />
-                                    {property.captor_agent.email}
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        <p className="text-sm text-muted-foreground text-center py-2">No se ha asignado un agente captador.</p>
-                    )}
                 </CardContent>
             </Card>
 

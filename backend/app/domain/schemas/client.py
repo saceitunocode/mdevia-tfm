@@ -50,6 +50,7 @@ class ClientDetail(Client):
     visits: List["VisitPublic"] = []
     operations: List["OperationPublic"] = []
     owned_properties: List["Property"] = []
+    responsible_agent: Optional["User"] = None
 
 # For late evaluation
 from app.domain.schemas.visit import VisitPublic
