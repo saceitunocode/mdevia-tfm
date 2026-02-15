@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/Badge";
+import { cn } from "@/lib/utils";
 
 interface ImageItem {
   id: string;
@@ -23,9 +24,10 @@ interface ImageItem {
 
 interface PropertyGalleryProps {
   images: ImageItem[];
+  className?: string;
 }
 
-export function PropertyGallery({ images }: PropertyGalleryProps) {
+export function PropertyGallery({ images, className }: PropertyGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [emblaMainRef, emblaMainApi] = useEmblaCarousel({ loop: true }, [Autoplay()]);
@@ -52,7 +54,7 @@ export function PropertyGallery({ images }: PropertyGalleryProps) {
   }
 
   return (
-    <div className="relative w-full h-[60vh] min-h-[500px] overflow-hidden group bg-background">
+    <div className={cn("relative w-full overflow-hidden group bg-background", className || "h-[60vh] min-h-[500px]")}>
       <div className="relative w-full h-full" ref={emblaMainRef}>
         <div className="flex h-full touch-pan-y">
           {images.map((image, index) => (
