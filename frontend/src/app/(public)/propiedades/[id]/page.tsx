@@ -34,6 +34,11 @@ interface PropertyDetail {
   operation_type: string;
   created_at: string;
   updated_at: string;
+  captor_agent?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
 }
 
 function DetailSkeleton() {
@@ -251,10 +256,10 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                          <div className="h-16 w-16 rounded-full bg-white/20 border-2 border-white/30" />
                          <div>
                             <p className="text-xs uppercase tracking-wider text-primary-foreground/80 font-bold">Tu Asesor</p>
-                            <h3 className="font-bold text-lg">Agente FR</h3>
+                            <h3 className="font-bold text-lg">{property.captor_agent?.full_name || "Agente FR"}</h3>
                             <div className="flex items-center text-xs mt-1">
                                <CheckCircle2 className="h-3 w-3 mr-1" />
-                               Agente Premium
+                               {property.captor_agent?.email || "Agente Certificado"}
                             </div>
                          </div>
                       </div>
