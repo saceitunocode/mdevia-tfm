@@ -5,6 +5,8 @@ import { PropertyForm, PropertyFormValues } from "@/components/properties/Proper
 import { apiRequest } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
+import { ArrowLeft } from "lucide-react";
 
 export default function NuevaPropiedadPage() {
   const router = useRouter();
@@ -62,10 +64,15 @@ export default function NuevaPropiedadPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-heading font-bold">Alta de Propiedad</h1>
-        <p className="text-muted-foreground">Registra una nueva propiedad en el catálogo.</p>
+    <div className="space-y-6 pb-12">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-heading font-bold">Alta de Propiedad</h1>
+          <p className="text-muted-foreground">Registra una nueva propiedad en el catálogo.</p>
+        </div>
       </div>
       
       <PropertyForm 

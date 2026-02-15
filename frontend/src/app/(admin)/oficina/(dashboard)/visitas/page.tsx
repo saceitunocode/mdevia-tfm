@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
-import { MapPin, Plus, Filter, Calendar, Building2, CheckCircle2, XCircle, Clock, Check, ArrowRight } from "lucide-react";
+import { MapPin, Plus, Filter, Calendar, Building2, CheckCircle2, XCircle, Clock, Check } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { RegisterVisitDialog } from "@/components/visits/RegisterVisitDialog";
 import { CompleteVisitDialog } from "@/components/visits/CompleteVisitDialog";
 import { Visit, VisitCreate, VisitUpdate } from "@/types/visit";
 import { visitService } from "@/services/visitService";
 import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
+import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -224,9 +225,11 @@ export default function VisitasPage() {
                               <Check className="h-3.5 w-3.5" />
                             </Button>
                           )}
-                          <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary rounded-full">
-                              <ArrowRight className="h-4 w-4" />
-                           </Button>
+                          <Link href={`/oficina/agenda?visitId=${visit.id}`}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary rounded-full">
+                                <Calendar className="h-4 w-4" />
+                             </Button>
+                          </Link>
                        </div>
                     </td>
                   </tr>

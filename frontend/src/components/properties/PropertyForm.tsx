@@ -88,7 +88,7 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
   };
 
   return (
-    <Card className="w-full max-w-6xl mx-auto shadow-xl border-none">
+    <Card className="w-full shadow-xl border-none">
       <CardHeader className="border-b border-border/50 bg-muted/5">
         <CardTitle className="text-2xl font-heading">
           {isEditMode ? "Editar Propiedad" : "Datos de la Propiedad"}

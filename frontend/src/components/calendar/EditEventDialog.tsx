@@ -5,7 +5,7 @@ import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Clock, Trash2 } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Trash2, User, Building2, Info, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
@@ -18,9 +18,7 @@ import {
     DialogTitle, 
     DialogFooter 
 } from "@/components/ui/Dialog";
-import { Select } from "@/components/ui/Select";
 import { apiRequest } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import { EventType, CalendarEvent, CalendarEventUpdate } from "@/types/calendar";
 import { Visit } from "@/types/visit";
 
@@ -40,7 +38,6 @@ const eventSchema = z.object({
   type: z.nativeEnum(EventType),
   date: z.string().min(1, "La fecha es obligatoria"), // YYYY-MM-DD
   startTime: z.string().min(1, "Hora de inicio obligatoria"), // HH:MM
-  endTime: z.string().min(1, "Hora de fin obligatoria"), // HH:MM
   description: z.string().optional(),
   client_id: z.string().optional(),
   property_id: z.string().optional(),
@@ -52,11 +49,6 @@ const eventSchema = z.object({
 }, {
     message: "El cliente y la propiedad son obligatorios para una visita",
     path: ["client_id"],
-}).refine((data) => {
-    return data.endTime > data.startTime;
-}, {
-    message: "La hora de fin debe ser posterior a la de inicio",
-    path: ["endTime"],
 });
 
 type EventFormValues = z.infer<typeof eventSchema>;
@@ -83,14 +75,12 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
       type: EventType.VISIT,
       date: format(new Date(), "yyyy-MM-dd"),
       startTime: "10:00",
-      endTime: "11:00",
       description: "",
       client_id: "",
       property_id: "",
     },
   });
 
-  const selectedType = form.watch("type");
 
   // Load event data when dialog opens
   React.useEffect(() => {
@@ -98,14 +88,12 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
         setIsSubmitting(false);
         setIsDeleting(false);
         const start = new Date(event.starts_at);
-        const end = new Date(event.ends_at);
         
         form.reset({
             title: event.title,
             type: event.type,
             date: format(start, "yyyy-MM-dd"),
             startTime: format(start, "HH:mm"),
-            endTime: format(end, "HH:mm"),
             description: event.description || "",
             client_id: event.client_id || "",
             property_id: event.property_id || "",
@@ -154,8 +142,9 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
     
     setIsSubmitting(true);
     try {
-        const startIso = new Date(`${values.date}T${values.startTime}:00`).toISOString();
-        const endIso = new Date(`${values.date}T${values.endTime}:00`).toISOString();
+        const startDate = new Date(`${values.date}T${values.startTime}:00`);
+        const startIso = startDate.toISOString();
+        const endIso = new Date(startDate.getTime() + 60 * 60 * 1000).toISOString();
 
         const updates: CalendarEventUpdate = {
             title: values.title,
@@ -213,156 +202,144 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
 
   if (!event) return null;
 
-  const isLinkedVisit = !!event.visit_id;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Editar Evento</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-none shadow-2xl">
+        <div className="bg-primary/5 border-b border-primary/10 p-6">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                <CalendarIcon className="h-6 w-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold tracking-tight">Editar Evento</DialogTitle>
+                <p className="text-xs text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">Detalles de la Cita</p>
+              </div>
+            </div>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="space-y-4 py-4">
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="p-6 space-y-6">
           
-          {/* Title */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Título</label>
-            <Input 
-                {...form.register("title")} 
-                placeholder="Ej: Visita Calle Mayor" 
-            />
-          </div>
-
-          {/* Type */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Tipo de Evento</label>
-            <div className="grid grid-cols-2 gap-2">
-                {Object.values(EventType).map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
-                        <input
-                            type="radio"
-                            value={type}
-                            id={`edit-type-${type}`}
-                            {...form.register("type")}
-                            className="text-primary focus:ring-primary"
-                        />
-                        <label htmlFor={`edit-type-${type}`} className="text-sm cursor-pointer capitalize">
-                            {type.toLowerCase()}
-                        </label>
-                    </div>
-                ))}
-            </div>
-          </div>
-
-          {/* Date & Time Row */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            {/* Title - Read Only Styled */}
             <div className="space-y-2">
-                <label className="text-sm font-medium">Fecha</label>
-                <div className="relative">
-                    <CalendarIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                        type="date" 
-                        {...form.register("date")} 
-                        className="pl-9" 
-                    />
-                </div>
+              <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                <Info className="h-4 w-4" /> Título (No editable)
+              </label>
+              <div className="h-11 px-4 flex items-center bg-muted/30 border border-border rounded-xl text-sm font-bold text-foreground/70">
+                {event.title}
+                <Lock className="ml-auto h-3.5 w-3.5 opacity-30" />
+              </div>
             </div>
-            
-            <div className="grid grid-cols-2 gap-2">
+
+            {/* Type - Read Only Styled */}
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-muted-foreground">Tipo</label>
+              <div className="h-11 px-4 flex items-center bg-muted/30 border border-border rounded-xl text-xs font-bold uppercase tracking-wider text-primary/70">
+                {event.type.toLowerCase()}
+              </div>
+            </div>
+
+            {/* Linked Data - Read Only */}
+            {event.type === EventType.VISIT && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in duration-500">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Inicio</label>
-                    <div className="relative">
-                        <Clock className="absolute left-2 top-2.5 h-3 w-3 text-muted-foreground" />
-                        <Input 
-                            type="time" 
-                            {...form.register("startTime")} 
-                            className="pl-7" 
-                        />
-                    </div>
+                  <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                    <User className="h-4 w-4" /> Cliente
+                  </label>
+                  <div className="h-11 px-4 flex items-center bg-muted/20 border border-border/50 rounded-xl text-sm truncate font-medium">
+                    {clients.find(c => c.id === form.watch("client_id"))?.full_name || "Vinculado"}
+                  </div>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Fin</label>
-                    <div className="relative">
-                         <Clock className="absolute left-2 top-2.5 h-3 w-3 text-muted-foreground" />
-                        <Input 
-                            type="time" 
-                            {...form.register("endTime")} 
-                            className="pl-7" 
-                        />
-                    </div>
+                  <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
+                    <Building2 className="h-4 w-4" /> Propiedad
+                  </label>
+                  <div className="h-11 px-4 flex items-center bg-muted/20 border border-border/50 rounded-xl text-sm truncate font-medium">
+                    {properties.find(p => p.id === form.watch("property_id"))?.title || "Vinculada"}
+                  </div>
                 </div>
+              </div>
+            )}
+          </div>
+
+          <div className="h-px bg-border/50 my-2" />
+
+          {/* Date & Time Section - EDITABLE */}
+          <div className="bg-primary/5 p-5 rounded-2xl border border-primary/10 shadow-inner">
+            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-primary/60 mb-4 flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5" /> Reprogramar Cita
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Nueva Fecha</label>
+                  <div className="relative group">
+                      <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:scale-110 transition-transform pointer-events-none" />
+                      <Input 
+                          type="date" 
+                          {...form.register("date")} 
+                          className="pl-9 h-12 bg-background border-primary/20 shadow-sm focus:ring-primary focus:border-primary rounded-xl" 
+                      />
+                  </div>
+              </div>
+              
+              <div className="space-y-2 sm:col-span-1">
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Hora Inicio</label>
+                  <div className="relative group">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:scale-110 transition-transform pointer-events-none" />
+                      <Input 
+                          type="time" 
+                          {...form.register("startTime")} 
+                          className="pl-9 h-12 bg-background border-primary/20 shadow-sm focus:ring-primary focus:border-primary rounded-xl text-sm font-bold" 
+                      />
+                  </div>
+              </div>
             </div>
           </div>
 
-          {/* Description */}
+          {/* Description - EDITABLE */}
           <div className="space-y-2">
-            <label className="text-sm font-medium">Notas / Descripción</label>
+            <label className="text-sm font-semibold text-foreground flex items-center gap-2">
+               Notas e Instrucciones
+            </label>
             <Textarea 
                 {...form.register("description")} 
-                placeholder="Detalles adicionales..." 
-                className="resize-none h-20"
+                placeholder="Detalles adicionales, cambios en la reunión..." 
+                className="resize-none h-28 bg-background border-input focus:ring-primary shadow-sm rounded-xl p-4"
             />
           </div>
 
-          {/* Visit specific fields */}
-          {selectedType === EventType.VISIT && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Cliente</label>
-                <Select 
-                  {...form.register("client_id")}
-                  className={cn(isLinkedVisit && "pointer-events-none opacity-50 bg-muted/50")}
-                  tabIndex={isLinkedVisit ? -1 : undefined}
-                  aria-disabled={isLinkedVisit}
-                >
-                  <option value="">Seleccionar...</option>
-                  {clients.map(c => (
-                    <option key={c.id} value={c.id}>{c.full_name}</option>
-                  ))}
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Propiedad</label>
-                <Select 
-                  {...form.register("property_id")}
-                  className={cn(isLinkedVisit && "pointer-events-none opacity-50 bg-muted/50")}
-                  tabIndex={isLinkedVisit ? -1 : undefined}
-                  aria-disabled={isLinkedVisit}
-                >
-                  <option value="">Seleccionar...</option>
-                  {properties.map(p => (
-                    <option key={p.id} value={p.id}>{p.title}</option>
-                  ))}
-                </Select>
-                {isLinkedVisit && (
-                   <p className="text-[10px] text-muted-foreground mt-1">
-                     No se puede cambiar el cliente o propiedad de una visita creada.
-                   </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="gap-3 sm:gap-0 pt-2">
             {onDelete && (
                 <Button 
                     type="button" 
-                    variant="destructive" 
+                    variant="ghost" 
                     onClick={handleDelete} 
                     disabled={isDeleting || isSubmitting}
-                    className="mr-auto"
+                    className="mr-auto text-destructive hover:text-destructive hover:bg-destructive/10 rounded-xl"
                 >
                     <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar
+                    Eliminar Evento
                 </Button>
             )}
             
-            <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-                Cancelar
+            <div className="flex gap-3">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  onClick={onClose} 
+                  disabled={isSubmitting}
+                  className="rounded-xl"
+                >
+                  Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Guardando..." : "Guardar Cambios"}
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="min-w-[150px] shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-bold rounded-xl"
+                >
+                  {isSubmitting ? "Guardando..." : "Guardar Cambios"}
                 </Button>
             </div>
           </DialogFooter>

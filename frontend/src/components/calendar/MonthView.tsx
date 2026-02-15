@@ -48,7 +48,7 @@ export function MonthView({ currentDate, events, onDayClick, onEventClick }: Mon
                         key={day.toString()} 
                         onClick={() => onDayClick(day)}
                         className={cn(
-                            "min-h-[100px] bg-background p-2 transition-colors cursor-pointer flex flex-col group relative hover:bg-muted/30",
+                            "min-h-[130px] bg-background p-2 transition-colors cursor-pointer flex flex-col group relative hover:bg-muted/30",
                             !isCurrentMonth && "bg-muted/10 text-muted-foreground/50",
                         )}
                     >

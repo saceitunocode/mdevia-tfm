@@ -69,7 +69,7 @@ export function PropertyFilters() {
     if (!isInitialMount.current) {
       applyFilters();
     }
-  }, [operationType, propertyTypes, amenities, rooms, baths, hasElevator]);
+  }, [operationType, propertyTypes, amenities, rooms, baths, hasElevator, applyFilters]);
 
   // Effect for debounced updates (text inputs)
   useEffect(() => {
@@ -79,7 +79,7 @@ export function PropertyFilters() {
       }
     }, 500);
     return () => clearTimeout(timer);
-  }, [city, priceMin, priceMax]);
+  }, [city, priceMin, priceMax, applyFilters]);
 
   useEffect(() => {
     isInitialMount.current = false;

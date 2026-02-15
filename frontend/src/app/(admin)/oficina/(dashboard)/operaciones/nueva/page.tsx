@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { apiRequest } from "@/lib/api";
 import { operationService } from "@/services/operationService";
 import { OperationType, OperationStatus } from "@/types/operation";
+import { Combobox } from "@/components/ui/Combobox";
 
 interface Client {
   id: string;
@@ -93,20 +94,20 @@ export default function NuevaOperacionPage() {
   if (isLoading) return <div className="p-8 animate-pulse text-muted-foreground">Cargando datos del sistema...</div>;
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="max-w-5xl mx-auto space-y-6 pb-12">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft size={20} />
+        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
           <h1 className="text-3xl font-heading font-bold">Nueva Operación</h1>
-          <p className="text-muted-foreground font-medium">Inicia el proceso de venta o alquiler para un cliente.</p>
+          <p className="text-muted-foreground">Inicia el proceso de venta o alquiler para un cliente.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         {/* Selection Column */}
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           <Card className="border-primary/10 shadow-sm">
             <CardHeader className="pb-3 px-6 pt-6">
               <CardTitle className="text-lg flex items-center gap-2">
@@ -115,18 +116,14 @@ export default function NuevaOperacionPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="px-6 pb-6 space-y-4">
-              <div className="relative">
-                 <select 
-                   className="w-full p-2 border rounded-md bg-transparent appearance-none"
-                   value={clientId}
-                   onChange={(e) => setClientId(e.target.value)}
-                 >
-                   <option value="">-- Seleccionar un cliente --</option>
-                   {clients.map(c => (
-                     <option key={c.id} value={c.id}>{c.full_name}</option>
-                   ))}
-                 </select>
-              </div>
+              <Combobox
+                options={clients.map(c => ({ value: c.id, label: c.full_name }))}
+                value={clientId}
+                onValueChange={setClientId}
+                placeholder="Seleccionar cliente..."
+                searchPlaceholder="Buscar por nombre..."
+                emptyMessage="No se encontraron clientes."
+              />
               <p className="text-xs text-muted-foreground">
                 El cliente debe estar registrado previamente en la base de datos.
               </p>
@@ -141,18 +138,14 @@ export default function NuevaOperacionPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="px-6 pb-6 space-y-4">
-              <div className="relative">
-                 <select 
-                   className="w-full p-2 border rounded-md bg-transparent appearance-none"
-                   value={propertyId}
-                   onChange={(e) => setPropertyId(e.target.value)}
-                 >
-                   <option value="">-- Seleccionar propiedad disponible --</option>
-                   {properties.map(p => (
-                     <option key={p.id} value={p.id}>{p.title} ({p.city})</option>
-                   ))}
-                 </select>
-              </div>
+              <Combobox
+                options={properties.map(p => ({ value: p.id, label: `${p.title} (${p.city})` }))}
+                value={propertyId}
+                onValueChange={setPropertyId}
+                placeholder="Seleccionar propiedad..."
+                searchPlaceholder="Buscar por título o ciudad..."
+                emptyMessage="No se encontraron propiedades disponibles."
+              />
               <p className="text-xs text-muted-foreground">
                 Solo se muestran propiedades con estado &quot;Disponible&quot;.
               </p>
@@ -161,15 +154,15 @@ export default function NuevaOperacionPage() {
         </div>
 
         {/* Configuration Column */}
-        <div className="space-y-6">
-          <Card className="border-primary/10 shadow-sm">
+        <div className="flex flex-col gap-6 h-full">
+          <Card className="border-primary/10 shadow-sm flex-1 flex flex-col">
             <CardHeader className="pb-3 px-6 pt-6">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Briefcase size={18} className="text-primary" />
                 Detalles de Operación
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-6 pb-6 space-y-6">
+            <CardContent className="px-6 pb-6 space-y-6 flex-1 flex flex-col">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Tipo de Operación</label>
                 <div className="flex gap-2">
@@ -199,7 +192,7 @@ export default function NuevaOperacionPage() {
                 />
               </div>
 
-              <div className="pt-4">
+              <div className="pt-4 mt-auto">
                 <Button 
                   className="w-full flex items-center justify-center gap-2 h-12 text-lg shadow-lg"
                   disabled={isSaving || !clientId || !propertyId}

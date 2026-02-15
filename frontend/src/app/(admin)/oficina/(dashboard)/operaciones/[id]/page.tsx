@@ -126,32 +126,36 @@ export default function OperationDetailPage() {
   if (!operation) return <div className="p-8 text-red-500">Operación no encontrada</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => router.back()}>
-          <ArrowLeft size={20} />
+    <div className="space-y-6 pb-12">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div>
-          <h1 className="text-3xl font-heading font-bold flex items-center gap-3">
-            Operación: {operation.type === OperationType.SALE ? "Venta" : "Alquiler"}
-            <span className="text-muted-foreground text-sm font-normal">#{operation.id.substring(0, 8)}</span>
-          </h1>
-          <div className="flex items-center gap-2 mt-1">
-            {getStatusBadge(operation.status)}
-            <span className="text-muted-foreground text-xs">Actualizado el {format(new Date(operation.updated_at), "d MMM, HH:mm", { locale: es })}</span>
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-heading font-bold">
+                Operación: {operation.type === OperationType.SALE ? "Venta" : "Alquiler"}
+              </h1>
+              {getStatusBadge(operation.status)}
+            </div>
+            <p className="text-muted-foreground text-sm mt-1">
+              Referencia: #{operation.id.substring(0, 8)} • Actualizado el {format(new Date(operation.updated_at), "d MMM, HH:mm", { locale: es })}
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-8 space-y-6">
           {/* Status Update Card */}
-          <Card className="border-primary/10 shadow-sm overflow-hidden">
-            <CardHeader className="bg-primary/5 pb-4">
+          <Card className="border-l-4 border-l-blue-500 shadow-sm overflow-hidden">
+            <CardHeader className="bg-blue-50/50 pb-4">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Activity size={18} className="text-primary" />
-                Actualizar Estado
+                <Activity size={18} className="text-blue-600" />
+                Control de Estado
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
@@ -184,11 +188,11 @@ export default function OperationDetailPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* History Timeline */}
-            <Card className="border-primary/10 shadow-sm">
+            <Card className="border-none shadow-sm h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <History size={18} className="text-primary" />
-                  Historial de Estados
+                  Línea de Tiempo
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
@@ -228,11 +232,11 @@ export default function OperationDetailPage() {
             </Card>
 
             {/* General Notes Card */}
-            <Card className="border-primary/10 shadow-sm">
+            <Card className="border-none shadow-sm h-full">
               <CardHeader className="pb-2">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <FileText size={18} className="text-primary" />
-                  Notas Generales
+                  Notas Internas
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4 space-y-6">
@@ -277,11 +281,11 @@ export default function OperationDetailPage() {
           </div>
 
           {/* Related Visits Card */}
-          <Card className="border-primary/10 shadow-sm">
-            <CardHeader className="pb-2">
+          <Card className="border-l-4 border-l-primary shadow-sm overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 bg-muted/10">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Eye size={18} className="text-primary" />
-                Visitas Relacionadas
+                Visitas Asociadas
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
@@ -333,39 +337,45 @@ export default function OperationDetailPage() {
 
 
         {/* Sidebar Info */}
-        <div className="space-y-6">
+        <div className="lg:col-span-4 space-y-6">
           {/* Client Card */}
-          <Card className="border-primary/10 shadow-sm">
-            <CardContent className="pt-6 space-y-4">
+          <Card className="border-l-4 border-l-blue-500 shadow-sm overflow-hidden">
+            <CardHeader className="pb-2 bg-blue-50/50">
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-blue-600">Cliente</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700">
                   <User size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Cliente</p>
-                  <p className="font-bold">{operation.client?.full_name || "Cargando..."}</p>
+                  <p className="font-bold text-sm truncate">{operation.client?.full_name || "Cargando..."}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-tight">Expediente principal</p>
                 </div>
               </div>
               <Link href={`/oficina/clientes/${operation.client_id}`}>
-                <Button variant="outline" size="sm" className="w-full">Ver Expediente Cliente</Button>
+                <Button variant="outline" size="sm" className="w-full h-8 text-xs">Gestionar Cliente</Button>
               </Link>
             </CardContent>
           </Card>
 
           {/* Property Card */}
-          <Card className="border-primary/10 shadow-sm">
-            <CardContent className="pt-6 space-y-4">
+          <Card className="border-l-4 border-l-green-500 shadow-sm overflow-hidden">
+            <CardHeader className="pb-2 bg-green-50/50">
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-green-600">Propiedad</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-green-50 flex items-center justify-center text-green-600">
+                <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center text-green-700">
                   <Home size={20} />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Propiedad</p>
-                  <p className="font-bold truncate max-w-[150px]">{operation.property?.title || "Cargando..."}</p>
+                  <p className="font-bold text-sm truncate max-w-[150px]">{operation.property?.title || "Cargando..."}</p>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-tight">Ficha técnica</p>
                 </div>
               </div>
               <Link href={`/oficina/propiedades/${operation.property_id}`}>
-                <Button variant="outline" size="sm" className="w-full">Ver Ficha Propiedad</Button>
+                <Button variant="outline" size="sm" className="w-full h-8 text-xs">Ver Inmueble</Button>
               </Link>
             </CardContent>
           </Card>
