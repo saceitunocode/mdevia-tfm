@@ -164,7 +164,7 @@ export default function DetalleUsuarioPage() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
         <div className="lg:col-span-2 space-y-6">
           <Card className="border-none shadow-lg">
             <CardHeader>
@@ -256,12 +256,12 @@ export default function DetalleUsuarioPage() {
           </Card>
         </div>
 
-        <div className="space-y-6">
-          <Card className="border-none shadow-lg">
+        <div className="space-y-6 h-full flex flex-col">
+          <Card className="border-none shadow-lg h-full flex flex-col">
             <CardHeader>
               <CardTitle className="text-sm uppercase tracking-wider text-muted-foreground">Estado del Usuario</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col items-center py-6 text-center">
+            <CardContent className="flex flex-col items-center py-6 text-center flex-1">
               <div className={`h-20 w-20 rounded-full flex items-center justify-center font-bold text-3xl mb-4 ${formData.role === 'ADMIN' ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
                 {formData.full_name?.charAt(0).toUpperCase()}
               </div>
