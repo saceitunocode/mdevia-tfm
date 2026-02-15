@@ -118,8 +118,8 @@ export default function PropertyDetailPage() {
       <div className="flex flex-col items-center justify-center min-h-[50vh] gap-4">
         <p className="text-destructive font-medium">{error || "Propiedad no encontrada"}</p>
         <Link href="/oficina/propiedades">
-          <Button variant="outline">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Volver al listado
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
       </div>
@@ -129,33 +129,38 @@ export default function PropertyDetailPage() {
 
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 pb-12">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-muted-foreground mb-2">
-            <Link href="/oficina/propiedades" className="hover:text-primary transition-colors flex items-center gap-1 text-sm">
-                <ArrowLeft className="h-3 w-3" /> Propiedades
-            </Link>
-            <span>/</span>
-            <span className="text-foreground font-medium truncate max-w-[200px]">{property.title}</span>
-          </div>
-          <h1 className="text-3xl font-heading font-bold text-foreground">{property.title}</h1>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="h-4 w-4 text-primary" />
-            <span>{property.address_line1}, {property.city}</span>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link href="/oficina/propiedades">
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <div>
+            <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <span className="text-[10px] uppercase tracking-wider font-bold">Propiedades</span>
+                <ChevronRight className="h-3 w-3" />
+                <span className="text-[10px] uppercase tracking-wider font-bold text-foreground truncate max-w-[200px]">{property.title}</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-heading font-bold">{property.title}</h1>
+              <Badge variant={property.status === PropertyStatus.AVAILABLE ? 'default' : 'secondary'} className="text-sm px-3 py-1 uppercase tracking-wide">
+                  {property.status}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground text-sm mt-1">
+                <MapPin className="h-4 w-4 text-primary" />
+                <span>{property.address_line1}, {property.city}</span>
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-            <Badge variant={property.status === PropertyStatus.AVAILABLE ? 'default' : 'secondary'} className="text-sm px-3 py-1 uppercase tracking-wide">
-                {property.status}
-            </Badge>
-            <Link href={`/oficina/propiedades/${property.id}/editar`}>
-                <Button>
-                    <Edit className="mr-2 h-4 w-4" /> Editar Propiedad
-                </Button>
-            </Link>
-        </div>
+        <Link href={`/oficina/propiedades/${property.id}/editar`}>
+            <Button variant="outline">
+                <Edit className="mr-2 h-4 w-4" /> Editar Propiedad
+            </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -234,13 +239,13 @@ export default function PropertyDetailPage() {
                                         </div>
                                         <div className="flex-1 space-y-1">
                                             <div className="flex items-center justify-between">
-                                                <p className="text-sm font-bold">
+                                                <div className="text-sm font-bold">
                                                     {change.from_status !== change.to_status ? (
                                                         <>Estado: <span className="text-muted-foreground line-through decoration-1">{change.from_status}</span> &rarr; <Badge variant="outline" className="bg-primary/5 ml-1">{change.to_status}</Badge></>
                                                     ) : (
                                                         <>Actualización de precio</>
                                                     )}
-                                                </p>
+                                                </div>
                                                 <time className="text-[10px] font-mono text-muted-foreground">
                                                     {new Date(change.changed_at).toLocaleDateString("es-ES", { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
                                                 </time>

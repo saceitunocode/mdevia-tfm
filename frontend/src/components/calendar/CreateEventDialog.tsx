@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import { useForm, FieldErrors } from "react-hook-form";
+import React, { useState, useEffect } from "react";
+import { useForm, FieldErrors, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Clock } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, User, Building2, Info } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
@@ -18,7 +18,7 @@ import {
     DialogTitle, 
     DialogFooter 
 } from "@/components/ui/Dialog";
-import { Select } from "@/components/ui/Select";
+import { Combobox } from "@/components/ui/Combobox";
 import { apiRequest } from "@/lib/api";
 import { EventType, CalendarEventCreate } from "@/types/calendar";
 
@@ -38,7 +38,6 @@ const eventSchema = z.object({
   type: z.nativeEnum(EventType),
   date: z.string().min(1, "La fecha es obligatoria"), // YYYY-MM-DD
   startTime: z.string().min(1, "Hora de inicio obligatoria"), // HH:MM
-  endTime: z.string().min(1, "Hora de fin obligatoria"), // HH:MM
   description: z.string().optional(),
   client_id: z.string().optional(),
   property_id: z.string().optional(),
@@ -50,13 +49,6 @@ const eventSchema = z.object({
 }, {
     message: "El cliente y la propiedad son obligatorios para una visita",
     path: ["client_id"],
-}).refine((data) => {
-    // Basic check ensuring end time is after start time
-    // More robust check would parse dates
-    return data.endTime > data.startTime;
-}, {
-    message: "La hora de fin debe ser posterior a la de inicio",
-    path: ["endTime"],
 });
 
 type EventFormValues = z.infer<typeof eventSchema>;
@@ -81,7 +73,6 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
       type: EventType.VISIT,
       date: defaultDate ? format(defaultDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
       startTime: "10:00",
-      endTime: "11:00",
       description: "",
       client_id: "",
       property_id: "",
@@ -99,7 +90,6 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
             type: EventType.VISIT,
             date: defaultDate ? format(defaultDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
             startTime: "10:00",
-            endTime: "11:00",
             description: "",
             client_id: "",
             property_id: "",
@@ -131,8 +121,9 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
   const handleSubmit = async (values: EventFormValues) => {
     setIsSubmitting(true);
     try {
-        const startIso = new Date(`${values.date}T${values.startTime}:00`).toISOString();
-        const endIso = new Date(`${values.date}T${values.endTime}:00`).toISOString();
+        const startDate = new Date(`${values.date}T${values.startTime}:00`);
+        const startIso = startDate.toISOString();
+        const endIso = new Date(startDate.getTime() + 60 * 60 * 1000).toISOString();
 
         const eventData: CalendarEventCreate = {
             title: values.title,
@@ -171,122 +162,159 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Nuevo Evento</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-none shadow-2xl">
+        <div className="bg-primary/5 border-b border-primary/10 p-6">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                <CalendarIcon className="h-6 w-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold tracking-tight">Nuevo Evento</DialogTitle>
+                <p className="text-xs text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">Agenda de Oficina</p>
+              </div>
+            </div>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="space-y-4 py-4">
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="p-6 space-y-6">
           
-          {/* Title */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Título</label>
-            <Input 
-                {...form.register("title")} 
-                placeholder="Ej: Visita Calle Mayor" 
-            />
-          </div>
-
-          {/* Type */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Tipo de Evento</label>
-            <div className="grid grid-cols-2 gap-2">
-                {Object.values(EventType).map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
-                        <input
-                            type="radio"
-                            value={type}
-                            id={`type-${type}`}
-                            {...form.register("type")}
-                            className="text-primary focus:ring-primary"
-                        />
-                        <label htmlFor={`type-${type}`} className="text-sm cursor-pointer capitalize">
-                            {type.toLowerCase()}
-                        </label>
-                    </div>
-                ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Title */}
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                <Info className="h-4 w-4 text-primary" /> Título del Evento
+              </label>
+              <Input 
+                  {...form.register("title")} 
+                  placeholder="Ej: Visita Calle Mayor, Reunión de equipo..." 
+                  className="h-11 bg-background border-input focus:ring-primary shadow-sm"
+              />
             </div>
-          </div>
 
-          {/* Date & Time Row */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-                <label className="text-sm font-medium">Fecha</label>
-                <div className="relative">
-                    <CalendarIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                        type="date" 
-                        {...form.register("date")} 
-                        className="pl-9" 
-                    />
-                </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Inicio</label>
-                    <div className="relative">
-                        <Clock className="absolute left-2 top-2.5 h-3 w-3 text-muted-foreground" />
-                        <Input 
-                            type="time" 
-                            {...form.register("startTime")} 
-                            className="pl-7" 
-                        />
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Fin</label>
-                    <div className="relative">
-                         <Clock className="absolute left-2 top-2.5 h-3 w-3 text-muted-foreground" />
-                        <Input 
-                            type="time" 
-                            {...form.register("endTime")} 
-                            className="pl-7" 
-                        />
-                    </div>
-                </div>
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Notas / Descripción</label>
-            <Textarea 
-                {...form.register("description")} 
-                placeholder="Detalles adicionales..." 
-                className="resize-none h-20"
-            />
-          </div>
-
-          {/* Visit specific fields */}
-          {selectedType === EventType.VISIT && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Cliente</label>
-                <Select {...form.register("client_id")}>
-                  <option value="">Seleccionar...</option>
-                  {clients.map(c => (
-                    <option key={c.id} value={c.id}>{c.full_name}</option>
+            {/* Type Selector (Custom styled) */}
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-semibold text-foreground">Tipo de Evento</label>
+              <div className="flex flex-wrap gap-2">
+                  {Object.values(EventType).map((type) => (
+                    <label 
+                      key={type}
+                      className={z.string().parse(form.watch("type")) === type 
+                        ? "flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-primary bg-primary/5 text-primary text-sm font-bold cursor-pointer transition-all"
+                        : "flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-border bg-background text-muted-foreground text-sm font-medium cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-all"
+                      }
+                    >
+                      <input
+                          type="radio"
+                          value={type}
+                          {...form.register("type")}
+                          className="sr-only"
+                      />
+                      <span className="capitalize">{type.toLowerCase()}</span>
+                    </label>
                   ))}
-                </Select>
+              </div>
+            </div>
+          </div>
+
+          {/* Date & Time Section */}
+          <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2 sm:col-span-1">
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Fecha</label>
+                  <div className="relative">
+                      <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <Input 
+                          type="date" 
+                          {...form.register("date")} 
+                          className="pl-9 h-11 bg-background border-input shadow-sm focus:ring-primary w-full" 
+                      />
+                  </div>
+              </div>
+              
+              <div className="space-y-2 sm:col-span-1">
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Hora Inicio</label>
+                  <div className="relative">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <Input 
+                          type="time" 
+                          {...form.register("startTime")} 
+                          className="pl-9 h-11 bg-background border-input shadow-sm focus:ring-primary w-full" 
+                      />
+                  </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Visit specific fields with Combobox */}
+          {selectedType === EventType.VISIT && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="space-y-2">
+                <label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                  <User className="h-4 w-4 text-primary" /> Cliente
+                </label>
+                <Controller
+                  control={form.control}
+                  name="client_id"
+                  render={({ field }) => (
+                    <Combobox
+                      options={clients.map(c => ({ value: c.id, label: c.full_name }))}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Buscar cliente..."
+                      searchPlaceholder="Escribe el nombre..."
+                      emptyMessage="No se encontró el cliente."
+                    />
+                  )}
+                />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">Propiedad</label>
-                <Select {...form.register("property_id")}>
-                  <option value="">Seleccionar...</option>
-                  {properties.map(p => (
-                    <option key={p.id} value={p.id}>{p.title}</option>
-                  ))}
-                </Select>
+                <label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                  <Building2 className="h-4 w-4 text-primary" /> Propiedad
+                </label>
+                <Controller
+                  control={form.control}
+                  name="property_id"
+                  render={({ field }) => (
+                    <Combobox
+                      options={properties.map(p => ({ value: p.id, label: p.title }))}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Buscar propiedad..."
+                      searchPlaceholder="Escribe el título..."
+                      emptyMessage="No se encontró la propiedad."
+                    />
+                  )}
+                />
               </div>
             </div>
           )}
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+          {/* Description */}
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-foreground">Notas / Descripción</label>
+            <Textarea 
+                {...form.register("description")} 
+                placeholder="Detalles adicionales, instrucciones para el agente..." 
+                className="resize-none h-24 bg-background border-input focus:ring-primary shadow-sm"
+            />
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button 
+              type="button" 
+              variant="ghost" 
+              onClick={onClose} 
+              disabled={isSubmitting}
+              className="text-muted-foreground hover:text-foreground"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="min-w-[140px] shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-bold"
+            >
               {isSubmitting ? "Guardando..." : "Guardar Evento"}
             </Button>
           </DialogFooter>

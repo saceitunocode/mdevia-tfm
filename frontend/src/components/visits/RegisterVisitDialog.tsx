@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useForm, FieldErrors } from "react-hook-form";
+import { useForm, FieldErrors, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
@@ -18,7 +18,7 @@ import {
     DialogTitle, 
     DialogFooter 
 } from "@/components/ui/Dialog";
-import { Select } from "@/components/ui/Select";
+import { Combobox } from "@/components/ui/Combobox";
 import { apiRequest } from "@/lib/api";
 import { VisitCreate } from "@/types/visit";
 
@@ -140,81 +140,128 @@ export function RegisterVisitDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Programar Visita</DialogTitle>
-        </DialogHeader>
-
-        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="space-y-4 py-4">
-          
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <User className="h-4 w-4 text-primary" /> Cliente
-            </label>
-            {initialClientId ? (
-               <Input value="Cliente seleccionado" disabled className="bg-muted" />
-            ) : (
-              <Select {...form.register("client_id")}>
-                <option value="">Seleccionar cliente...</option>
-                {clients.map(client => (
-                  <option key={client.id} value={client.id}>{client.full_name}</option>
-                ))}
-              </Select>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-primary" /> Propiedad
-            </label>
-            {initialPropertyId ? (
-                <Input value="Propiedad seleccionada" disabled className="bg-muted" />
-            ) : (
-              <Select {...form.register("property_id")}>
-                <option value="">Seleccionar propiedad...</option>
-                {properties.map(prop => (
-                  <option key={prop.id} value={prop.id}>{prop.title}</option>
-                ))}
-              </Select>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4 text-primary" /> Fecha
-                </label>
-                <Input 
-                    type="date" 
-                    {...form.register("date")} 
-                />
+      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-none shadow-2xl">
+        <div className="bg-primary/5 border-b border-primary/10 p-6">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                <CalendarIcon className="h-6 w-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl font-bold tracking-tight">Programar Nueva Visita</DialogTitle>
+                <p className="text-xs text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">Gestión de Citas</p>
+              </div>
             </div>
-            
+          </DialogHeader>
+        </div>
+
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-primary" /> Hora
-                </label>
-                <Input 
-                    type="time" 
-                    {...form.register("time")} 
+              <label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                <User className="h-4 w-4 text-primary" /> Cliente
+              </label>
+              {initialClientId ? (
+                 <div className="h-11 px-3 flex items-center bg-muted/30 border border-input rounded-md text-sm text-muted-foreground font-medium italic">
+                    Referencia seleccionada
+                 </div>
+              ) : (
+                <Controller
+                  control={form.control}
+                  name="client_id"
+                  render={({ field }) => (
+                    <Combobox
+                      options={clients.map(c => ({ value: c.id, label: c.full_name }))}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Buscar cliente..."
+                      searchPlaceholder="Escribe el nombre del cliente..."
+                      emptyMessage="No se encontró ningún cliente."
+                    />
+                  )}
                 />
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                <Building2 className="h-4 w-4 text-primary" /> Propiedad
+              </label>
+              {initialPropertyId ? (
+                  <div className="h-11 px-3 flex items-center bg-muted/30 border border-input rounded-md text-sm text-muted-foreground font-medium italic">
+                    Inmueble seleccionado
+                  </div>
+              ) : (
+                <Controller
+                  control={form.control}
+                  name="property_id"
+                  render={({ field }) => (
+                    <Combobox
+                      options={properties.map(p => ({ value: p.id, label: p.title }))}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      placeholder="Buscar propiedad..."
+                      searchPlaceholder="Escribe el título o dirección..."
+                      emptyMessage="No se encontró ninguna propiedad."
+                    />
+                  )}
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Fecha</label>
+                  <div className="relative">
+                    <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Input 
+                        type="date" 
+                        {...form.register("date")} 
+                        className="pl-9 h-11 bg-background border-input shadow-sm focus:ring-primary"
+                    />
+                  </div>
+              </div>
+              
+              <div className="space-y-2">
+                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Hora</label>
+                  <div className="relative">
+                    <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Input 
+                        type="time" 
+                        {...form.register("time")} 
+                        className="pl-9 h-11 bg-background border-input shadow-sm focus:ring-primary"
+                    />
+                  </div>
+              </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Nota Inicial</label>
+            <label className="text-sm font-semibold text-foreground">Notas e instrucciones</label>
             <Textarea 
                 {...form.register("note")} 
-                placeholder="Ej: Interesado en ver el salón y la terraza..." 
-                className="resize-none h-20"
+                placeholder="Escribe aquí cualquier detalle relevante para el agente..." 
+                className="resize-none h-24 bg-background border-input focus:ring-primary shadow-sm"
             />
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button 
+              type="button" 
+              variant="ghost" 
+              onClick={onClose} 
+              disabled={isSubmitting}
+              className="text-muted-foreground hover:text-foreground"
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="min-w-[140px] shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-bold"
+            >
               {isSubmitting ? "Programando..." : "Programar Visita"}
             </Button>
           </DialogFooter>

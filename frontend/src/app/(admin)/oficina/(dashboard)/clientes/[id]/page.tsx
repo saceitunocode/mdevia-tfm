@@ -103,7 +103,7 @@ export default function ClienteDetallePage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="space-y-6 pb-12">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-muted rounded w-1/3" />
           <div className="h-48 bg-muted rounded" />
@@ -117,8 +117,8 @@ export default function ClienteDetallePage() {
     return (
       <div className="text-center py-12">
         <Link href="/oficina/clientes">
-          <Button variant="outline" className="mt-4">
-             <ArrowLeft className="mr-2 h-4 w-4" /> Volver al listado
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <p className="text-muted-foreground mt-4">Cliente no encontrado.</p>
@@ -127,13 +127,13 @@ export default function ClienteDetallePage() {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12">
+    <div className="space-y-6 pb-12">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/oficina/clientes">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Volver
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
           <div>
@@ -155,9 +155,9 @@ export default function ClienteDetallePage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Info & Notes */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="lg:col-span-4 space-y-6">
           {/* Info Card */}
           <Card>
             <CardHeader>
@@ -244,7 +244,7 @@ export default function ClienteDetallePage() {
         </div>
 
         {/* Right Column: History */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-8 space-y-6">
           {/* Properties Section (Optional) */}
           {client.type === "OWNER" && (
             <Card className="border-l-4 border-l-green-500">

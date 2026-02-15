@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import { PropertyForm, PropertyFormValues } from "@/components/properties/PropertyForm";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/Button";
 
 interface Property {
   id: string;
@@ -108,10 +109,15 @@ export default function EditPropertyPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-heading font-bold">Editar Propiedad</h1>
-        <p className="text-muted-foreground">Modifica los datos de la propiedad.</p>
+    <div className="space-y-6 pb-12">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-heading font-bold">Editar Propiedad</h1>
+          <p className="text-muted-foreground">Modifica los datos de la propiedad.</p>
+        </div>
       </div>
       
       <PropertyForm 
