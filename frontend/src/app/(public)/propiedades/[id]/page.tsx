@@ -22,7 +22,8 @@ interface PropertyDetail {
   city: string;
   sqm: number;
   rooms: number;
-  floor?: number;
+  baths: number;
+  floor?: number | null;
   has_elevator: boolean;
   status: string;
   price_amount: string;
@@ -168,7 +169,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                  </div>
                  <div>
                    <p className="text-sm text-muted-foreground">Baños</p>
-                   <p className="font-bold text-lg">{/* Bathrooms not in top-level prop? using mock */ property.rooms > 1 ? property.rooms - 1 : 1}</p>
+                   <p className="font-bold text-lg">{property.baths}</p>
                  </div>
                </div>
                <div className="flex items-center gap-4">
@@ -186,7 +187,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                  </div>
                  <div>
                    <p className="text-sm text-muted-foreground">Planta</p>
-                   <p className="font-bold text-lg">{property.floor || "Baja"}</p>
+                   <p className="font-bold text-lg">{property.floor !== null && property.floor !== undefined ? (property.floor === 0 ? "Baja" : property.floor) : "N/A"}</p>
                  </div>
                </div>
             </div>
@@ -239,17 +240,6 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
               </div>
             </div>
             
-            {/* Map Placeholder */}
-            <div>
-               <h3 className="text-xl font-bold font-heading mb-4">Ubicación</h3>
-               <div className="rounded-xl overflow-hidden h-80 w-full relative bg-muted border border-border flex items-center justify-center">
-                  <div className="text-center space-y-2">
-                      <MapPin className="h-10 w-10 mx-auto text-muted-foreground/50" />
-                      <p className="font-bold text-muted-foreground">Ubicación aproximada</p>
-                      <p className="text-sm text-muted-foreground/80">La dirección exacta se facilitará en la visita</p>
-                  </div>
-               </div>
-            </div>
           </div>
 
           {/* Sticky Sidebar */}
@@ -303,26 +293,6 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                    </div>
                 </Card>
 
-                {/* Similar Properties Mock */}
-                <Card className="p-6">
-                   <h4 className="font-bold text-sm uppercase mb-4">Propiedades Similares</h4>
-                   <div className="space-y-4">
-                      <div className="flex gap-3 group cursor-pointer">
-                         <div className="w-20 h-16 rounded-lg bg-muted shrink-0" />
-                         <div>
-                            <h5 className="text-sm font-medium group-hover:text-primary transition-colors">Propiedad Similar 1</h5>
-                            <p className="text-xs text-muted-foreground">Consultar Precio</p>
-                         </div>
-                      </div>
-                      <div className="flex gap-3 group cursor-pointer">
-                         <div className="w-20 h-16 rounded-lg bg-muted shrink-0" />
-                         <div>
-                            <h5 className="text-sm font-medium group-hover:text-primary transition-colors">Propiedad Similar 2</h5>
-                            <p className="text-xs text-muted-foreground">Consultar Precio</p>
-                         </div>
-                      </div>
-                   </div>
-                </Card>
              </div>
           </div>
         </div>
