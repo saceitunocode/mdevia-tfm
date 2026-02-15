@@ -253,40 +253,46 @@ export default function DetalleUsuarioPage() {
             <CardHeader>
               <CardTitle className="text-sm uppercase tracking-wider text-muted-foreground">Estado del Usuario</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col items-center py-6 text-center flex-1">
-              <div className={`h-20 w-20 rounded-full flex items-center justify-center font-bold text-3xl mb-4 ${formData.role === 'ADMIN' ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
-                {formData.full_name?.charAt(0).toUpperCase()}
-              </div>
-              <div className="space-y-1">
-                <p className="font-bold text-xl">{formData.full_name}</p>
-                <div className="flex justify-center flex-col gap-2">
-                    <div className="text-sm text-muted-foreground">{formData.email}</div>
-                  {formData.is_active ? (
-                    <Badge className="bg-green-100 text-green-700 hover:bg-green-200 border-none w-fit mx-auto">ACTIVO</Badge>
-                  ) : (
-                    <Badge variant="destructive" className="w-fit mx-auto">INACTIVO</Badge>
-                  )}
+            <CardContent className="flex flex-col py-6 text-center flex-1 h-full">
+              <div className="flex flex-col items-center pt-2">
+                <div className={`h-24 w-24 rounded-full flex items-center justify-center font-bold text-3xl mb-4 shadow-inner ring-4 ring-offset-2 ${formData.role === 'ADMIN' ? 'bg-amber-100 text-amber-700 ring-amber-50' : 'bg-primary/10 text-primary ring-primary/5'}`}>
+                  {formData.full_name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="space-y-1">
+                  <p className="font-bold text-xl">{formData.full_name}</p>
+                  <div className="flex justify-center flex-col gap-2">
+                      <div className="text-sm text-muted-foreground">{formData.email}</div>
+                    {formData.is_active ? (
+                      <Badge className="bg-green-100 text-green-700 hover:bg-green-200 border-none w-fit mx-auto">ACTIVO</Badge>
+                    ) : (
+                      <Badge variant="destructive" className="w-fit mx-auto">INACTIVO</Badge>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="w-full pt-8 px-4">
-                <Button 
-                  variant={formData.is_active ? "outline" : "default"}
-                  onClick={toggleStatus}
-                  disabled={isSaving}
-                  className={cn(
-                    "w-full gap-2 rounded-xl py-6 font-bold transition-all duration-300",
-                    formData.is_active 
-                      ? "text-destructive border-destructive/20 hover:bg-destructive hover:text-white" 
-                      : "bg-primary shadow-lg shadow-primary/20"
-                  )}
-                >
-                  <Power className="h-4 w-4" />
-                  {formData.is_active ? "Desactivar" : "Activar"} Acceso
-                </Button>
-                <p className="text-[10px] text-muted-foreground mt-3 font-medium uppercase tracking-widest">
-                  {formData.is_active ? "El usuario perderá acceso inmediato" : "El usuario recuperará acceso al sistema"}
-                </p>
+              <div className="flex-1 flex flex-col justify-center items-center w-full px-4">
+                <div className="w-full">
+                  <Button 
+                    variant={formData.is_active ? "outline" : "default"}
+                    onClick={toggleStatus}
+                    disabled={isSaving}
+                    className={cn(
+                      "w-full gap-2 rounded-xl py-6 font-bold transition-all duration-300 transform hover:scale-[1.02] active:scale-[0.98]",
+                      formData.is_active 
+                        ? "text-destructive border-destructive/30 hover:bg-destructive hover:text-white hover:border-destructive" 
+                        : "bg-primary shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-primary/30"
+                    )}
+                  >
+                    <Power className="h-4 w-4" />
+                    {formData.is_active ? "Desactivar" : "Activar"} Acceso
+                  </Button>
+                  <p className="text-[10px] text-muted-foreground mt-4 font-medium uppercase tracking-widest leading-relaxed">
+                    {formData.is_active 
+                      ? "Restringir el acceso total al panel de gestión de forma inmediata" 
+                      : "Permitir que el usuario vuelva a operar en el sistema"}
+                  </p>
+                </div>
               </div>
             </CardContent>
             <CardFooter className="border-t bg-muted/30 pt-6 text-xs text-center text-muted-foreground">
