@@ -7,20 +7,11 @@ import { PropertyFilters } from "@/components/public/PropertyFilters";
 import { propertyService, type PropertyFilterParams } from "@/services/propertyService";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
-import { AlertCircle, SearchX, ChevronLeft, ChevronRight, MapPin, Ruler, BedDouble, Bath, LayoutGrid, List as ListIcon, Map as MapIcon } from "lucide-react";
-import dynamic from "next/dynamic";
+import { AlertCircle, SearchX, ChevronLeft, ChevronRight, MapPin, Ruler, BedDouble, Bath, LayoutGrid, List as ListIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-// Dynamic import for Map to avoid SSR issues with Leaflet
-const PropertyMapView = dynamic(
-  () => import("@/components/properties/PropertyMapView"),
-  { 
-    ssr: false,
-    loading: () => <div className="h-[600px] w-full bg-muted animate-pulse rounded-2xl flex items-center justify-center text-muted-foreground font-medium">Cargando Mapa...</div>
-  }
-);
 
 const PAGE_SIZE = 12;
 
@@ -58,7 +49,7 @@ function ShowcaseContent() {
   const offset = (page - 1) * PAGE_SIZE;
 
   // View Toggle State
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "map">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const fetchProperties = useCallback(async () => {
     setLoading(true);
@@ -78,8 +69,8 @@ function ShowcaseContent() {
         has_elevator: searchParams.get("has_elevator") === "true" ? true : searchParams.get("has_elevator") === "false" ? false : undefined,
         amenities: searchParams.getAll("amenities"),
         sort: searchParams.get("sort") || undefined,
-        limit: viewMode === "map" ? 100 : PAGE_SIZE, // Load more for map
-        offset: viewMode === "map" ? 0 : offset,
+        limit: PAGE_SIZE,
+        offset: offset,
       };
 
       const data = await propertyService.getPublicProperties(filters);
@@ -92,7 +83,7 @@ function ShowcaseContent() {
     } finally {
       setLoading(false);
     }
-  }, [searchParams, offset, viewMode]);
+  }, [searchParams, offset]);
 
   useEffect(() => {
     fetchProperties();
@@ -155,16 +146,6 @@ function ShowcaseContent() {
                    title="Vista Lista"
                  >
                    <ListIcon size={20} />
-                 </button>
-                 <button 
-                   onClick={() => setViewMode("map")}
-                   className={cn(
-                     "p-2.5 rounded-lg transition-all duration-200",
-                     viewMode === 'map' ? 'bg-background shadow-md text-primary' : 'text-muted-foreground hover:text-foreground'
-                   )}
-                   title="Vista Mapa"
-                 >
-                   <MapIcon size={20} />
                  </button>
               </div>
             </div>
@@ -253,7 +234,7 @@ function ShowcaseContent() {
                             </nav>
                         </div>
                     </>
-                ) : viewMode === "list" ? (
+                ) : (
                     <div className="space-y-4">
                       {properties.map((property) => {
                         const coverImage = property.images.find(img => img.is_cover) || property.images[0];
@@ -301,10 +282,6 @@ function ShowcaseContent() {
                           </div>
                         );
                       })}
-                    </div>
-                ) : (
-                    <div className="animate-in fade-in duration-700 h-[600px]">
-                       <PropertyMapView isPublic={true} properties={properties} />
                     </div>
                 )}
             </div>
