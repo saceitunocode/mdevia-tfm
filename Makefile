@@ -26,7 +26,7 @@ db-seed: ## Puebla la base de datos con datos maestro e iniciales
 
 check: ## Ejecuta comprobaciones de calidad (Lint + Tests Unitarios)
 	@echo "🧹 Ejecutando Linting Frontend..."
-	@cd frontend && pnpm lint
+	@cd frontend && pnpm lint --max-warnings 0
 	@echo "🧪 Ejecutando Tests de Frontend..."
 	@cd frontend && pnpm test
 	@echo "🐍 Ejecutando Tests de Backend..."
