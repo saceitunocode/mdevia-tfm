@@ -17,11 +17,13 @@ import { Combobox } from "@/components/ui/Combobox";
 import { Controller } from "react-hook-form";
 import { PropertyStatus, PropertyType, OperationType } from "@/types/property";
 
+import { SUPPORTED_CITIES } from "@/constants/locations";
+
 const propertySchema = z.object({
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
   address_line1: z.string().min(1, "La dirección es obligatoria"),
   address_line2: z.string().nullable().optional().transform(v => v ?? ""),
-  city: z.string().min(1, "La ciudad es obligatoria"),
+  city: z.enum(SUPPORTED_CITIES),
   postal_code: z.string().nullable().optional().transform(v => v ?? ""),
   sqm: z.coerce.number().positive("Los metros cuadrados deben ser positivos"),
   rooms: z.coerce.number().int().nonnegative(),
@@ -172,12 +174,16 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                   <div className="space-y-1.5 md:space-y-2">
                     <Label htmlFor="city" className="text-xs md:text-sm">Ciudad</Label>
-                    <Input
-                      id="city"
-                      placeholder="Ej: Andújar"
-                      className="h-9 md:h-11 text-xs md:text-sm"
+                    <Select 
+                      id="city" 
+                      className="h-9 md:h-11 text-xs md:text-sm" 
                       {...register("city")}
-                    />
+                    >
+                      <option value="" disabled>Seleccionar ciudad...</option>
+                      {SUPPORTED_CITIES.map(city => (
+                        <option key={city} value={city}>{city}</option>
+                      ))}
+                    </Select>
                   </div>
                   <div className="space-y-1.5 md:space-y-2">
                     <Label htmlFor="postal_code" className="text-xs md:text-sm">Código Postal</Label>

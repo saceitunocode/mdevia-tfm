@@ -3,7 +3,7 @@ from decimal import Decimal
 import uuid
 from fastapi import APIRouter, Depends, File, UploadFile, HTTPException, Form, Query
 from sqlalchemy.orm import Session
-from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin, get_storage_service
+from app.infrastructure.api.v1.deps import get_db, CurrentUser, CurrentAdmin, CurrentAgent, get_storage_service
 from app.domain.schemas.property_image import PropertyImage as PropertyImageSchema, ReorderImages
 from app.domain.schemas.property import Property, PropertyCreate, PropertyUpdate, PropertyPublic, PropertyNote, PropertyNoteCreate, PropertyPublicList
 from app.application.use_cases.property_images import PropertyImageUseCase
@@ -218,7 +218,7 @@ async def delete_property_image(
     *,
     db: Session = Depends(get_db),
     image_id: uuid.UUID,
-    current_admin: CurrentAdmin,
+    current_agent: CurrentAgent,
     use_case: PropertyImageUseCase = Depends(get_property_image_use_case)
 ) -> Any:
     """
