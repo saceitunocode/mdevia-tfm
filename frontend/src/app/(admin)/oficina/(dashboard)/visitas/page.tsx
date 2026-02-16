@@ -247,8 +247,8 @@ export default function VisitasPage() {
                               <p className="font-medium truncate max-w-[180px]" title={visit.property?.title || "Propiedad sin título"}>
                                 {visit.property?.title || "Propiedad sin título"}
                               </p>
-                              <p className="text-xs text-muted-foreground truncate flex items-center gap-1" title={visit.property?.address_line1}>
-                                <MapPin className="h-3 w-3" /> {visit.property?.address_line1 || "Dirección desconocida"}
+                              <p className="text-xs text-muted-foreground truncate flex items-center gap-1" title={`${visit.property?.city ? `${visit.property.city}, ` : ''}${visit.property?.address_line1}`}>
+                                <MapPin className="h-3 w-3" /> {visit.property?.city && `${visit.property.city}, `}{visit.property?.address_line1 || "Dirección desconocida"}
                               </p>
                           </div>
                         </div>

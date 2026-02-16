@@ -94,28 +94,28 @@ export default function NuevaOperacionPage() {
   if (isLoading) return <div className="p-8 animate-pulse text-muted-foreground">Cargando datos del sistema...</div>;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6 pb-12">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
-          <ArrowLeft className="h-5 w-5" />
+    <div className="space-y-4 md:space-y-6 pb-12 animate-in fade-in duration-500">
+      <div className="flex items-center gap-3 md:gap-4">
+        <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10 rounded-full" onClick={() => router.back()}>
+          <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
         </Button>
         <div>
-          <h1 className="text-3xl font-heading font-bold">Nueva Operación</h1>
-          <p className="text-muted-foreground">Inicia el proceso de venta o alquiler para un cliente.</p>
+          <h1 className="text-xl md:text-3xl font-heading font-bold">Nueva Operación</h1>
+          <p className="text-xs md:text-base text-muted-foreground">Inicia el proceso de venta o alquiler para un cliente.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-stretch">
         {/* Selection Column */}
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 md:gap-6">
           <Card className="border-primary/10 shadow-sm">
-            <CardHeader className="pb-3 px-6 pt-6">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <User size={18} className="text-primary" />
+            <CardHeader className="py-3 md:pb-3 px-4 md:px-6 md:pt-6">
+              <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                <User className="h-4 w-4 md:h-[18px] md:w-[18px] text-primary" />
                 Seleccionar Cliente
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-6 pb-6 space-y-4">
+            <CardContent className="px-4 md:px-6 pb-4 md:pb-6 space-y-3 md:space-y-4">
               <Combobox
                 options={clients.map(c => ({ value: c.id, label: c.full_name }))}
                 value={clientId}
@@ -124,20 +124,20 @@ export default function NuevaOperacionPage() {
                 searchPlaceholder="Buscar por nombre..."
                 emptyMessage="No se encontraron clientes."
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] md:text-xs text-muted-foreground">
                 El cliente debe estar registrado previamente en la base de datos.
               </p>
             </CardContent>
           </Card>
 
           <Card className="border-primary/10 shadow-sm">
-            <CardHeader className="pb-3 px-6 pt-6">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Home size={18} className="text-primary" />
+            <CardHeader className="py-3 md:pb-3 px-4 md:px-6 md:pt-6">
+              <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                <Home className="h-4 w-4 md:h-[18px] md:w-[18px] text-primary" />
                 Seleccionar Propiedad
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-6 pb-6 space-y-4">
+            <CardContent className="px-4 md:px-6 pb-4 md:pb-6 space-y-3 md:space-y-4">
               <Combobox
                 options={properties.map(p => ({ value: p.id, label: `${p.title} (${p.city})` }))}
                 value={propertyId}
@@ -146,7 +146,7 @@ export default function NuevaOperacionPage() {
                 searchPlaceholder="Buscar por título o ciudad..."
                 emptyMessage="No se encontraron propiedades disponibles."
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[10px] md:text-xs text-muted-foreground">
                 Solo se muestran propiedades con estado &quot;Disponible&quot;.
               </p>
             </CardContent>
@@ -154,53 +154,56 @@ export default function NuevaOperacionPage() {
         </div>
 
         {/* Configuration Column */}
-        <div className="flex flex-col gap-6 h-full">
+        <div className="flex flex-col gap-4 md:gap-6 h-full">
           <Card className="border-primary/10 shadow-sm flex-1 flex flex-col">
-            <CardHeader className="pb-3 px-6 pt-6">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Briefcase size={18} className="text-primary" />
+            <CardHeader className="py-3 md:pb-3 px-4 md:px-6 md:pt-6">
+              <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                <Briefcase className="h-4 w-4 md:h-[18px] md:w-[18px] text-primary" />
                 Detalles de Operación
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-6 pb-6 space-y-6 flex-1 flex flex-col">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Tipo de Operación</label>
+            <CardContent className="px-4 md:px-6 pb-4 md:pb-6 space-y-4 md:space-y-6 flex-1 flex flex-col">
+              <div className="space-y-1.5 md:space-y-2">
+                <label className="text-xs md:text-sm font-medium">Tipo de Operación</label>
                 <div className="flex gap-2">
                    <Button 
+                     size="sm"
                      variant={type === OperationType.SALE ? "default" : "outline"}
                      onClick={() => setType(OperationType.SALE)}
-                     className="flex-1"
+                     className="flex-1 md:h-10"
                    >
                      Venta
                    </Button>
                    <Button 
+                     size="sm"
                      variant={type === OperationType.RENT ? "default" : "outline"}
                      onClick={() => setType(OperationType.RENT)}
-                     className="flex-1"
+                     className="flex-1 md:h-10"
                    >
                      Alquiler
                    </Button>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Nota Inicial</label>
+              <div className="space-y-1.5 md:space-y-2">
+                <label className="text-xs md:text-sm font-medium">Nota Inicial</label>
                 <Input 
+                  className="h-9 md:h-10 text-sm"
                   placeholder="Ej: Cliente vio anuncio en Idealista..." 
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                 />
               </div>
 
-              <div className="pt-4 mt-auto">
+              <div className="pt-2 md:pt-4 mt-auto">
                 <Button 
-                  className="w-full flex items-center justify-center gap-2 h-12 text-lg shadow-lg"
+                  className="w-full flex items-center justify-center gap-2 h-10 md:h-12 text-sm md:text-lg shadow-lg"
                   disabled={isSaving || !clientId || !propertyId}
                   onClick={handleSave}
                 >
                   {isSaving ? "Creando..." : (
                     <>
-                      <CheckCircle2 size={20} />
+                      <CheckCircle2 className="h-[18px] w-[18px] md:h-5 md:w-5" />
                       Crear Operación
                     </>
                   )}
@@ -211,10 +214,10 @@ export default function NuevaOperacionPage() {
 
           {clientId && propertyId && (
             <Card className="bg-primary/5 border-none">
-              <CardContent className="pt-6">
-                 <div className="text-sm space-y-2">
+              <CardContent className="p-4 md:pt-6 px-4 md:px-6">
+                 <div className="text-xs md:text-sm space-y-1 md:space-y-2">
                     <p className="font-bold text-primary flex items-center gap-2">
-                       <CheckCircle2 size={16} /> Resumen:
+                       <CheckCircle2 className="h-3.5 w-3.5 md:h-4 md:w-4" /> Resumen:
                     </p>
                     <p className="text-muted-foreground italic">
                        Se abrirá una nueva ficha de <strong>{type === OperationType.SALE ? "venta" : "alquiler"}</strong> para 
