@@ -118,6 +118,7 @@ def seed_stories(db: Session, agents: list, clients: list):
         # Ensure consistency with p_info type if possible, or just use what we have
         op_type = p_info["type"]
         
+        prop_created_at = now - timedelta(days=random.randint(2, 12))
         prop = Property(
             title=p_info["title"], city=p_info["city"], status=status, 
             price_amount=Decimal(p_info["price"]), sqm=p_info["sqm"], rooms=p_info["rooms"],
@@ -127,7 +128,8 @@ def seed_stories(db: Session, agents: list, clients: list):
             captor_agent_id=agent.id, owner_client_id=owner.id,
             public_description=f"Magnífica oportunidad en {p_info['city']}. {p_info['title']} con excelentes calidades. Ideal para entrar a vivir o invertir.",
             address_line1=f"Calle del Progreso {i*10 + 1}", postal_code="28001",
-            is_featured=is_featured
+            is_featured=is_featured,
+            created_at=prop_created_at
         )
         db.add(prop)
         db.flush()
@@ -166,7 +168,8 @@ def seed_stories(db: Session, agents: list, clients: list):
             elif scenario == "NEGOTIATION": op_status = OperationStatus.NEGOTIATION
             elif scenario == "RESERVED": op_status = OperationStatus.RESERVED
             
-            op = Operation(type=p_info["type"], status=op_status, client_id=prospect.id, property_id=prop.id, agent_id=agent.id)
+            op_created_at = now - timedelta(days=random.randint(1, 4))
+            op = Operation(type=p_info["type"], status=op_status, client_id=prospect.id, property_id=prop.id, agent_id=agent.id, created_at=op_created_at)
             db.add(op)
             db.flush()
             
@@ -186,8 +189,12 @@ def seed_stories(db: Session, agents: list, clients: list):
             if scenario == "NEGOTIATION":
                 # Future visit or reminder
                 f_date = get_random_time(now + timedelta(days=random.randint(1, 4)))
+                visit = Visit(client_id=prospect.id, property_id=prop.id, agent_id=agent.id, scheduled_at=f_date, status=VisitStatus.PENDING)
+                db.add(visit)
+                db.flush()
                 db.add(CalendarEvent(agent_id=agent.id, starts_at=f_date, ends_at=f_date + timedelta(hours=1),
-                    type=EventType.REMINDER, status=EventStatus.ACTIVE, title=f"Llamar a {prospect.full_name} (Oferta)"))
+                    type=EventType.REMINDER, status=EventStatus.ACTIVE, title=f"Llamar a {prospect.full_name} (Oferta)",
+                    visit_id=visit.id, property_id=prop.id, client_id=prospect.id))
             
             if scenario == "RESERVED":
                 # Notary appointment in 10 days
@@ -198,7 +205,11 @@ def seed_stories(db: Session, agents: list, clients: list):
             if scenario == "INTEREST":
                 # Future visit
                 f_date = get_random_time(now + timedelta(days=random.randint(2, 7)))
+                visit = Visit(client_id=prospect.id, property_id=prop.id, agent_id=agent.id, scheduled_at=f_date, status=VisitStatus.PENDING)
+                db.add(visit)
+                db.flush()
                 db.add(CalendarEvent(agent_id=agent.id, starts_at=f_date, ends_at=f_date + timedelta(hours=1),
-                    type=EventType.VISIT, status=EventStatus.ACTIVE, title=f"2ª Visita: {prop.title}", property_id=prop.id, client_id=prospect.id))
+                    type=EventType.VISIT, status=EventStatus.ACTIVE, title=f"2ª Visita: {prop.title}", 
+                    visit_id=visit.id, property_id=prop.id, client_id=prospect.id))
 
     db.commit()

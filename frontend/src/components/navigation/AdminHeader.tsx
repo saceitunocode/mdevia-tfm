@@ -4,10 +4,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { Bell, Search, Menu, X, LogOut, Building2 } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
+import Image from "next/image";
 import { useAuth } from "@/context/auth-context";
 import { ADMIN_MENU_ITEMS } from "@/config/admin-navigation";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function AdminHeader() {
   const { user, logout } = useAuth();
@@ -45,121 +47,124 @@ export function AdminHeader() {
         </div>
 
         <div className="flex items-center gap-3 md:gap-4">
-          {/* Search Bar (Visual Only) */}
-          <div className="relative w-64 hidden lg:block group">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-            </div>
-            <input
-              type="text"
-              readOnly
-              className="block w-full pl-10 pr-3 py-2 border border-input rounded-lg leading-5 bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary shadow-sm sm:text-sm transition-all cursor-default"
-              placeholder="Buscar (Próximamente)..."
-            />
-          </div>
-
-          {/* Notifications */}
-          <button className="relative p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-2 right-2.5 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-background"></span>
-          </button>
-          
           <ThemeToggle />
         </div>
       </header>
 
       {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-100 flex md:hidden">
-          {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-in fade-in"
-            onClick={() => setIsMobileMenuOpen(false)}
-          />
-          
-          {/* Drawer */}
-          <div className="relative w-4/5 max-w-xs bg-card h-full shadow-xl animate-in slide-in-from-left duration-200 flex flex-col">
-             {/* Drawer Header */}
-             <div className="h-16 flex items-center justify-between px-6 border-b border-border bg-card">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded bg-primary text-primary-foreground p-0.5 overflow-hidden flex items-center justify-center shadow-sm">
-                     <Building2 className="w-5 h-5" />
-                  </div>
-                  <span className="font-bold text-lg tracking-tight text-foreground font-heading">
-                    FR Inmobiliaria
-                  </span>
-                </div>
-                <button 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-             </div>
-
-             {/* Navigation Links */}
-             <div className="flex-1 overflow-y-auto py-6 px-4 bg-card">
-                <nav className="space-y-1">
-                  {filteredItems.map((item) => {
-                    const isActive = pathname.startsWith(item.href);
-                    const isDashboard = item.name === "Dashboard";
-
-                    return (
-                      <React.Fragment key={item.href}>
-                        {isDashboard && (
-                           <div className="my-2 border-t border-border" />
-                        )}
-                        <Link
-                          href={item.href}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                          className={cn(
-                            "group flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-all",
-                            isActive
-                              ? "bg-primary/10 text-primary shadow-sm"
-                              : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                          )}
-                        >
-                          <item.icon className={cn(
-                            "mr-3 h-5 w-5 transition-colors",
-                            isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                          )} />
-                          {item.name}
-                        </Link>
-                      </React.Fragment>
-                    );
-                  })}
-                </nav>
-             </div>
-
-             {/* Drawer Footer */}
-             <div className="p-4 border-t border-border bg-muted/20 pb-safe">
-                <div className="flex items-center w-full gap-3">
-                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold border border-primary/20 shadow-sm shrink-0">
-                      {user?.full_name?.charAt(0) || "U"}
-                   </div>
-                  <div className="min-w-0 flex-1 flex flex-col">
-                    <p className="text-sm font-semibold text-foreground truncate">
-                        {user?.full_name || "Cargando..."}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate capitalize">
-                        {user?.role?.toLowerCase() || ""}
-                    </p>
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-100 flex md:hidden">
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
+            
+            {/* Drawer */}
+            <motion.div 
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="relative w-[85%] max-w-xs bg-card h-full shadow-2xl flex flex-col overflow-hidden"
+            >
+               {/* Drawer Header */}
+               <div className="h-16 flex items-center justify-between px-6 border-b border-border bg-card shrink-0">
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-8 h-8">
+                       <Image 
+                         src="/logo.png" 
+                         alt="FR Inmobiliaria Logo" 
+                         fill
+                         className="object-contain"
+                       />
+                    </div>
+                    <span className="font-bold text-lg tracking-tight text-foreground font-heading">
+                      FR Inmobiliaria
+                    </span>
                   </div>
                   <button 
-                    onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        logout();
-                    }}
-                    className="p-2 rounded-lg bg-background border border-border text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all shadow-sm shrink-0"
-                    title="Cerrar Sesión"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="p-1.5 rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground transition-all active:scale-90"
                   >
-                    <LogOut className="h-5 w-5" />
+                    <X className="h-6 w-6" />
                   </button>
+               </div>
+
+               {/* Navigation Links */}
+               <div className="flex-1 overflow-y-auto py-6 px-4 bg-card scrollbar-none">
+                  <nav className="space-y-1.5">
+                    {filteredItems.map((item, index) => {
+                      const isActive = pathname.startsWith(item.href);
+                      const isDashboard = item.name === "Dashboard";
+
+                      return (
+                        <motion.div
+                          key={item.href}
+                          initial={{ x: -20, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{ delay: 0.1 + index * 0.05 }}
+                        >
+                          {isDashboard && (
+                             <div className="my-2 border-t border-border/50 mx-2" />
+                          )}
+                          <Link
+                            href={item.href}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={cn(
+                              "group flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all active:scale-95",
+                              isActive
+                                ? "bg-primary/10 text-primary shadow-sm border border-primary/10"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            )}
+                          >
+                            <item.icon className={cn(
+                              "mr-3 h-5 w-5 transition-colors",
+                              isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                            )} />
+                            {item.name}
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
+                  </nav>
+               </div>
+
+               {/* Drawer Footer */}
+               <div className="p-5 border-t border-border bg-muted/20 pb-safe shrink-0">
+                  <div className="flex items-center w-full gap-4">
+                     <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold border-2 border-primary/20 shadow-sm shrink-0">
+                        {user?.full_name?.charAt(0) || "U"}
+                     </div>
+                    <div className="min-w-0 flex-1 flex flex-col">
+                      <p className="text-sm font-bold text-foreground truncate">
+                          {user?.full_name || "Cargando..."}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest font-black">
+                          {user?.role?.toLowerCase() || ""}
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          logout();
+                      }}
+                      className="p-2.5 rounded-xl bg-background border border-border text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 transition-all shadow-sm shrink-0 active:scale-90"
+                      title="Cerrar Sesión"
+                    >
+                      <LogOut className="h-5 w-5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </>
   );
 }

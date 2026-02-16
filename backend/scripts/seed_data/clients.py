@@ -25,13 +25,16 @@ def seed_clients(db: Session, agents: list):
         agent = random.choice(agents)
         db_client = db.query(Client).filter(Client.email == c_data["email"]).first()
         if not db_client:
+            from datetime import datetime, timezone, timedelta
+            client_created_at = datetime.now(timezone.utc) - timedelta(days=random.randint(2, 12))
             client = Client(
                 full_name=c_data["full_name"],
                 email=c_data["email"],
                 phone=c_data["phone"],
                 type=c_data["type"],
                 responsible_agent_id=agent.id,
-                is_active=True
+                is_active=True,
+                created_at=client_created_at
             )
             db.add(client)
             db.flush() # Need ID for notes
