@@ -160,7 +160,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
             </div>
 
             {/* Horizontal Key Stats Cards */}
-            <div className="flex flex-row gap-4 overflow-x-auto pb-4 scrollbar-hide lg:overflow-visible lg:pb-0">
+            <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-row sm:overflow-x-auto sm:pb-4 sm:scrollbar-hide lg:overflow-visible lg:pb-0">
                {/* SQM Card */}
                <Card className="flex items-center gap-4 p-4 min-w-[160px] flex-1 border-border/50 shadow-sm">
                  <div className="text-primary">

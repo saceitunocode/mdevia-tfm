@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import useEmblaCarousel from "embla-carousel-react";
+import useEmblaCarousel, { UseEmblaCarouselType } from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { 
   ChevronLeft, 
@@ -32,6 +32,12 @@ export function PropertyGallery({ images, className }: PropertyGalleryProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [emblaMainRef, emblaMainApi] = useEmblaCarousel({ loop: true }, [Autoplay()]);
 
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+
+  const onInit = useCallback((emblaApi: NonNullable<UseEmblaCarouselType[1]>) => {
+    setScrollSnaps(emblaApi.scrollSnapList());
+  }, []);
+
   const onSelect = useCallback(() => {
     if (!emblaMainApi) return;
     setSelectedIndex(emblaMainApi.selectedScrollSnap());
@@ -39,10 +45,11 @@ export function PropertyGallery({ images, className }: PropertyGalleryProps) {
 
   useEffect(() => {
     if (!emblaMainApi) return;
+    onInit(emblaMainApi);
     onSelect();
     emblaMainApi.on("select", onSelect);
-    emblaMainApi.on("reInit", onSelect);
-  }, [emblaMainApi, onSelect]);
+    emblaMainApi.on("reInit", onInit);
+  }, [emblaMainApi, onSelect, onInit]);
 
   if (images.length === 0) {
     return (
@@ -87,9 +94,9 @@ export function PropertyGallery({ images, className }: PropertyGalleryProps) {
         </div>
 
       {/* Bottom Controls Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 z-10 bg-linear-to-t from-black/70 to-transparent">
+      <div className="absolute bottom-0 left-0 right-0 p-6 z-10 bg-linear-to-t from-black/70 to-transparent pointer-events-none">
         <div className="max-w-7xl mx-auto w-full flex justify-between items-end">
-          <div className="hidden sm:block">
+          <div className="hidden sm:block pointer-events-auto">
             <button 
               onClick={() => setIsLightboxOpen(true)}
               className="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all border border-white/30 shadow-sm"
@@ -102,6 +109,21 @@ export function PropertyGallery({ images, className }: PropertyGalleryProps) {
           <div className="hidden sm:block bg-black/40 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-medium border border-white/10 shadow-sm">
              {selectedIndex + 1} / {images.length}
           </div>
+        </div>
+        
+        {/* Mobile Dots Navigation */}
+        <div className="flex sm:hidden justify-center gap-2 mt-4 pointer-events-auto">
+            {scrollSnaps.map((_, index) => (
+                <button
+                    key={index}
+                    onClick={() => emblaMainApi?.scrollTo(index)}
+                    className={cn(
+                        "h-1.5 rounded-full transition-all shadow-sm backdrop-blur-sm",
+                        index === selectedIndex ? "bg-white w-6" : "bg-white/40 w-1.5 hover:bg-white/60"
+                    )}
+                    aria-label={`Ir a imagen ${index + 1}`}
+                />
+            ))}
         </div>
       </div>
 

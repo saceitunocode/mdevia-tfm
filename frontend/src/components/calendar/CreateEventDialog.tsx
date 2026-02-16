@@ -195,13 +195,13 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
             {/* Type Selector (Custom styled) */}
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-semibold text-foreground">Tipo de Evento</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                   {Object.values(EventType).map((type) => (
                     <label 
                       key={type}
                       className={z.string().parse(form.watch("type")) === type 
-                        ? "flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-primary bg-primary/5 text-primary text-sm font-bold cursor-pointer transition-all"
-                        : "flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-border bg-background text-muted-foreground text-sm font-medium cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-all"
+                        ? "flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-primary bg-primary/5 text-primary text-xs font-bold cursor-pointer transition-all shadow-sm"
+                        : "flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-background text-muted-foreground text-xs font-medium cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-all"
                       }
                     >
                       <input
@@ -210,7 +210,7 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                           {...form.register("type")}
                           className="sr-only"
                       />
-                      <span className="capitalize">{type.toLowerCase()}</span>
+                      <span className="capitalize truncate">{type.toLowerCase()}</span>
                     </label>
                   ))}
               </div>

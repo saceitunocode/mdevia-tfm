@@ -18,9 +18,10 @@ import { MonthView } from "@/components/calendar/MonthView";
 import { WeekView } from "@/components/calendar/WeekView";
 import { DayView } from "@/components/calendar/DayView";
 import { AgendaSidebar } from "@/components/calendar/AgendaSidebar";
+import { AgendaListView } from "@/components/calendar/AgendaListView";
 
 // --- Types ---
-type CalendarViewType = "month" | "week" | "day";
+type CalendarViewType = "month" | "week" | "day" | "agenda";
 
 interface CalendarHeaderProps {
   currentDate: Date;
@@ -46,6 +47,8 @@ function CalendarHeader({ currentDate, view, onPrev, onNext, onToday, onViewChan
       }
       case "day":
         return format(currentDate, "EEEE, d 'de' MMMM yyyy", { locale: es });
+      case "agenda":
+        return "Próximos Eventos";
     }
   };
 
@@ -74,18 +77,19 @@ function CalendarHeader({ currentDate, view, onPrev, onNext, onToday, onViewChan
       </div>
 
       {/* Right: Actions & Toggle */}
-      <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-         <div className="hidden md:flex items-center bg-muted/30 border border-border/50 rounded-lg p-1 shadow-inner">
+      <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-end">
+         <div className="flex items-center bg-muted/30 border border-border/50 rounded-lg p-1 shadow-inner w-full sm:w-auto overflow-x-auto sm:overflow-visible">
             {([
             { key: "month" as const, label: "Mes" },
             { key: "week" as const, label: "Semana" },
             { key: "day" as const, label: "Día" },
+            { key: "agenda" as const, label: "Resumen" },
             ]).map(({ key, label }) => (
             <button
                 key={key}
                 onClick={() => onViewChange(key)}
                 className={cn(
-                "px-4 py-1.5 text-xs font-semibold rounded-md transition-all duration-200",
+                "flex-1 sm:flex-none px-3 sm:px-4 py-1.5 text-[10px] sm:text-xs font-semibold rounded-md transition-all duration-200",
                 view === key
                     ? "bg-background text-primary shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
@@ -96,8 +100,8 @@ function CalendarHeader({ currentDate, view, onPrev, onNext, onToday, onViewChan
             ))}
         </div>
         
-        <Button onClick={onNewEvent} className="h-9 shadow-lg shadow-primary/20">
-            <Plus className="mr-2 h-4 w-4" /> Nuevo Evento
+        <Button onClick={onNewEvent} className="h-9 w-full sm:w-auto shadow-lg shadow-primary/20">
+            <Plus className="mr-2 h-4 w-4" /> Nuevo <span className="sm:hidden">Ev...</span><span className="hidden sm:inline">Evento</span>
         </Button>
       </div>
     </div>
@@ -180,7 +184,9 @@ function CalendarPageContent() {
     switch (viewParam) {
       case "month": updateUrl(subMonths(currentDate, 1)); break;
       case "week": updateUrl(subWeeks(currentDate, 1)); break;
-      case "day": updateUrl(subDays(currentDate, 1)); break;
+      case "day":
+      case "agenda": 
+        updateUrl(subDays(currentDate, 1)); break;
     }
   };
 
@@ -188,7 +194,9 @@ function CalendarPageContent() {
     switch (viewParam) {
       case "month": updateUrl(addMonths(currentDate, 1)); break;
       case "week": updateUrl(addWeeks(currentDate, 1)); break;
-      case "day": updateUrl(addDays(currentDate, 1)); break;
+      case "day":
+      case "agenda":
+        updateUrl(addDays(currentDate, 1)); break;
     }
   };
 
@@ -227,12 +235,20 @@ function CalendarPageContent() {
           end = endOfWeek(currentDate, { locale: es }).toISOString();
           break;
         case "day":
+        case "agenda":
           const dayStart = new Date(currentDate);
           dayStart.setHours(0, 0, 0, 0);
           const dayEnd = new Date(currentDate);
-          dayEnd.setHours(23, 59, 59, 999);
+          // For agenda view, let's fetch a bit more (e.g. 7 days from current date)
+          if (viewParam === "agenda") {
+             const agendaEnd = addDays(dayStart, 7);
+             agendaEnd.setHours(23, 59, 59, 999);
+             end = agendaEnd.toISOString();
+          } else {
+             dayEnd.setHours(23, 59, 59, 999);
+             end = dayEnd.toISOString();
+          }
           start = dayStart.toISOString();
-          end = dayEnd.toISOString();
           break;
       }
 
@@ -399,6 +415,13 @@ function CalendarPageContent() {
             currentDate={currentDate}
             events={events}
             onTimeSlotClick={handleTimeSlotClick}
+            onEventClick={handleEventClick}
+          />
+        );
+      case "agenda":
+        return (
+          <AgendaListView
+            events={events}
             onEventClick={handleEventClick}
           />
         );

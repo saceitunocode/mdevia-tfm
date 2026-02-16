@@ -126,7 +126,7 @@ function ShowcaseContent() {
               </div>
               
               {/* View Toggles */}
-              <div className="flex items-center bg-muted/30 p-1 rounded-xl border border-border/50 shadow-inner shrink-0 scale-95 origin-right">
+              <div className="hidden lg:flex bg-muted/50 p-1 rounded-lg border border-border/50 shadow-inner shrink-0 scale-95 origin-right">
                  <button 
                    onClick={() => setViewMode("grid")}
                    className={cn(

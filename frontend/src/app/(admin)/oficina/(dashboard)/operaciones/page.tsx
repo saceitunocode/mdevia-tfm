@@ -234,22 +234,70 @@ export default function AdminOperacionesPage() {
           </div>
         ) : (
           /* List View (Table) */
-          <div className="overflow-x-auto">
-             <table className="w-full text-sm text-left">
-               <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs border-b border-border">
-                 <tr>
-                   <th className="px-6 py-4">Propiedad</th>
-                   <th className="px-6 py-4">Tipo</th>
-                   <th className="px-6 py-4">Cliente</th>
-                   <th className="px-6 py-4">Estado</th>
-                   <th className="px-6 py-4">Agente</th>
-                   <th className="px-6 py-4">Fecha</th>
-                   <th className="px-6 py-4 text-right">Acción</th>
-                 </tr>
-               </thead>
+          /* List View (Table + Mobile Cards) */
+          <>
+            {/* Mobile Card View (Visible on small screens) */}
+            <div className="md:hidden space-y-4">
+              {filteredOperations.map((op) => (
+                <div key={op.id} className="bg-card rounded-lg border border-border shadow-sm p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center gap-2">
+                       <Building2 className="h-4 w-4 text-primary" />
+                       <span className="font-bold text-sm truncate max-w-[150px]">
+                         {op.property?.title || "Propiedad sin título"}
+                       </span>
+                    </div>
+                    {getStatusBadge(op.status)}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold">Tipo</span>
+                      <span className={cn(
+                        "font-medium",
+                         op.type === OperationType.SALE ? "text-blue-600" : "text-purple-600"
+                      )}>
+                        {op.type === OperationType.SALE ? "Venta" : "Alquiler"}
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold">Cliente</span>
+                      <span className="truncate">{op.client?.full_name || "-"}</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] uppercase tracking-wider font-semibold">Fecha</span>
+                      <span>{format(new Date(op.created_at), "d MMM yyyy", { locale: es })}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-2 border-t border-border flex justify-end">
+                    <Link href={`/oficina/operaciones/${op.id}`} className="w-full">
+                      <Button variant="outline" size="sm" className="w-full h-8 text-xs">
+                        Ver Detalles <ArrowRight className="ml-1.5 h-3 w-3" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View (Hidden on mobile) */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs border-b border-border">
+                  <tr>
+                    <th className="px-6 py-4">Propiedad</th>
+                    <th className="px-6 py-4">Tipo</th>
+                    <th className="px-6 py-4">Cliente</th>
+                    <th className="px-6 py-4">Estado</th>
+                    <th className="px-6 py-4">Agente</th>
+                    <th className="px-6 py-4">Fecha</th>
+                    <th className="px-6 py-4 text-right">Acción</th>
+                  </tr>
+                </thead>
                 <tbody className="divide-y divide-border/50">
                   {filteredOperations.map((op) => (
-                   <tr key={op.id} className="hover:bg-muted/30 transition-colors group">
+                    <tr key={op.id} className="hover:bg-muted/30 transition-colors group">
                      {/* ... (Existing table rows) ... */}
                      <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -311,9 +359,10 @@ export default function AdminOperacionesPage() {
                      </td>
                    </tr>
                  ))}
-               </tbody>
-             </table>
-          </div>
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

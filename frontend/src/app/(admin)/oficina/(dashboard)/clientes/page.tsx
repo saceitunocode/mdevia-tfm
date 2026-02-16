@@ -101,8 +101,8 @@ export default function AdminClientesPage() {
         </Link>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats Cards - Hidden on mobile for a cleaner look */}
+      <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-card p-4 rounded-xl border border-border shadow-sm">
           <div className="flex justify-between items-start">
             <div>

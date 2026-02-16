@@ -114,7 +114,7 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
         </CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit(onFormSubmit, onFormError)}>
-        <CardContent className="p-8">
+        <CardContent className="p-4 md:p-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Columna Izquierda: Datos del Formulario */}
             <div className="lg:col-span-7 space-y-6">
@@ -305,22 +305,20 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
 
                 <div className="space-y-2">
                   <Label htmlFor="public_description">Descripción Pública</Label>
-                  <Textarea
+                  <Textarea 
                     id="public_description"
-                    placeholder="Describe los puntos fuertes de la propiedad..."
-                    rows={5}
-                    className="resize-none"
+                    placeholder="Describe las características principales de la propiedad..."
+                    className="min-h-[120px] bg-muted/20"
                     {...register("public_description")}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="internal_notes">Notas Internas (Privado)</Label>
-                  <Textarea
+                  <Label htmlFor="internal_notes">Observaciones Internas (Solo Agentes)</Label>
+                  <Textarea 
                     id="internal_notes"
-                    placeholder="Información relevante para los agentes..."
-                    rows={2}
-                    className="resize-none bg-muted/30"
+                    placeholder="Notas privadas sobre llaves, disponibilidad, trato con el propietario..."
+                    className="min-h-[100px] bg-muted/20 border-primary/20 focus:border-primary/50"
                     {...register("internal_notes")}
                   />
                 </div>
