@@ -1,9 +1,9 @@
-"use client";
+use client;
 
 import Link from "next/link";
 import Image from "next/image";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
-import { Menu, X, Home, Search, Info, Phone } from "lucide-react";
+import { Menu, X, Home, Search, Phone } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 
@@ -13,7 +13,6 @@ export function PublicNavbar() {
   const navLinks = [
     { name: "Inicio", href: "/", icon: Home },
     { name: "Propiedades", href: "/propiedades", icon: Search },
-    { name: "Nosotros", href: "/#nosotros", icon: Info },
     { name: "Contacto", href: "/#contacto", icon: Phone },
   ];
 
