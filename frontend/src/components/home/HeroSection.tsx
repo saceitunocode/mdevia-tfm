@@ -34,7 +34,7 @@ export function HeroSection() {
           
           {/* Text Content */}
           <div className="relative z-20 text-center space-y-6 px-4">
-            <h2 className="text-5xl md:text-7xl font-heading font-black text-white tracking-tighter drop-shadow-2xl">
+            <h2 className="text-4xl md:text-7xl font-heading font-black text-white tracking-tighter drop-shadow-2xl">
               ANDÚJAR
             </h2>
             <div className="inline-flex items-center gap-3 px-8 py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
@@ -60,7 +60,7 @@ export function HeroSection() {
           
           {/* Text Content */}
           <div className="relative z-20 text-center space-y-6 px-4">
-            <h2 className="text-5xl md:text-7xl font-heading font-black text-white tracking-tighter drop-shadow-2xl">
+            <h2 className="text-4xl md:text-7xl font-heading font-black text-white tracking-tighter drop-shadow-2xl">
               CÓRDOBA
             </h2>
             <div className="inline-flex items-center gap-3 px-8 py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">

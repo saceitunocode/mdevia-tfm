@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import { SlidersHorizontal, RotateCcw, MapPin } from "lucide-react";
+import { SlidersHorizontal, RotateCcw, MapPin, X, Filter } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const PROPERTY_TYPES = [
   { id: "HOUSE", label: "Casa" },
@@ -34,6 +35,9 @@ export function PropertyFilters() {
 
   // 2. Ref-based sync to eliminate double-calls and stale closures
   const paramsRef = useRef("");
+  
+  // Mobile toggle State
+  const [isOpen, setIsOpen] = useState(false);
 
   const applyFilters = useCallback(() => {
     const params = new URLSearchParams();
@@ -125,20 +129,46 @@ export function PropertyFilters() {
   };
 
   return (
-    <div className="bg-card rounded-xl border border-border/50 shadow-sm sticky top-24 max-h-[calc(100vh-120px)] flex flex-col overflow-hidden">
+    <>
+      {/* Mobile Toggle Button (Fixed) - Placeholder to prevent layout jump */}
+      <div className="lg:hidden h-[70px]" aria-hidden="true" />
+      
+      <div className="lg:hidden fixed top-[64px] left-0 right-0 z-40 bg-background/60 backdrop-blur-md px-4 py-3 border-b border-border/10 shadow-sm transition-all duration-300">
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="w-full flex items-center justify-center gap-2 bg-primary/90 text-primary-foreground p-3 rounded-xl font-bold shadow-md active:scale-95 transition-all backdrop-blur-sm"
+        >
+          {isOpen ? <X size={18} /> : <Filter size={18} />}
+          {isOpen ? "Cerrar Filtros" : "Filtrar Búsqueda"}
+        </button>
+      </div>
+
+      <div className={cn(
+          "bg-card border-border/50 shadow-sm lg:sticky lg:top-24 flex flex-col overflow-hidden transition-all duration-300",
+          isOpen ? "fixed inset-0 z-100 m-0 rounded-none h-dvh w-screen" : "hidden lg:flex rounded-xl max-h-[calc(100vh-120px)]"
+      )}>
       <div className="p-4 border-b border-border/50 flex justify-between items-center bg-muted/20 shrink-0">
         <h2 className="font-semibold text-lg flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4" /> Filtros
         </h2>
-        <button 
-          onClick={clearFilters}
-          className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
-        >
-          <RotateCcw className="h-3 w-3" /> Reset
-        </button>
+        <div className="flex items-center gap-3">
+            <button 
+              onClick={clearFilters}
+              className="text-xs text-primary hover:text-primary/80 font-medium flex items-center gap-1"
+            >
+              <RotateCcw className="h-3 w-3" /> Reset
+            </button>
+            {/* Mobile Close Button (inside modal) */}
+            <button 
+            onClick={() => setIsOpen(false)}
+            className="lg:hidden p-1 hover:bg-muted rounded-full"
+            >
+            <X size={20} />
+            </button>
+        </div>
       </div>
 
-      <div className="p-5 space-y-6 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+      <div className="p-5 space-y-6 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent flex-1">
         {/* Location Selector */}
         <div className="space-y-2">
           <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80">Ubicación</Label>
@@ -268,7 +298,17 @@ export function PropertyFilters() {
                 <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${hasElevator === true ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
         </div>
+        {/* Apply Filters Button (Mobile Only) */}
+        <div className="lg:hidden pt-4 pb-8">
+            <button 
+                onClick={() => setIsOpen(false)}
+                className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform"
+            >
+                Ver Resultados
+            </button>
+        </div>
       </div>
     </div>
+    </>
   );
 }

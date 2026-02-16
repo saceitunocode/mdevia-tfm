@@ -45,7 +45,7 @@ export default function DashboardLayout({
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader />
         {/* pb-24 for mobile nav space, md:pb-8 for desktop */}
-        <main className="flex-1 flex flex-col p-4 md:p-6 pb-24 md:pb-6 overflow-hidden">
+        <main className="flex-1 flex flex-col p-4 md:p-6 pb-24 md:pb-6 overflow-y-auto">
           {children}
         </main>
       </div>

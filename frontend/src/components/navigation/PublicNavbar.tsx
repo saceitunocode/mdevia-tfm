@@ -17,7 +17,7 @@ export function PublicNavbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <nav className={`sticky top-0 z-50 w-full border-b border-border transition-colors duration-200 ${isOpen ? 'bg-background' : 'bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60'}`}>
       <div className="w-full flex h-16 items-center justify-between px-6 lg:px-10">
         {/* Logo */}
         <Link href="/" className="flex items-center space-x-2">
@@ -65,26 +65,39 @@ export function PublicNavbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu Overlay */}
       {isOpen && (
-        <div className="md:hidden border-b border-border bg-background px-4 py-4 space-y-4">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className="flex items-center space-x-2 text-base font-medium text-foreground py-2 hover:text-primary transition-colors"
-            >
-              <link.icon className="h-5 w-5" />
-              <span>{link.name}</span>
-            </Link>
-          ))}
-          <div className="pt-4 border-t border-border">
-            <Link href="/oficina/acceso" onClick={() => setIsOpen(false)}>
-              <Button className="w-full">Acceso Agente</Button>
-            </Link>
+        <>
+        {/* Backdrop */}
+        <div 
+          className="md:hidden fixed inset-0 top-[64px] z-40 bg-black/50 backdrop-blur-sm animate-in fade-in"
+          onClick={() => setIsOpen(false)}
+        />
+        
+        {/* Menu Content */}
+        <div className="md:hidden absolute top-[64px] left-0 right-0 z-50 border-b border-border bg-background shadow-xl animate-in slide-in-from-top-2">
+          <div className="px-6 py-6 space-y-6">
+            <div className="space-y-2">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center space-x-3 text-lg font-medium text-foreground py-3 border-b border-border/40 last:border-0 hover:text-primary transition-colors"
+                >
+                  <link.icon className="h-5 w-5 text-primary" />
+                  <span>{link.name}</span>
+                </Link>
+              ))}
+            </div>
+            <div className="pt-2">
+              <Link href="/oficina/acceso" onClick={() => setIsOpen(false)}>
+                <Button className="w-full text-base py-6 font-bold shadow-md">Acceso Agente</Button>
+              </Link>
+            </div>
           </div>
         </div>
+        </>
       )}
     </nav>
   );

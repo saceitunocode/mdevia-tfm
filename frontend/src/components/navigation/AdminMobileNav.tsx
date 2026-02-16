@@ -29,8 +29,12 @@ export function AdminMobileNav() {
     return !item.roles || item.roles.includes(userRole);
   });
 
-  // Top 5 items only
-  const displayItems = filteredItems.slice(0, 5);
+  // Display key agent items for quick access (5 items)
+  // Reordered to place "Agenda" in the middle
+  const mobileOrder = ["Propiedades", "Clientes", "Agenda", "Visitas", "Operaciones"];
+  const displayItems = mobileOrder
+    .map(name => filteredItems.find(item => item.name === name))
+    .filter((item): item is typeof ADMIN_MENU_ITEMS[0] => !!item);
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 flex items-center justify-around pb-safe pt-2 px-2 h-16 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
@@ -41,12 +45,17 @@ export function AdminMobileNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex flex-col items-center justify-center w-full h-full space-y-1",
-              isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              "flex flex-col items-center justify-center w-full h-full space-y-1 transition-all duration-200",
+              isActive ? "text-primary scale-110" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <item.icon className={cn("h-5 w-5", isActive && "fill-current")} />
-            <span className="text-[10px] font-medium truncate max-w-[60px]">{item.name}</span>
+            <item.icon className={cn("h-5 w-5", isActive && "stroke-[2.5px]")} />
+            <span className={cn(
+              "text-[9px] font-bold uppercase tracking-tighter truncate max-w-[60px]",
+              isActive ? "text-primary" : "text-muted-foreground"
+            )}>
+              {item.name}
+            </span>
           </Link>
         );
       })}

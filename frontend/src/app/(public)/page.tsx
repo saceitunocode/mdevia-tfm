@@ -11,13 +11,13 @@ export default function HomePage() {
       <FeaturedProperties />
 
       {/* Services / Value Prop Section */}
-      <section className="py-20 bg-muted/20 border-b border-border/50">
+      <section className="py-20 bg-accent border-b border-white/10">
         <div className="container px-4 mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
-             <h2 className="text-3xl font-heading font-bold tracking-tight">
+             <h2 className="text-3xl font-heading font-bold tracking-tight text-white">
                Por qué elegir FR Inmobiliaria
              </h2>
-             <p className="text-muted-foreground text-lg">
+             <p className="text-white/90 text-lg">
                Combinamos experiencia tradicional con las últimas tecnologías para ofrecerte un servicio transparente y eficaz.
              </p>
           </div>
@@ -40,11 +40,11 @@ export default function HomePage() {
                 desc: "Procesos optimizados digitalmente para cerrar operaciones en tiempo récord." 
               }
             ].map((feature, i) => (
-              <div key={i} className="flex flex-col items-center text-center p-6 space-y-4 bg-background rounded-2xl border border-border/50 shadow-sm hover:shadow-md transition-all">
-                <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-2">
+              <div key={i} className="flex flex-col items-center text-center p-6 space-y-4 bg-background rounded-2xl border border-border/50 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div className="h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center text-accent mb-2">
                   <feature.icon size={32} />
                 </div>
-                <h3 className="text-xl font-bold">{feature.title}</h3>
+                <h3 className="text-xl font-bold text-foreground">{feature.title}</h3>
                 <p className="text-muted-foreground">{feature.desc}</p>
               </div>
             ))}

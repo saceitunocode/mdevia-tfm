@@ -116,82 +116,91 @@ export default function AdminPropiedadesPage() {
         </div>
       ) : (
         <>
-          {viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProperties.map((property) => {
-                const coverImage = property.images?.find(img => img.is_cover) || property.images?.[0];
-                const statusCfg = getStatusConfig('property', property.status);
-                
-                return (
-                  <Card key={property.id} className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-border overflow-hidden flex flex-col h-full bg-card">
-                    <Link href={`/oficina/propiedades/${property.id}`} className="block relative h-56 overflow-hidden bg-muted">
-                      {coverImage ? (
-                        <Image 
-                          src={coverImage.public_url} 
-                          alt={property.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-700 group-hover:scale-110"
-                          unoptimized={coverImage.public_url.startsWith("http://")}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
-                          <Home size={48} />
-                        </div>
-                      )}
-                      
-                      <div className={cn(
-                        "absolute top-3 right-3 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm border backdrop-blur-md",
-                        statusCfg.bg,
-                        statusCfg.color,
-                        statusCfg.border
-                      )}>
-                        {statusCfg.label}
-                      </div>
+          {/* Property List / Grid */}
+          <div className={cn(
+            "grid gap-6",
+            // Forzar grid de 1 columna en móvil independientemente del modo
+            viewMode === "grid" 
+              ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" 
+              : "grid-cols-1"
+          )}>
+            {filteredProperties.map((property) => {
+              const coverImage = property.images?.find(img => img.is_cover) || property.images?.[0];
+              const statusCfg = getStatusConfig('property', property.status);
+              
+              if (viewMode === "list") return null;
 
-                      <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-background/90 backdrop-blur-md text-xs font-bold text-foreground shadow-sm">
-                        {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(property.price_amount)}
+              return (
+                <Card key={property.id} className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-border overflow-hidden flex flex-col h-full bg-card">
+                  <Link href={`/oficina/propiedades/${property.id}`} className="block relative h-56 overflow-hidden bg-muted">
+                    {coverImage ? (
+                      <Image 
+                        src={coverImage.public_url} 
+                        alt={property.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        unoptimized={coverImage.public_url.startsWith("http://")}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
+                        <Home size={48} />
                       </div>
-                    </Link>
+                    )}
                     
-                    <CardContent className="p-4 flex-1 flex flex-col gap-3">
-                      <div>
-                        <Link href={`/oficina/propiedades/${property.id}`} className="hover:text-primary transition-colors">
-                           <h3 className="font-bold text-base line-clamp-1">{property.title}</h3>
-                        </Link>
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
-                           <MapPin size={12} className="text-primary shrink-0" />
-                           <span className="line-clamp-1">{property.address_line1}, {property.city}</span>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-border/50">
-                         <div className="flex flex-col items-center justify-center text-center">
-                            <span className="text-xs text-muted-foreground flex items-center gap-1"><Ruler size={10} /> Area</span>
-                            <span className="text-sm font-semibold">{property.sqm}m²</span>
-                         </div>
-                         <div className="flex flex-col items-center justify-center text-center border-l border-border/50">
-                            <span className="text-xs text-muted-foreground flex items-center gap-1"><Bed size={10} /> Hab.</span>
-                            <span className="text-sm font-semibold">{property.rooms}</span>
-                         </div>
-                         <div className="flex flex-col items-center justify-center text-center border-l border-border/50">
-                           <span className="text-xs text-muted-foreground flex items-center gap-1"><Bath size={10} /> Baños</span>
-                           <span className="text-sm font-semibold">{property.baths}</span>
-                         </div>
-                      </div>
+                    <div className={cn(
+                      "absolute top-3 right-3 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm border backdrop-blur-md",
+                      statusCfg.bg,
+                      statusCfg.color,
+                      statusCfg.border
+                    )}>
+                      {statusCfg.label}
+                    </div>
 
-                      <Link href={`/oficina/propiedades/${property.id}`} className="mt-auto pt-2">
-                        <Button variant="outline" className="w-full text-xs hover:bg-primary hover:text-primary-foreground group-hover/btn:bg-primary transition-colors h-9">
-                          Ver Detalles <ArrowUpRight className="ml-2 h-3 w-3" />
-                        </Button>
+                    <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-background/90 backdrop-blur-md text-xs font-bold text-foreground shadow-sm">
+                      {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(property.price_amount)}
+                    </div>
+                  </Link>
+                  
+                  <CardContent className="p-4 flex-1 flex flex-col gap-3">
+                    <div>
+                      <Link href={`/oficina/propiedades/${property.id}`} className="hover:text-primary transition-colors">
+                         <h3 className="font-bold text-base line-clamp-1">{property.title}</h3>
                       </Link>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                         <MapPin size={12} className="text-primary shrink-0" />
+                         <span className="line-clamp-1">{property.address_line1}, {property.city}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-3 gap-2 py-3 border-t border-b border-border/50">
+                       <div className="flex flex-col items-center justify-center text-center">
+                          <span className="text-xs text-muted-foreground flex items-center gap-1"><Ruler size={10} /> Area</span>
+                          <span className="text-sm font-semibold">{property.sqm}m²</span>
+                       </div>
+                       <div className="flex flex-col items-center justify-center text-center border-l border-border/50">
+                          <span className="text-xs text-muted-foreground flex items-center gap-1"><Bed size={10} /> Hab.</span>
+                          <span className="text-sm font-semibold">{property.rooms}</span>
+                       </div>
+                       <div className="flex flex-col items-center justify-center text-center border-l border-border/50">
+                         <span className="text-xs text-muted-foreground flex items-center gap-1"><Bath size={10} /> Baños</span>
+                         <span className="text-sm font-semibold">{property.baths}</span>
+                       </div>
+                    </div>
+
+                    <Link href={`/oficina/propiedades/${property.id}`} className="mt-auto pt-2">
+                      <Button variant="outline" className="w-full text-xs hover:bg-primary hover:text-primary-foreground group-hover/btn:bg-primary transition-colors h-9">
+                        Ver Detalles <ArrowUpRight className="ml-2 h-3 w-3" />
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {viewMode === "list" && (
+            <div className="hidden md:block bg-card rounded-xl border border-border shadow-sm overflow-hidden mt-6">
                <div className="overflow-x-auto">
                  <table className="w-full text-sm text-left">
                    <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs border-b border-border">

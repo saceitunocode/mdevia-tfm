@@ -21,6 +21,7 @@ export function AdminHeader() {
     return !item.roles || item.roles.includes(userRole);
   });
 
+
   return (
     <>
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md border-b border-border px-4 md:px-8 h-16 flex items-center justify-between transition-all">
@@ -34,10 +35,10 @@ export function AdminHeader() {
           </button>
           
           <div className="flex flex-col">
-            <h1 className="text-lg md:text-xl font-bold text-foreground tracking-tight font-heading">
+            <h1 className="text-base md:text-xl font-bold text-foreground tracking-tight font-heading leading-tight">
               Panel de Gestión
             </h1>
-            <p className="text-xs md:text-sm text-muted-foreground hidden md:block">
+            <p className="hidden md:block text-xs md:text-sm text-muted-foreground">
               Hola, {user?.full_name?.split(" ")[0] || "Agente"}.
             </p>
           </div>
