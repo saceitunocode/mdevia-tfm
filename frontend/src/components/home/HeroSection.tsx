@@ -29,8 +29,8 @@ export function HeroSection() {
             style={{ backgroundImage: 'url("/hero_andujar.png")' }}
           />
           {/* Overlays */}
-          <div className="absolute inset-0 bg-zinc-900/40 group-hover:bg-zinc-900/20 transition-colors duration-500" />
-          <div className="absolute inset-0 bg-linear-to-t from-zinc-900/80 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-emerald-900/40 group-hover:bg-emerald-900/20 transition-colors duration-500" />
+          <div className="absolute inset-0 bg-linear-to-t from-emerald-900/80 via-transparent to-transparent" />
           
           {/* Text Content */}
           <div className="relative z-20 text-center space-y-6 px-4">
