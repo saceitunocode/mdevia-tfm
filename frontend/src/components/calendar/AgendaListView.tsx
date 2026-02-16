@@ -43,15 +43,16 @@ export function AgendaListView({ events, onEventClick }: AgendaListViewProps) {
   });
 
   const getEventStyles = (type: string) => {
+    // We map the unified colors to the specific border-l style required by the Agenda view
     switch (type) {
       case EventType.VISIT:
-        return "border-l-blue-500 bg-blue-50/50 dark:bg-blue-900/10";
+        return "border-l-blue-500 bg-blue-50/30 hover:bg-blue-100/50";
       case EventType.CAPTATION:
-        return "border-l-amber-500 bg-amber-50/50 dark:bg-amber-900/10";
+        return "border-l-purple-500 bg-purple-50/30 hover:bg-purple-100/50";
       case EventType.NOTE:
-        return "border-l-purple-500 bg-purple-50/50 dark:bg-purple-900/10";
+        return "border-l-amber-500 bg-amber-50/30 hover:bg-amber-100/50";
       case EventType.REMINDER:
-        return "border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-900/10";
+        return "border-l-emerald-500 bg-emerald-50/30 hover:bg-emerald-100/50";
       default:
         return "border-l-primary bg-primary/5";
     }

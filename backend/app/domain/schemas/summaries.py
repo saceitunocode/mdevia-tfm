@@ -17,4 +17,5 @@ class PropertySummary(BaseModel):
     id: UUID
     title: str
     city: str
+    address_line1: str
     model_config = ConfigDict(from_attributes=True)

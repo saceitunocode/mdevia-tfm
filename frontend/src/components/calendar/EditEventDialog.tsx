@@ -204,124 +204,132 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-none shadow-2xl">
-        <div className="bg-primary/5 border-b border-primary/10 p-6">
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="bg-primary/5 border-b border-primary/10 p-4 shrink-0">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
-                <CalendarIcon className="h-6 w-6" />
+              <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                <CalendarIcon className="h-5 w-5" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold tracking-tight">Editar Evento</DialogTitle>
-                <p className="text-xs text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">Detalles de la Cita</p>
+                <DialogTitle className="text-lg font-bold tracking-tight">Editar Evento</DialogTitle>
+                <p className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">Detalles de la Cita</p>
               </div>
             </div>
           </DialogHeader>
         </div>
 
-        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="p-6 space-y-6">
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="flex flex-col flex-1 min-h-0">
+          <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
           
-          <div className="space-y-4">
-            {/* Title - Read Only Styled */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
-                <Info className="h-4 w-4" /> Título (No editable)
+            <div className="space-y-3">
+              {/* Title & Type - Compact Row */}
+              <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2 space-y-1.5">
+                    <label className="text-xs font-semibold flex items-center gap-1.5 text-muted-foreground h-4">
+                      <Info className="h-3.5 w-3.5 text-primary" /> Título
+                    </label>
+                    <div className="h-9 px-3 flex items-center bg-muted/30 border border-border rounded-lg text-xs font-bold text-foreground/70 truncate shadow-sm" title={event.title}>
+                      {event.title}
+                      <Lock className="ml-auto h-3 w-3 opacity-30 shrink-0" />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold flex items-center gap-1.5 text-muted-foreground h-4">
+                       <span className="w-3.5 h-3.5 inline-block" /> Tipo
+                    </label>
+                    <div className="h-9 px-2 flex items-center justify-center bg-muted/30 border border-border rounded-lg text-[10px] font-bold uppercase tracking-wider text-primary/70 truncate shadow-sm">
+                      {event.type.toLowerCase()}
+                    </div>
+                  </div>
+              </div>
+
+              {/* Linked Data - Read Only */}
+              {event.type === EventType.VISIT && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-muted/10 rounded-lg border border-border/30">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold flex items-center gap-1 text-muted-foreground uppercase tracking-wide">
+                      <User className="h-3 w-3" /> Cliente
+                    </label>
+                    <div className="text-xs font-medium truncate pl-4 text-foreground/80">
+                      {clients.find(c => c.id === form.watch("client_id"))?.full_name || "Vinculado"}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold flex items-center gap-1 text-muted-foreground uppercase tracking-wide">
+                      <Building2 className="h-3 w-3" /> Propiedad
+                    </label>
+                    <div className="text-xs font-medium truncate pl-4 text-foreground/80">
+                      {properties.find(p => p.id === form.watch("property_id"))?.title || "Vinculada"}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="h-px bg-border/50" />
+
+            {/* Date & Time Section - EDITABLE */}
+            <div className="bg-primary/5 p-3 rounded-lg border border-primary/10 shadow-inner">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60 mb-2 flex items-center gap-2">
+                <Clock className="w-3 h-3" /> Reprogramar Cita
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Nueva Fecha</label>
+                    <div className="relative group">
+                        <CalendarIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-primary group-focus-within:scale-110 transition-transform pointer-events-none" />
+                        <Input 
+                            type="date" 
+                            {...form.register("date")} 
+                            className="pl-8 h-9 bg-background border-primary/20 shadow-sm focus:ring-primary focus:border-primary rounded-lg text-xs" 
+                        />
+                    </div>
+                </div>
+                
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Hora Inicio</label>
+                    <div className="relative group">
+                        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-primary group-focus-within:scale-110 transition-transform pointer-events-none" />
+                        <Input 
+                            type="time" 
+                            {...form.register("startTime")} 
+                            className="pl-8 h-9 bg-background border-primary/20 shadow-sm focus:ring-primary focus:border-primary rounded-lg text-xs font-bold" 
+                        />
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Description - EDITABLE */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground flex items-center gap-2">
+                 Notas e Instrucciones
               </label>
-              <div className="h-11 px-4 flex items-center bg-muted/30 border border-border rounded-xl text-sm font-bold text-foreground/70">
-                {event.title}
-                <Lock className="ml-auto h-3.5 w-3.5 opacity-30" />
-              </div>
-            </div>
-
-            {/* Type - Read Only Styled */}
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-muted-foreground">Tipo</label>
-              <div className="h-11 px-4 flex items-center bg-muted/30 border border-border rounded-xl text-xs font-bold uppercase tracking-wider text-primary/70">
-                {event.type.toLowerCase()}
-              </div>
-            </div>
-
-            {/* Linked Data - Read Only */}
-            {event.type === EventType.VISIT && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in duration-500">
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
-                    <User className="h-4 w-4" /> Cliente
-                  </label>
-                  <div className="h-11 px-4 flex items-center bg-muted/20 border border-border/50 rounded-xl text-sm truncate font-medium">
-                    {clients.find(c => c.id === form.watch("client_id"))?.full_name || "Vinculado"}
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold flex items-center gap-2 text-muted-foreground">
-                    <Building2 className="h-4 w-4" /> Propiedad
-                  </label>
-                  <div className="h-11 px-4 flex items-center bg-muted/20 border border-border/50 rounded-xl text-sm truncate font-medium">
-                    {properties.find(p => p.id === form.watch("property_id"))?.title || "Vinculada"}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="h-px bg-border/50 my-2" />
-
-          {/* Date & Time Section - EDITABLE */}
-          <div className="bg-primary/5 p-5 rounded-2xl border border-primary/10 shadow-inner">
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-primary/60 mb-4 flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5" /> Reprogramar Cita
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="space-y-2">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Nueva Fecha</label>
-                  <div className="relative group">
-                      <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:scale-110 transition-transform pointer-events-none" />
-                      <Input 
-                          type="date" 
-                          {...form.register("date")} 
-                          className="pl-9 h-12 bg-background border-primary/20 shadow-sm focus:ring-primary focus:border-primary rounded-xl" 
-                      />
-                  </div>
-              </div>
-              
-              <div className="space-y-2 sm:col-span-1">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Hora Inicio</label>
-                  <div className="relative group">
-                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary group-focus-within:scale-110 transition-transform pointer-events-none" />
-                      <Input 
-                          type="time" 
-                          {...form.register("startTime")} 
-                          className="pl-9 h-12 bg-background border-primary/20 shadow-sm focus:ring-primary focus:border-primary rounded-xl text-sm font-bold" 
-                      />
-                  </div>
-              </div>
+              <Textarea 
+                  {...form.register("description")} 
+                  placeholder="Detalles adicionales..." 
+                  className="resize-none h-20 bg-background border-input focus:ring-primary shadow-sm rounded-lg p-3 text-sm"
+              />
             </div>
           </div>
 
-          {/* Description - EDITABLE */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-foreground flex items-center gap-2">
-               Notas e Instrucciones
-            </label>
-            <Textarea 
-                {...form.register("description")} 
-                placeholder="Detalles adicionales, cambios en la reunión..." 
-                className="resize-none h-28 bg-background border-input focus:ring-primary shadow-sm rounded-xl p-4"
-            />
-          </div>
-
-          <DialogFooter className="gap-3 sm:gap-0 pt-2">
+          <DialogFooter className="p-4 bg-muted/20 border-t border-border/50 gap-2 sm:gap-0 shrink-0">
             {onDelete && (
-                <Button 
-                    type="button" 
-                    variant="ghost" 
-                    onClick={handleDelete} 
-                    disabled={isDeleting || isSubmitting}
-                    className="mr-auto text-destructive hover:text-destructive hover:bg-destructive/10 rounded-xl"
-                >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar Evento
-                </Button>
+                <div className="flex-1 mr-auto">
+                    <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={handleDelete} 
+                        disabled={isDeleting || isSubmitting}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 md:h-9 px-2 text-xs md:text-sm"
+                    >
+                        <Trash2 className="w-3.5 h-3.5 md:mr-2" />
+                        <span className="hidden md:inline">Eliminar</span>
+                    </Button>
+                </div>
             )}
             
             <div className="flex gap-3">

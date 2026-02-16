@@ -4,7 +4,7 @@ import React from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, isToday } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { CalendarEvent, EventType } from "@/types/calendar";
+import { CalendarEvent, EVENT_COLORS } from "@/types/calendar";
 
 interface MonthViewProps {
   currentDate: Date;
@@ -48,24 +48,24 @@ export function MonthView({ currentDate, events, onDayClick, onEventClick }: Mon
                         key={day.toString()} 
                         onClick={() => onDayClick(day)}
                         className={cn(
-                            "min-h-[130px] bg-background p-2 transition-colors cursor-pointer flex flex-col group relative hover:bg-muted/30",
+                            "md:min-h-[130px] min-h-[60px] bg-background p-1 md:p-2 transition-colors cursor-pointer flex flex-col group relative hover:bg-muted/30",
                             !isCurrentMonth && "bg-muted/10 text-muted-foreground/50",
                         )}
                     >
                          {/* Day Number */}
-                        <div className="flex justify-between items-start mb-1">
-                            <span className={cn(
-                                "text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full transition-colors",
-                                isTodayDate 
-                                  ? "bg-primary text-primary-foreground shadow-sm" 
-                                  : "text-muted-foreground group-hover:text-foreground"
-                            )}>
-                                {format(day, "d")}
-                            </span>
+                        <div className="flex justify-center md:justify-between items-start mb-1">
+                                <span className={cn(
+                                    "text-xs md:text-sm font-medium w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-full transition-colors",
+                                    isTodayDate 
+                                      ? "bg-primary text-primary-foreground shadow-sm" 
+                                      : "text-muted-foreground group-hover:text-foreground md:group-hover:text-foreground"
+                                )}>
+                                    {format(day, "d")}
+                                </span>
                              
-                             {/* Add Button (Hidden by default, shown on hover) */}
+                             {/* Add Button (Hidden on mobile, shown on hover desktop) */}
                              {isCurrentMonth && (
-                               <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                               <div className="hidden md:block opacity-0 group-hover:opacity-100 transition-opacity">
                                   <button className="text-muted-foreground hover:text-primary p-1">
                                     <span className="sr-only">Añadir evento</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -73,18 +73,41 @@ export function MonthView({ currentDate, events, onDayClick, onEventClick }: Mon
                                </div>
                              )}
                         </div>
+
+                        {/* Mobile Events (Clickable Bars) */}
+                        <div className="flex md:hidden flex-col gap-0.5 mt-1 w-full px-0.5">
+                            {dayEvents.slice(0, 4).map((event) => (
+                                <div 
+                                    key={`mob-${event.id}`}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onEventClick(event);
+                                    }}
+                                    className={cn(
+                                        "h-3.5 rounded-[2px] px-1 flex items-center cursor-pointer overflow-hidden transition-opacity hover:opacity-80 active:scale-[0.98] border-l-2",
+                                        EVENT_COLORS[event.type]
+                                    )} 
+                                >
+                                    <span className="text-[7px] font-bold uppercase truncate leading-none w-full">
+                                        {event.type}
+                                    </span>
+                                </div>
+                            ))}
+                            {dayEvents.length > 4 && (
+                                <div className="h-3.5 flex items-center justify-center mt-0.5 bg-muted/50 rounded-[2px] cursor-pointer hover:bg-muted transition-colors" title="Ver más eventos">
+                                    <span className="text-[9px] font-bold text-muted-foreground leading-none">+ {dayEvents.length - 4}</span>
+                                </div>
+                            )}
+                        </div>
                         
-                        {/* Events List */}
-                        <div className="space-y-1 mt-auto">
-                            {dayEvents.map(event => (
+                        {/* Desktop Events List (Detailed View) */}
+                        <div className="hidden md:block space-y-1 mt-auto">
+                            {dayEvents.slice(0, 3).map(event => (
                                 <div 
                                     key={event.id}
                                     className={cn(
                                         "text-[10px] px-1.5 py-1 rounded border-l-2 truncate font-medium cursor-pointer transition-all hover:shadow-sm hover:translate-x-0.5",
-                                        event.type === EventType.VISIT ? "bg-blue-50 dark:bg-blue-900/20 border-blue-500 text-blue-700 dark:text-blue-300" :
-                                        event.type === EventType.CAPTATION ? "bg-purple-50 dark:bg-purple-900/20 border-purple-500 text-purple-700 dark:text-purple-300" :
-                                        event.type === EventType.NOTE ? "bg-amber-50 dark:bg-amber-900/20 border-amber-500 text-amber-700 dark:text-amber-300" :
-                                        "bg-gray-50 dark:bg-gray-800 border-gray-500 text-gray-700 dark:text-gray-300"
+                                        EVENT_COLORS[event.type]
                                     )}
                                     title={event.title}
                                     onClick={(e) => {
@@ -95,6 +118,11 @@ export function MonthView({ currentDate, events, onDayClick, onEventClick }: Mon
                                     {format(new Date(event.starts_at), "HH:mm")} {event.title}
                                 </div>
                             ))}
+                            {dayEvents.length > 3 && (
+                                <p className="text-[10px] text-center text-muted-foreground font-medium pt-1 hover:text-primary transition-colors">
+                                    + {dayEvents.length - 3} más
+                                </p>
+                            )}
                         </div>
                     </div>
                 );

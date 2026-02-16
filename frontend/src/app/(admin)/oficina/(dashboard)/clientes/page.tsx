@@ -181,6 +181,7 @@ export default function AdminClientesPage() {
       </DashboardToolbar>
 
       {/* Table Content */}
+      {/* Table Content */}
       <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
         {isLoading ? (
            <div className="p-8 space-y-4">
@@ -216,83 +217,144 @@ export default function AdminClientesPage() {
             )}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs border-b border-border">
-                <tr>
-                  <th className="px-6 py-4 font-medium">Cliente</th>
-                  <th className="px-6 py-4 font-medium">Contacto</th>
-                  <th className="px-6 py-4 font-medium">Tipo</th>
-                  <th className="px-6 py-4 font-medium">Últ. Contacto</th>
-                  <th className="px-6 py-4 font-medium">Estado</th>
-                  <th className="px-6 py-4 font-medium text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/50">
-                {filteredClients.map((client) => (
-                  <tr key={client.id} className="group hover:bg-muted/30 transition-colors">
-                    <td className="px-6 py-4">
-                       <div className="flex items-center gap-3">
-                          <div className={cn("h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 uppercase", getAvatarColor(client.full_name))}>
-                             {client.full_name.charAt(0)}
-                          </div>
-                          <div>
-                             <p className="font-medium text-foreground">{client.full_name}</p>
-                             <p className="text-xs text-muted-foreground">ID: {client.id.substring(0,6)}...</p>
-                          </div>
-                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                       <div className="space-y-1">
-                          {client.email && (
-                            <div className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
-                              <Mail className="h-3.5 w-3.5" />
-                              <span className="truncate max-w-[180px]">{client.email}</span>
-                            </div>
-                          )}
-                          {client.phone && (
-                            <div className="flex items-center gap-1.5 text-muted-foreground">
-                              <Phone className="h-3.5 w-3.5" />
-                              <span>{client.phone}</span>
-                            </div>
-                          )}
-                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                       {getTypeBadge(client.type)}
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground text-xs">
-                        {/* Mock date */}
-                       {new Date().toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4">
-                       <span className={cn(
-                          "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
-                          client.is_active ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-gray-100 text-gray-600"
-                       )}>
-                          <span className={cn("h-1.5 w-1.5 rounded-full", client.is_active ? "bg-emerald-600" : "bg-gray-400")} />
-                          {client.is_active ? "Activo" : "Inactivo"}
-                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Link href={`/oficina/clientes/${client.id}`}>
-                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary hover:bg-primary/10">
-                                <Eye className="h-4 w-4" />
-                             </Button>
-                          </Link>
-                          <Link href={`/oficina/clientes/${client.id}/editar`}>
-                             <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-blue-500 hover:bg-blue-50">
-                                <FileEdit className="h-4 w-4" />
-                             </Button>
-                          </Link>
-                       </div>
-                    </td>
+          <>
+            {/* Mobile View: Card List */}
+            <div className="md:hidden divide-y divide-border/50">
+              {filteredClients.map((client) => (
+                <div key={client.id} className="p-4 space-y-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={cn("h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 uppercase", getAvatarColor(client.full_name))}>
+                        {client.full_name.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-bold text-foreground text-base tracking-tight">{client.full_name}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest">ID: {client.id.substring(0,8)}</p>
+                      </div>
+                    </div>
+                    {getTypeBadge(client.type)}
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2 text-sm">
+                    {client.email && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Mail className="h-4 w-4" />
+                        <span className="truncate">{client.email}</span>
+                      </div>
+                    )}
+                    {client.phone && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Phone className="h-4 w-4" />
+                        <span>{client.phone}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-border/30">
+                    <div className="flex items-center gap-2">
+                      <span className={cn(
+                        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider",
+                        client.is_active ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-600"
+                      )}>
+                        <div className={cn("h-1 w-1 rounded-full", client.is_active ? "bg-emerald-600" : "bg-gray-400")} />
+                        {client.is_active ? "Activo" : "Inactivo"}
+                      </span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Link href={`/oficina/clientes/${client.id}`}>
+                        <Button variant="outline" size="sm" className="h-8 px-3 font-bold">
+                          <Eye className="h-3.5 w-3.5 mr-1" /> Ver
+                        </Button>
+                      </Link>
+                      <Link href={`/oficina/clientes/${client.id}/editar`}>
+                        <Button variant="outline" size="sm" className="h-8 px-3 font-bold">
+                          <FileEdit className="h-3.5 w-3.5 mr-1" /> Editar
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop View: Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-sm text-left">
+                <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs border-b border-border">
+                  <tr>
+                    <th className="px-6 py-4 font-medium">Cliente</th>
+                    <th className="px-6 py-4 font-medium">Contacto</th>
+                    <th className="px-6 py-4 font-medium">Tipo</th>
+                    <th className="px-6 py-4 font-medium">Últ. Contacto</th>
+                    <th className="px-6 py-4 font-medium">Estado</th>
+                    <th className="px-6 py-4 font-medium text-right">Acciones</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-border/50">
+                  {filteredClients.map((client) => (
+                    <tr key={client.id} className="group hover:bg-muted/30 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                            <div className={cn("h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0 uppercase", getAvatarColor(client.full_name))}>
+                                {client.full_name.charAt(0)}
+                            </div>
+                            <div>
+                                <p className="font-medium text-foreground">{client.full_name}</p>
+                                <p className="text-xs text-muted-foreground">ID: {client.id.substring(0,6)}...</p>
+                            </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="space-y-1">
+                            {client.email && (
+                              <div className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
+                                <Mail className="h-3.5 w-3.5" />
+                                <span className="truncate max-w-[180px]">{client.email}</span>
+                              </div>
+                            )}
+                            {client.phone && (
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <Phone className="h-3.5 w-3.5" />
+                                <span>{client.phone}</span>
+                              </div>
+                            )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {getTypeBadge(client.type)}
+                      </td>
+                      <td className="px-6 py-4 text-muted-foreground text-xs">
+                        {new Date().toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={cn(
+                            "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium",
+                            client.is_active ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-gray-100 text-gray-600"
+                        )}>
+                            <span className={cn("h-1.5 w-1.5 rounded-full", client.is_active ? "bg-emerald-600" : "bg-gray-400")} />
+                            {client.is_active ? "Activo" : "Inactivo"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Link href={`/oficina/clientes/${client.id}`}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-primary hover:bg-primary/10">
+                                  <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            <Link href={`/oficina/clientes/${client.id}/editar`}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 hover:text-blue-500 hover:bg-blue-50">
+                                  <FileEdit className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

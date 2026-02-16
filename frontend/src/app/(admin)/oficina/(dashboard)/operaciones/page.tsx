@@ -5,7 +5,7 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Button } from "@/components/ui/Button";
-import { Plus, Briefcase, ArrowRight, User, Building2, MapPin, LayoutGrid, List as ListIcon, Filter } from "lucide-react";
+import { Plus, Briefcase, ArrowRight, Building2, Filter } from "lucide-react";
 import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
 import { operationService } from "@/services/operationService";
 import { Operation, OperationStatus, OperationType } from "@/types/operation";
@@ -42,7 +42,6 @@ const getStatusBadge = (status: OperationStatus) => {
 export default function AdminOperacionesPage() {
   const [operations, setOperations] = useState<Operation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
 
@@ -98,54 +97,25 @@ export default function AdminOperacionesPage() {
         onSearchChange={setSearchTerm}
         placeholder="Buscar por propiedad, cliente o agente..."
       >
-        <div className="flex items-center gap-4">
-          <div className="relative w-full sm:w-auto">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <select 
-              className="pl-9 pr-8 py-2 border border-input rounded-lg bg-background text-sm focus:ring-primary focus:border-primary appearance-none shadow-sm cursor-pointer hover:bg-muted/50 transition-colors w-full sm:w-48"
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-            >
-              <option value="ALL">Todos los estados</option>
-              <option value={OperationStatus.INTEREST}>Interés</option>
-              <option value={OperationStatus.NEGOTIATION}>Negociación</option>
-              <option value={OperationStatus.RESERVED}>Reservado</option>
-              <option value={OperationStatus.CLOSED}>Cerrado</option>
-              <option value={OperationStatus.CANCELLED}>Cancelado</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border border-border">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={cn(
-                "p-2 rounded-md transition-all duration-200",
-                viewMode === "grid" 
-                  ? "bg-background shadow-sm text-primary" 
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              title="Vista Cuadrícula"
-            >
-              <LayoutGrid size={18} />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={cn(
-                "p-2 rounded-md transition-all duration-200",
-                viewMode === "list" 
-                  ? "bg-background shadow-sm text-primary" 
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              title="Vista Lista"
-            >
-              <ListIcon size={18} />
-            </button>
-          </div>
+        <div className="relative w-full sm:w-auto">
+          <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <select 
+            className="pl-9 pr-8 py-2 border border-input rounded-lg bg-background text-sm focus:ring-primary focus:border-primary appearance-none shadow-sm cursor-pointer hover:bg-muted/50 transition-colors w-full sm:w-48"
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="ALL">Todos los estados</option>
+            <option value={OperationStatus.INTEREST}>Interés</option>
+            <option value={OperationStatus.NEGOTIATION}>Negociación</option>
+            <option value={OperationStatus.RESERVED}>Reservado</option>
+            <option value={OperationStatus.CLOSED}>Cerrado</option>
+            <option value={OperationStatus.CANCELLED}>Cancelado</option>
+          </select>
         </div>
       </DashboardToolbar>
 
       {/* Content */}
-      <div className={cn("space-y-6", viewMode === "list" && "bg-card rounded-xl border border-border shadow-sm overflow-hidden")}>
+      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden space-y-0">
         {isLoading ? (
           <div className="p-8 space-y-4">
              {[1, 2, 3].map(i => (
@@ -171,75 +141,13 @@ export default function AdminOperacionesPage() {
               <Button variant="outline" className="mt-4">Crear Operación</Button>
             </Link>
           </div>
-        ) : viewMode === "grid" ? (
-          /* Grid View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredOperations.map((op) => (
-              <div key={op.id} className="group bg-card hover:shadow-lg transition-all duration-300 rounded-xl border border-border overflow-hidden flex flex-col">
-                {/* Card Header (Image/Icon placeholder) */}
-                <div className="relative h-40 bg-muted/30 flex items-center justify-center overflow-hidden">
-                   <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent z-10" />
-                   <Building2 className="h-12 w-12 text-muted-foreground/30" />
-                   
-                   <div className="absolute top-3 right-3 z-20">
-                      {getStatusBadge(op.status)}
-                   </div>
-                   <div className="absolute bottom-3 left-3 z-20 text-white">
-                      <p className="font-bold text-lg truncate w-[250px]">{op.property?.title || "Propiedad sin título"}</p>
-                      <p className="text-xs text-gray-200 flex items-center gap-1">
-                         <MapPin className="h-3 w-3" /> {op.property?.city || "Ubicación desconocida"}
-                      </p>
-                   </div>
-                </div>
-                
-                {/* Card Body */}
-                <div className="p-4 flex-1 flex flex-col gap-4">
-                   <div className="flex justify-between items-start">
-                      <span className={cn(
-                          "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border", 
-                          op.type === OperationType.SALE 
-                            ? "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30" 
-                            : "bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-900/30"
-                      )}>
-                          {op.type === OperationType.SALE ? "Venta" : "Alquiler"}
-                      </span>
-                      <span className="text-xs text-muted-foreground font-medium">
-                        {format(new Date(op.created_at), "d MMM yyyy", { locale: es })}
-                      </span>
-                   </div>
-                   
-                   <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-foreground">
-                         <User className="h-4 w-4 text-muted-foreground" />
-                         <span className="truncate">{op.client?.full_name || "Cliente desconocido"}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                         <div className="h-4 w-4 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-[8px] font-bold text-indigo-700 dark:text-indigo-400">
-                            {(op.agent?.full_name || "A").charAt(0).toUpperCase()}
-                         </div>
-                         <span className="truncate">{op.agent?.full_name || "Sin agente"}</span>
-                      </div>
-                   </div>
-
-                   <div className="mt-auto pt-4 border-t border-border flex justify-end">
-                      <Link href={`/oficina/operaciones/${op.id}`} className="w-full">
-                         <Button variant="outline" size="sm" className="w-full hover:bg-primary hover:text-primary-foreground group-hover:border-primary/50 transition-colors">
-                            Ver Detalles <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-                         </Button>
-                      </Link>
-                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
         ) : (
-          /* List View (Table) */
           /* List View (Table + Mobile Cards) */
           <>
             {/* Mobile Card View (Visible on small screens) */}
-            <div className="md:hidden space-y-4">
+            <div className="md:hidden divide-y divide-border">
               {filteredOperations.map((op) => (
-                <div key={op.id} className="bg-card rounded-lg border border-border shadow-sm p-4 space-y-3">
+                <div key={op.id} className="p-4 space-y-3 hover:bg-muted/30 transition-colors">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center gap-2">
                        <Building2 className="h-4 w-4 text-primary" />
@@ -270,10 +178,13 @@ export default function AdminOperacionesPage() {
                     </div>
                   </div>
                   
-                  <div className="pt-2 border-t border-border flex justify-end">
-                    <Link href={`/oficina/operaciones/${op.id}`} className="w-full">
-                      <Button variant="outline" size="sm" className="w-full h-8 text-xs">
-                        Ver Detalles <ArrowRight className="ml-1.5 h-3 w-3" />
+                  <div className="pt-2 flex items-center justify-between gap-4">
+                    <span className="text-[10px] text-muted-foreground italic">
+                      {format(new Date(op.created_at), "d MMM yyyy", { locale: es })}
+                    </span>
+                    <Link href={`/oficina/operaciones/${op.id}`}>
+                      <Button variant="outline" size="sm" className="h-8 px-3 text-xs gap-1">
+                        Ver Detalles <ArrowRight className="h-3 w-3" />
                       </Button>
                     </Link>
                   </div>
@@ -298,8 +209,7 @@ export default function AdminOperacionesPage() {
                 <tbody className="divide-y divide-border/50">
                   {filteredOperations.map((op) => (
                     <tr key={op.id} className="hover:bg-muted/30 transition-colors group">
-                     {/* ... (Existing table rows) ... */}
-                     <td className="px-6 py-4">
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="h-10 w-10 rounded bg-muted flex items-center justify-center text-muted-foreground shrink-0 overflow-hidden">
                              <Building2 className="h-5 w-5" />
@@ -313,8 +223,8 @@ export default function AdminOperacionesPage() {
                              </p>
                           </div>
                         </div>
-                     </td>
-                     <td className="px-6 py-4">
+                      </td>
+                      <td className="px-6 py-4">
                         <span className={cn(
                           "px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border", 
                           op.type === OperationType.SALE 
@@ -323,8 +233,8 @@ export default function AdminOperacionesPage() {
                         )}>
                           {op.type === OperationType.SALE ? "Venta" : "Alquiler"}
                         </span>
-                     </td>
-                     <td className="px-6 py-4">
+                      </td>
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                            <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
                               {(op.client?.full_name || "C").charAt(0).toUpperCase()}
@@ -333,11 +243,11 @@ export default function AdminOperacionesPage() {
                               {op.client?.full_name || "Cliente desconocido"}
                            </span>
                         </div>
-                     </td>
-                     <td className="px-6 py-4">
+                      </td>
+                      <td className="px-6 py-4">
                         {getStatusBadge(op.status)}
-                     </td>
-                     <td className="px-6 py-4">
+                      </td>
+                      <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
                            <div className="h-6 w-6 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-[10px] font-bold text-indigo-700 dark:text-indigo-400">
                               {(op.agent?.full_name || "A").charAt(0).toUpperCase()}
@@ -346,19 +256,19 @@ export default function AdminOperacionesPage() {
                               {op.agent?.full_name || "Sin agente"}
                            </span>
                         </div>
-                     </td>
-                     <td className="px-6 py-4 text-muted-foreground text-xs font-medium">
+                      </td>
+                      <td className="px-6 py-4 text-muted-foreground text-xs font-medium">
                         {format(new Date(op.created_at), "d MMM yyyy", { locale: es })}
-                     </td>
-                     <td className="px-6 py-4 text-right">
+                      </td>
+                      <td className="px-6 py-4 text-right">
                         <Link href={`/oficina/operaciones/${op.id}`}>
                            <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-primary/10 hover:text-primary rounded-full">
                               <ArrowRight className="h-4 w-4" />
                            </Button>
                         </Link>
-                     </td>
-                   </tr>
-                 ))}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

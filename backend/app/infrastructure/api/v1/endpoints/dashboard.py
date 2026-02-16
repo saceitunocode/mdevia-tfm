@@ -14,9 +14,13 @@ router = APIRouter()
 
 class DashboardStats(BaseModel):
     total_properties: int
+    total_properties_trend: float
     total_clients: int
+    total_clients_trend: float
     pending_visits: int
+    pending_visits_trend: float
     active_operations: int
+    active_operations_trend: float
     available_properties: int
     sold_properties: int
     rented_properties: int
@@ -86,11 +90,35 @@ def get_dashboard(
         Operation.status.in_([OperationStatus.INTEREST, OperationStatus.NEGOTIATION, OperationStatus.RESERVED])
     ).scalar() or 0
 
+    # --- Tendencias (Comparativa última semana) ---
+    today = datetime.now(timezone.utc)
+    one_week_ago = today - timedelta(days=7)
+    two_weeks_ago = today - timedelta(days=14)
+
+    def get_trend(model: Any, filter_criteria: Any = None) -> float:
+        query_current = db.query(func.count(model.id))
+        query_previous = db.query(func.count(model.id))
+        
+        if filter_criteria is not None:
+            query_current = query_current.filter(filter_criteria)
+            query_previous = query_previous.filter(filter_criteria)
+            
+        current_count = query_current.scalar() or 0
+        previous_count = query_previous.filter(model.created_at <= one_week_ago).scalar() or 0
+        
+        if previous_count == 0:
+            return 100.0 if current_count > 0 else 0.0
+        return round(((current_count - previous_count) / previous_count) * 100, 1)
+
     stats = DashboardStats(
         total_properties=total_properties,
+        total_properties_trend=get_trend(Property, Property.is_active == True),
         total_clients=total_clients,
+        total_clients_trend=get_trend(Client, Client.is_active == True),
         pending_visits=pending_visits,
+        pending_visits_trend=get_trend(Visit, Visit.status == VisitStatus.PENDING),
         active_operations=active_operations,
+        active_operations_trend=get_trend(Operation, Operation.status.in_([OperationStatus.INTEREST, OperationStatus.NEGOTIATION, OperationStatus.RESERVED])),
         available_properties=available_properties,
         sold_properties=sold_properties,
         rented_properties=rented_properties,

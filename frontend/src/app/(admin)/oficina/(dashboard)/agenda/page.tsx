@@ -101,7 +101,7 @@ function CalendarHeader({ currentDate, view, onPrev, onNext, onToday, onViewChan
         </div>
         
         <Button onClick={onNewEvent} className="h-9 w-full sm:w-auto shadow-lg shadow-primary/20">
-            <Plus className="mr-2 h-4 w-4" /> Nuevo <span className="sm:hidden">Ev...</span><span className="hidden sm:inline">Evento</span>
+            <Plus className="mr-2 h-4 w-4" /> Nuevo evento
         </Button>
       </div>
     </div>

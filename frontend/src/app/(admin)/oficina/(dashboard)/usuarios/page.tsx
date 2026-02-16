@@ -112,9 +112,63 @@ export default function AdminUsuariosPage() {
              </Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+         <>
+          {/* Mobile View: Card List */}
+          <div className="md:hidden divide-y divide-border/50">
+             {filteredUsers.map((user) => (
+                <div key={user.id} className="p-5 flex flex-col gap-4">
+                   <div className="flex items-center gap-4">
+                      <div className={cn(
+                        "h-12 w-12 rounded-full flex items-center justify-center font-bold shrink-0 text-lg shadow-sm border border-border/10",
+                        user.role === 'ADMIN' 
+                          ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" 
+                          : "bg-primary/10 text-primary border-primary/20"
+                      )}>
+                        {(user.full_name || "U").charAt(0).toUpperCase()}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                         <p className="font-bold text-foreground text-lg tracking-tight truncate">{user.full_name}</p>
+                         <div className="flex items-center gap-1.5 text-sm text-muted-foreground truncate">
+                            <Mail className="h-3.5 w-3.5" />
+                            {user.email}
+                         </div>
+                      </div>
+                   </div>
+                   
+                   <div className="flex items-center justify-between pt-2">
+                      <div className="flex gap-2">
+                         <span className={cn(
+                            "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border uppercase tracking-wider",
+                            user.role === "ADMIN"
+                               ? "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/30"
+                               : "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30"
+                         )}>
+                            <Shield className="h-3 w-3" />
+                            {user.role === "ADMIN" ? "Admin" : "Agente"}
+                         </span>
+                         <span className={cn(
+                           "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border",
+                           user.is_active
+                             ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30"
+                             : "bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30"
+                         )}>
+                           {user.is_active ? "Activo" : "Inactivo"}
+                         </span>
+                      </div>
+                      <Link href={`/oficina/usuarios/${user.id}`}>
+                         <Button variant="outline" size="sm" className="font-bold border-2 h-9">
+                            Configurar
+                         </Button>
+                      </Link>
+                   </div>
+                </div>
+             ))}
+          </div>
+  
+          {/* Desktop View: Table */}
+          <div className="hidden md:block">
             <table className="w-full text-sm text-left">
-              <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs border-b border-border">
+              <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs border-b border-border tracking-wider">
                 <tr>
                   <th className="px-6 py-4">Usuario</th>
                   <th className="px-6 py-4">Teléfono</th>
@@ -126,10 +180,10 @@ export default function AdminUsuariosPage() {
               <tbody className="divide-y divide-border/50">
                 {filteredUsers.map((user) => (
                   <tr key={user.id} className="hover:bg-muted/30 transition-colors group">
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 text-sm font-medium text-foreground">
                       <div className="flex items-center gap-3">
                         <div className={cn(
-                          "h-10 w-10 rounded-full flex items-center justify-center font-bold shrink-0",
+                          "h-10 w-10 rounded-full flex items-center justify-center font-bold shrink-0 border border-border/10 shadow-sm transition-transform group-hover:scale-105",
                           user.role === 'ADMIN' 
                             ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" 
                             : "bg-primary/10 text-primary"
@@ -137,8 +191,8 @@ export default function AdminUsuariosPage() {
                           {(user.full_name || "U").charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">{user.full_name}</p>
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <p className="font-bold text-foreground">{user.full_name}</p>
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground group-hover:text-foreground transition-colors">
                             <Mail className="h-3 w-3" />
                             {user.email}
                           </div>
@@ -146,22 +200,22 @@ export default function AdminUsuariosPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                       <span className="text-muted-foreground">{user.phone_number || "—"}</span>
+                       <span className="text-muted-foreground font-medium">{user.phone_number || "—"}</span>
                     </td>
                     <td className="px-6 py-4">
                        <span className={cn(
-                          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border",
+                          "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border uppercase tracking-wide",
                           user.role === "ADMIN"
                              ? "bg-amber-50 text-amber-700 border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/30"
                              : "bg-blue-50 text-blue-700 border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30"
                        )}>
-                          <Shield className="h-3 w-3" />
+                          <Shield className="h-3 w-3 font-bold" />
                           {user.role === "ADMIN" ? "Administrador" : "Agente"}
                        </span>
                     </td>
                     <td className="px-6 py-4">
                       <span className={cn(
-                        "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border",
+                        "inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border",
                         user.is_active
                           ? "bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30"
                           : "bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30"
@@ -171,7 +225,7 @@ export default function AdminUsuariosPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <Link href={`/oficina/usuarios/${user.id}`}>
-                        <Button variant="ghost" size="sm" className="hover:bg-primary/10 hover:text-primary">
+                        <Button variant="ghost" size="sm" className="font-bold hover:bg-primary/10 hover:text-primary transition-all">
                           Configurar
                         </Button>
                       </Link>
@@ -181,6 +235,7 @@ export default function AdminUsuariosPage() {
               </tbody>
             </table>
           </div>
+         </>
         )}
       </div>
     </div>

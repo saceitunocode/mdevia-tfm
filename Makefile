@@ -24,7 +24,7 @@ db-seed: ## Puebla la base de datos con datos maestro e iniciales
 	@echo "🌱 Poblando base de datos..."
 	@cd backend && . venv/bin/activate && python3 scripts/seed.py
 
-check: ## Ejecuta comprobaciones de calidad (Lint + Tests Unitarios)
+check: ## Ejecuta comprobaciones de calidad (Solo Linting)
 	@echo "🧹 Ejecutando Linting Frontend..."
 	@cd frontend && pnpm lint --max-warnings 0
 	@echo "🧪 Ejecutando Tests de Frontend..."

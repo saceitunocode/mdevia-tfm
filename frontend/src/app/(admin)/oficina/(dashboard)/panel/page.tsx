@@ -16,9 +16,13 @@ import { getStatusConfig } from "@/constants/status";
 // --- Types ---
 interface DashboardStats {
   total_properties: number;
+  total_properties_trend: number;
   total_clients: number;
+  total_clients_trend: number;
   pending_visits: number;
+  pending_visits_trend: number;
   active_operations: number;
+  active_operations_trend: number;
   available_properties: number;
   sold_properties: number;
   rented_properties: number;
@@ -91,27 +95,29 @@ function KpiCard({ title, value, icon: Icon, trend, trendLabel, colorClass, icon
   sparklineColor: string;
 }) {
   return (
-    <div className="bg-card rounded-xl p-5 border border-border shadow-sm hover:shadow-md transition-all duration-300 group">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
-          <h3 className="text-3xl font-bold text-foreground mt-1 max-w-[120px] truncate" title={String(value)}>{value}</h3>
+    <div className="bg-card rounded-xl p-4 md:p-5 border border-border shadow-sm hover:shadow-md transition-all duration-300 group">
+      <div className="flex justify-between items-start mb-2 md:mb-4">
+        <div className="min-w-0">
+          <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest truncate">{title}</p>
+          <h3 className="text-xl md:text-3xl font-bold text-foreground mt-1 truncate" title={String(value)}>{value}</h3>
         </div>
-        <div className={cn("p-2 rounded-lg transition-colors", iconBgClass)}>
-          <Icon className={cn("w-6 h-6", colorClass)} />
+        <div className={cn("p-1.5 md:p-2 rounded-lg transition-colors shrink-0", iconBgClass)}>
+          <Icon className={cn("w-5 h-5 md:w-6 md:h-6", colorClass)} />
         </div>
       </div>
       <div className="flex items-end justify-between">
          {trend && (
-           <div className={cn("flex items-center text-sm font-medium px-2 py-0.5 rounded", "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400")}>
-             <TrendingUp className="w-4 h-4 mr-1" />
+           <div className={cn("flex items-center text-[10px] md:text-sm font-bold px-1.5 md:px-2 py-0.5 rounded", "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400")}>
+             <TrendingUp className="w-3 h-3 md:w-4 md:h-4 mr-0.5 md:mr-1" />
              {trend}
            </div>
          )}
          {!trend && trendLabel && (
-           <span className="text-xs text-muted-foreground">{trendLabel}</span>
+           <span className="text-[10px] md:text-xs text-muted-foreground">{trendLabel}</span>
          )}
-         <Sparkline color={sparklineColor} />
+         <div className="hidden md:block">
+            <Sparkline color={sparklineColor} />
+         </div>
       </div>
     </div>
   );
@@ -193,7 +199,7 @@ export default function AdminDashboard() {
     <div className="space-y-8 pb-8 animate-in fade-in duration-500">
       
       {/* 1. KPI Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {isLoading ? (
           <>
             <SkeletonKpi />
@@ -209,7 +215,7 @@ export default function AdminDashboard() {
               icon={Users}
               colorClass="text-primary"
               iconBgClass="bg-blue-50 dark:bg-blue-900/20"
-              trend="12%"
+              trend={`${data.stats.total_clients_trend}%`}
               sparklineColor="text-primary"
             />
             <KpiCard
@@ -218,7 +224,7 @@ export default function AdminDashboard() {
               icon={Building2}
               colorClass="text-secondary" // green
               iconBgClass="bg-emerald-50 dark:bg-emerald-900/20"
-              trend="4%"
+              trend={`${data.stats.total_properties_trend}%`}
               sparklineColor="text-emerald-500"
             />
             <KpiCard
@@ -227,7 +233,7 @@ export default function AdminDashboard() {
               icon={Briefcase}
               colorClass="text-orange-500"
               iconBgClass="bg-orange-50 dark:bg-orange-900/20"
-              trend="2%"
+              trend={`${data.stats.active_operations_trend}%`}
               sparklineColor="text-orange-500"
             />
             <KpiCard
@@ -236,7 +242,7 @@ export default function AdminDashboard() {
               icon={Calendar}
               colorClass="text-purple-500"
               iconBgClass="bg-purple-50 dark:bg-purple-900/20"
-              trend="8%"
+              trend={`${data.stats.pending_visits_trend}%`}
               sparklineColor="text-purple-500"
             />
           </>
@@ -258,7 +264,7 @@ export default function AdminDashboard() {
              }
            />
            
-           <div className="h-64 flex items-end justify-between space-x-4 px-2 mt-4">
+           <div className="h-40 lg:h-64 flex items-end justify-between space-x-4 px-2 mt-2 lg:mt-4">
               {isLoading ? (
                 <div className="w-full h-full bg-muted/20 animate-pulse rounded-lg" />
               ) : chartData.map((item, idx) => {
@@ -280,7 +286,7 @@ export default function AdminDashboard() {
            </div>
            
            {/* Legend */}
-           <div className="flex items-center justify-center gap-6 mt-6 flex-wrap">
+           <div className="flex items-center justify-center gap-6 mt-4 lg:mt-6 flex-wrap">
               <div className="flex items-center gap-2">
                  <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
                  <span className="text-xs text-muted-foreground">Available</span>
@@ -359,9 +365,62 @@ export default function AdminDashboard() {
               </button>
            </div>
         </div>
-        <div className="overflow-x-auto">
+        {/* Mobile View: Card List */}
+        <div className="md:hidden divide-y divide-border/50">
+           {isLoading ? (
+             [1, 2, 3].map(i => (
+               <div key={i} className="p-5 flex gap-4 animate-pulse">
+                  <div className="w-12 h-12 bg-muted rounded-lg" />
+                  <div className="flex-1 space-y-2">
+                     <div className="h-4 w-3/4 bg-muted rounded" />
+                     <div className="h-3 w-1/2 bg-muted rounded" />
+                  </div>
+               </div>
+             ))
+           ) : data?.recent_properties.map((prop) => (
+              <Link 
+                key={prop.id}
+                href={`/oficina/propiedades/${prop.id}`}
+                className="flex items-center gap-4 p-5 hover:bg-muted/30 transition-colors active:bg-muted/50 group"
+              >
+                 <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center text-muted-foreground shrink-0 overflow-hidden border border-border/50 group-hover:border-primary/20 group-hover:bg-primary/5 transition-all">
+                    <Building2 className="w-6 h-6" />
+                 </div>
+                 <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-1 gap-2">
+                       <p className="font-bold text-foreground truncate tracking-tight">{prop.title}</p>
+                       <span className="text-sm font-bold text-foreground whitespace-nowrap">
+                          {prop.price_amount 
+                             ? new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(prop.price_amount)
+                             : "Consultar"}
+                       </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                       <p className="text-xs text-muted-foreground flex items-center gap-1 truncate">
+                          <MapPin className="w-3 h-3" /> {prop.city}
+                       </p>
+                       <span className={cn(
+                          "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border",
+                          getStatusConfig('property', prop.status).bg,
+                          getStatusConfig('property', prop.status).color,
+                          getStatusConfig('property', prop.status).border
+                       )}>
+                          {getStatusConfig('property', prop.status).label}
+                       </span>
+                    </div>
+                 </div>
+                 <ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </Link>
+           ))}
+           {!isLoading && (!data || data.recent_properties.length === 0) && (
+              <div className="p-8 text-center text-muted-foreground text-sm">No hay propiedades recientes</div>
+           )}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden md:block overflow-x-auto">
            <table className="w-full text-sm text-left">
-              <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs">
+              <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs text tracking-wider">
                  <tr>
                     <th className="px-6 py-4">Propiedad</th>
                     <th className="px-6 py-4">Estado</th>
@@ -374,10 +433,10 @@ export default function AdminDashboard() {
                  {isLoading ? (
                     <tr><td colSpan={5} className="p-8 text-center"><div className="w-full h-8 bg-muted animate-pulse rounded" /></td></tr>
                  ) : data?.recent_properties.map((prop) => (
-                    <tr key={prop.id} className="hover:bg-muted/30 transition-colors">
+                    <tr key={prop.id} className="hover:bg-muted/30 transition-colors group">
                        <td className="px-6 py-4 max-w-[300px]">
                           <div className="flex items-center gap-3">
-                             <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0 overflow-hidden">
+                             <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground shrink-0 overflow-hidden group-hover:bg-primary/5 group-hover:text-primary transition-colors">
                                 <Building2 className="w-5 h-5" />
                              </div>
                              <div className="min-w-0">
@@ -398,7 +457,7 @@ export default function AdminDashboard() {
                              {getStatusConfig('property', prop.status).label}
                           </span>
                        </td>
-                       <td className="px-6 py-4 font-medium text-foreground whitespace-nowrap">
+                       <td className="px-6 py-4 font-bold text-foreground whitespace-nowrap">
                           {prop.price_amount 
                              ? new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(prop.price_amount)
                              : "Consultar"}
@@ -414,7 +473,7 @@ export default function AdminDashboard() {
                        <td className="px-6 py-4 text-right">
                           <Link 
                              href={`/oficina/propiedades/${prop.id}`}
-                             className="text-muted-foreground hover:text-primary transition-colors inline-block p-1"
+                             className="text-muted-foreground hover:text-primary transition-all inline-block p-1 hover:scale-110 active:scale-95"
                           >
                              <ArrowUpRight className="w-5 h-5" />
                           </Link>
@@ -422,7 +481,7 @@ export default function AdminDashboard() {
                     </tr>
                  ))}
                  {!isLoading && (!data || data.recent_properties.length === 0) && (
-                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No hay propiedades recientes</td></tr>
+                    <tr><td colSpan={5} className="p-8 text-center text-muted-foreground text-sm">No hay propiedades recientes</td></tr>
                  )}
               </tbody>
            </table>
