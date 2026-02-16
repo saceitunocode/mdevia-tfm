@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { SlidersHorizontal, RotateCcw, MapPin, X, Filter } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 const PROPERTY_TYPES = [
   { id: "HOUSE", label: "Casa" },
@@ -143,10 +143,90 @@ export function PropertyFilters() {
         </button>
       </div>
 
-      <div className={cn(
-          "bg-card border-border/50 shadow-sm lg:sticky lg:top-24 flex flex-col overflow-hidden transition-all duration-300",
-          isOpen ? "fixed inset-0 z-100 m-0 rounded-none h-dvh w-screen" : "hidden lg:flex rounded-xl max-h-[calc(100vh-120px)]"
-      )}>
+      {/* Desktop Filters */}
+      <div className="hidden lg:flex flex-col bg-card border-border/50 shadow-sm sticky top-24 rounded-xl max-h-[calc(100vh-120px)] overflow-hidden">
+        <FilterContent 
+          onClose={() => setIsOpen(false)} 
+          clearFilters={clearFilters}
+          city={city} setCity={setCity}
+          operationType={operationType} setOperationType={setOperationType}
+          propertyTypes={propertyTypes} toggleType={toggleType}
+          priceMax={priceMax} setPriceMax={setPriceMax}
+          rooms={rooms} setRooms={setRooms}
+          baths={baths} setBaths={setBaths}
+          hasElevator={hasElevator} setHasElevator={setHasElevator}
+        />
+      </div>
+
+      {/* Mobile Filters (Animated) */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="lg:hidden fixed inset-0 z-100 bg-black/60 backdrop-blur-sm"
+            />
+            
+            {/* Slide-in Panel */}
+            <motion.div 
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="lg:hidden fixed inset-y-0 left-0 z-101 w-[85%] max-w-sm bg-background shadow-2xl flex flex-col overflow-hidden"
+            >
+              <FilterContent 
+                onClose={() => setIsOpen(false)} 
+                clearFilters={clearFilters}
+                city={city} setCity={setCity}
+                operationType={operationType} setOperationType={setOperationType}
+                propertyTypes={propertyTypes} toggleType={toggleType}
+                priceMax={priceMax} setPriceMax={setPriceMax}
+                rooms={rooms} setRooms={setRooms}
+                baths={baths} setBaths={setBaths}
+                hasElevator={hasElevator} setHasElevator={setHasElevator}
+                isMobile
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+interface FilterContentProps {
+  onClose: () => void;
+  clearFilters: () => void;
+  city: string;
+  setCity: (city: string) => void;
+  operationType: string;
+  setOperationType: (type: string) => void;
+  propertyTypes: string[];
+  toggleType: (id: string) => void;
+  priceMax: string;
+  setPriceMax: (val: string) => void;
+  rooms: string;
+  setRooms: (val: string) => void;
+  baths: string;
+  setBaths: (val: string) => void;
+  hasElevator: boolean | null;
+  setHasElevator: (val: boolean | null | ((prev: boolean | null) => boolean | null)) => void;
+  isMobile?: boolean;
+}
+
+// Sub-component to share content logic
+function FilterContent({ 
+  onClose, clearFilters, city, setCity, operationType, setOperationType, 
+  propertyTypes, toggleType, priceMax, setPriceMax, rooms, setRooms, 
+  baths, setBaths, hasElevator, setHasElevator, isMobile = false
+}: FilterContentProps) {
+  return (
+    <>
       <div className="p-4 border-b border-border/50 flex justify-between items-center bg-muted/20 shrink-0">
         <h2 className="font-semibold text-lg flex items-center gap-2">
           <SlidersHorizontal className="h-4 w-4" /> Filtros
@@ -158,13 +238,14 @@ export function PropertyFilters() {
             >
               <RotateCcw className="h-3 w-3" /> Reset
             </button>
-            {/* Mobile Close Button (inside modal) */}
-            <button 
-            onClick={() => setIsOpen(false)}
-            className="lg:hidden p-1 hover:bg-muted rounded-full"
-            >
-            <X size={20} />
-            </button>
+            {isMobile && (
+              <button 
+                onClick={onClose}
+                className="p-1 hover:bg-muted rounded-full"
+              >
+                <X size={20} />
+              </button>
+            )}
         </div>
       </div>
 
@@ -299,16 +380,17 @@ export function PropertyFilters() {
             </button>
         </div>
         {/* Apply Filters Button (Mobile Only) */}
-        <div className="lg:hidden pt-4 pb-8">
-            <button 
-                onClick={() => setIsOpen(false)}
-                className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform"
-            >
-                Ver Resultados
-            </button>
-        </div>
+        {isMobile && (
+          <div className="pt-4 pb-8">
+              <button 
+                  onClick={onClose}
+                  className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-transform"
+              >
+                  Ver Resultados
+              </button>
+          </div>
+        )}
       </div>
-    </div>
     </>
   );
 }

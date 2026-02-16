@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Menu, X, Home, Search, Phone } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function PublicNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -58,47 +59,81 @@ export function PublicNavbar() {
           <ThemeToggle />
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="p-2 text-foreground"
+            className="p-2 text-foreground focus:outline-none"
+            aria-label={isOpen ? "Cerrar menú" : "Abrir menú"}
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={isOpen ? "close" : "open"}
+                initial={{ opacity: 0, rotate: -90 }}
+                animate={{ opacity: 1, rotate: 0 }}
+                exit={{ opacity: 0, rotate: 90 }}
+                transition={{ duration: 0.2 }}
+              >
+                {isOpen ? <X size={24} /> : <Menu size={24} />}
+              </motion.div>
+            </AnimatePresence>
           </button>
         </div>
       </div>
 
       {/* Mobile Menu Overlay */}
-      {isOpen && (
-        <>
-        {/* Backdrop */}
-        <div 
-          className="md:hidden fixed inset-0 top-[64px] z-40 bg-black/50 backdrop-blur-sm animate-in fade-in"
-          onClick={() => setIsOpen(false)}
-        />
-        
-        {/* Menu Content */}
-        <div className="md:hidden absolute top-[64px] left-0 right-0 z-50 border-b border-border bg-background shadow-xl animate-in slide-in-from-top-2">
-          <div className="px-6 py-6 space-y-6">
-            <div className="space-y-2">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center space-x-3 text-lg font-medium text-foreground py-3 border-b border-border/40 last:border-0 hover:text-primary transition-colors"
-                >
-                  <link.icon className="h-5 w-5 text-primary" />
-                  <span>{link.name}</span>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+          {/* Backdrop */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden fixed inset-0 top-[64px] z-40 bg-black/50 backdrop-blur-sm"
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Menu Content */}
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="md:hidden absolute top-[64px] left-0 right-0 z-50 border-b border-border bg-background shadow-xl overflow-hidden"
+          >
+            <div className="px-6 py-6 space-y-6">
+              <div className="space-y-2">
+                {navLinks.map((link, idx) => (
+                  <motion.div
+                    key={link.name}
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 + idx * 0.05 }}
+                  >
+                    <Link
+                      href={link.href}
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center space-x-3 text-lg font-medium text-foreground py-3 border-b border-border/40 last:border-0 hover:text-primary transition-colors"
+                    >
+                      <link.icon className="h-5 w-5 text-primary" />
+                      <span>{link.name}</span>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+              <motion.div 
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="pt-2"
+              >
+                <Link href="/oficina/acceso" onClick={() => setIsOpen(false)}>
+                  <Button className="w-full text-base py-6 font-bold shadow-md">Acceso Agente</Button>
                 </Link>
-              ))}
+              </motion.div>
             </div>
-            <div className="pt-2">
-              <Link href="/oficina/acceso" onClick={() => setIsOpen(false)}>
-                <Button className="w-full text-base py-6 font-bold shadow-md">Acceso Agente</Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-        </>
-      )}
+          </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

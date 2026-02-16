@@ -17,6 +17,7 @@ export default function AccesoPage() {
   const router = useRouter();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [remember, setRemember] = useState(false);
 
   useEffect(() => {
     const authData = getAuthData();
@@ -42,6 +43,7 @@ export default function AccesoPage() {
       const body = new URLSearchParams();
       body.append("username", email);
       body.append("password", password);
+      body.append("remember", remember.toString());
 
       const response = await fetch("http://localhost:8000/api/v1/login/access-token", {
         method: "POST",
@@ -112,24 +114,23 @@ export default function AccesoPage() {
                 required 
                 disabled={isLoading}
               />
-              <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center justify-between pt-2">
                 <label className="flex items-center space-x-2 cursor-pointer group">
                   <input 
                     type="checkbox" 
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
                     className="h-4 w-4 rounded border-input bg-background accent-primary cursor-pointer" 
                   />
                   <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors font-sans select-none">
                     Recordar sesión
                   </span>
                 </label>
-                <Link href="#" className="text-xs text-primary hover:underline font-sans">
-                  ¿Olvidaste tu contraseña?
-                </Link>
               </div>
             </div>
             <Button 
               type="submit" 
-              className="w-full mt-2" 
+              className="w-full mt-4 h-11 font-bold" 
               disabled={isLoading}
             >
               {isLoading ? (
