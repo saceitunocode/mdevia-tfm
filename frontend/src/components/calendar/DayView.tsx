@@ -4,7 +4,7 @@ import React from "react";
 import { format, isSameDay, isToday } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { CalendarEvent, EventType } from "@/types/calendar";
+import { CalendarEvent, EventType, EVENT_COLORS } from "@/types/calendar";
 
 interface DayViewProps {
   currentDate: Date;
@@ -13,12 +13,6 @@ interface DayViewProps {
   onEventClick: (event: CalendarEvent) => void;
 }
 
-const EVENT_TYPE_COLORS: Record<EventType, string> = {
-  [EventType.VISIT]: "bg-blue-500/90 text-white border-blue-600",
-  [EventType.NOTE]: "bg-yellow-500/90 text-white border-yellow-600",
-  [EventType.CAPTATION]: "bg-indigo-500/90 text-white border-indigo-600",
-  [EventType.REMINDER]: "bg-gray-500/90 text-white border-gray-600",
-};
 
 const EVENT_TYPE_LABELS: Record<EventType, string> = {
   [EventType.VISIT]: "Visita",
@@ -134,7 +128,7 @@ export function DayView({ currentDate, events, onTimeSlotClick, onEventClick }: 
                   key={event.id}
                   className={cn(
                     "absolute left-2 right-4 rounded-lg px-3 py-2 cursor-pointer border-l-4 shadow-md transition-all hover:scale-[1.01] hover:shadow-lg z-10 overflow-hidden",
-                    EVENT_TYPE_COLORS[event.type]
+                    EVENT_COLORS[event.type]
                   )}
                   style={{ top: pos.top, height: pos.height, minHeight: "36px" }}
                   onClick={(e) => {
@@ -151,7 +145,7 @@ export function DayView({ currentDate, events, onTimeSlotClick, onEventClick }: 
                         {format(new Date(event.starts_at), "HH:mm")} - {format(new Date(event.ends_at), "HH:mm")}
                       </div>
                     </div>
-                    <span className="text-[9px] opacity-70 bg-white/20 px-1.5 py-0.5 rounded shrink-0">
+                    <span className="text-[9px] font-bold opacity-70 bg-black/5 px-2 py-0.5 rounded-full shrink-0 border border-black/5">
                       {EVENT_TYPE_LABELS[event.type]}
                     </span>
                   </div>

@@ -4,7 +4,7 @@ import React from "react";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, isToday } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { CalendarEvent, EventType } from "@/types/calendar";
+import { CalendarEvent, EVENT_COLORS } from "@/types/calendar";
 
 interface WeekViewProps {
   currentDate: Date;
@@ -13,12 +13,6 @@ interface WeekViewProps {
   onEventClick: (event: CalendarEvent) => void;
 }
 
-const EVENT_TYPE_COLORS: Record<EventType, string> = {
-  [EventType.VISIT]: "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-200 dark:border-blue-800",
-  [EventType.NOTE]: "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800",
-  [EventType.CAPTATION]: "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-200 dark:border-purple-800",
-  [EventType.REMINDER]: "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 dark:bg-gray-800/60 dark:text-gray-300 dark:border-gray-700",
-};
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
@@ -134,7 +128,7 @@ export function WeekView({ currentDate, events, onTimeSlotClick, onEventClick }:
                       key={event.id}
                       className={cn(
                         "absolute left-1 right-1 rounded-md px-2 py-1 cursor-pointer border-l-[3px] shadow-sm transition-transform hover:scale-[1.02] hover:shadow-md z-10 overflow-hidden",
-                        EVENT_TYPE_COLORS[event.type]
+                        EVENT_COLORS[event.type]
                       )}
                       style={{ top: pos.top, height: pos.height, minHeight: "24px" }}
                       onClick={(e) => {
@@ -143,11 +137,18 @@ export function WeekView({ currentDate, events, onTimeSlotClick, onEventClick }:
                       }}
                       title={event.title}
                     >
-                      <div className="text-[10px] font-bold leading-tight truncate">
-                        {event.title}
+                      <div className="hidden md:block">
+                        <div className="text-[10px] font-bold leading-tight truncate">
+                          {event.title}
+                        </div>
+                        <div className="text-[9px] opacity-80 leading-tight">
+                          {format(new Date(event.starts_at), "HH:mm")} - {format(new Date(event.ends_at), "HH:mm")}
+                        </div>
                       </div>
-                      <div className="text-[9px] opacity-80 leading-tight">
-                        {format(new Date(event.starts_at), "HH:mm")} - {format(new Date(event.ends_at), "HH:mm")}
+                      <div className="md:hidden h-full flex flex-col justify-center items-center p-0.5">
+                        <span className="text-[8px] font-bold opacity-90 w-full text-center whitespace-normal break-all leading-[1.1]">
+                           {event.type}
+                        </span>
                       </div>
                     </div>
                   );

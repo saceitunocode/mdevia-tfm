@@ -21,6 +21,7 @@ import {
 import { Combobox } from "@/components/ui/Combobox";
 import { apiRequest } from "@/lib/api";
 import { EventType, CalendarEventCreate } from "@/types/calendar";
+import { cn } from "@/lib/utils";
 
 interface ClientListItem {
   id: string;
@@ -59,6 +60,13 @@ interface CreateEventDialogProps {
   onSubmit: (data: CalendarEventCreate) => Promise<void>;
   defaultDate?: Date;
 }
+
+const TYPE_STYLES = {
+  [EventType.VISIT]: "border-blue-500 bg-blue-50 text-blue-700 shadow-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-500",
+  [EventType.NOTE]: "border-amber-500 bg-amber-50 text-amber-700 shadow-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-500",
+  [EventType.CAPTATION]: "border-purple-500 bg-purple-50 text-purple-700 shadow-purple-100 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-500",
+  [EventType.REMINDER]: "border-emerald-500 bg-emerald-50 text-emerald-700 shadow-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-500",
+};
 
 export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: CreateEventDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -162,47 +170,50 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[550px] p-0 overflow-hidden border-none shadow-2xl">
-        <div className="bg-primary/5 border-b border-primary/10 p-6">
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="bg-primary/5 border-b border-primary/10 p-4 md:p-5 shrink-0">
           <DialogHeader>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
-                <CalendarIcon className="h-6 w-6" />
+              <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg md:rounded-xl bg-primary/20 flex items-center justify-center text-primary">
+                <CalendarIcon className="h-5 w-5 md:h-6 md:w-6" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold tracking-tight">Nuevo Evento</DialogTitle>
-                <p className="text-xs text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">Agenda de Oficina</p>
+                <DialogTitle className="text-lg md:text-xl font-bold tracking-tight">Nuevo Evento</DialogTitle>
+                <p className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">Agenda de Oficina</p>
               </div>
             </div>
           </DialogHeader>
         </div>
 
-        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="p-6 space-y-6">
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="flex flex-col flex-1 min-h-0">
+          <div className="p-4 md:p-6 space-y-4 md:space-y-5 overflow-y-auto max-h-[calc(90vh-140px)]">
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Title */}
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                <Info className="h-4 w-4 text-primary" /> Título del Evento
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-xs md:text-sm font-semibold flex items-center gap-2 text-foreground">
+                <Info className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" /> Título del Evento
               </label>
               <Input 
                   {...form.register("title")} 
-                  placeholder="Ej: Visita Calle Mayor, Reunión de equipo..." 
-                  className="h-11 bg-background border-input focus:ring-primary shadow-sm"
+                  placeholder="Ej: Visita Calle Mayor..." 
+                  className="h-9 md:h-10 bg-background border-input focus:ring-primary shadow-sm text-sm"
               />
             </div>
 
             {/* Type Selector (Custom styled) */}
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-semibold text-foreground">Tipo de Evento</label>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
+            <div className="space-y-1.5 md:col-span-2">
+              <label className="text-xs md:text-sm font-semibold text-foreground">Tipo de Evento</label>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 md:gap-2">
                   {Object.values(EventType).map((type) => (
                     <label 
                       key={type}
-                      className={z.string().parse(form.watch("type")) === type 
-                        ? "flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border-2 border-primary bg-primary/5 text-primary text-xs font-bold cursor-pointer transition-all shadow-sm"
-                        : "flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-background text-muted-foreground text-xs font-medium cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-all"
-                      }
+                      className={cn(
+                        "flex items-center justify-center gap-2 px-2 py-2 rounded-lg border text-[10px] md:text-xs font-bold cursor-pointer transition-all shadow-sm",
+                        z.string().parse(form.watch("type")) === type
+                          ? cn("border-2", TYPE_STYLES[type])
+                          : "border-border bg-background text-muted-foreground font-medium hover:border-primary/30 hover:bg-primary/5"
+                      )}
                     >
                       <input
                           type="radio"
@@ -218,28 +229,28 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
           </div>
 
           {/* Date & Time Section */}
-          <div className="bg-muted/30 p-4 rounded-xl border border-border/50">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2 sm:col-span-1">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Fecha</label>
+          <div className="bg-muted/30 p-3 md:p-4 rounded-lg md:rounded-xl border border-border/50">
+            <div className="grid grid-cols-2 gap-3 md:gap-4">
+              <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Fecha</label>
                   <div className="relative">
                       <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                       <Input 
                           type="date" 
                           {...form.register("date")} 
-                          className="pl-9 h-11 bg-background border-input shadow-sm focus:ring-primary w-full" 
+                          className="pl-9 h-9 md:h-10 bg-background border-input shadow-sm focus:ring-primary w-full text-xs md:text-sm" 
                       />
                   </div>
               </div>
               
-              <div className="space-y-2 sm:col-span-1">
-                  <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Hora Inicio</label>
+              <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Hora Inicio</label>
                   <div className="relative">
                       <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                       <Input 
                           type="time" 
                           {...form.register("startTime")} 
-                          className="pl-9 h-11 bg-background border-input shadow-sm focus:ring-primary w-full" 
+                          className="pl-9 h-9 md:h-10 bg-background border-input shadow-sm focus:ring-primary w-full text-xs md:text-sm" 
                       />
                   </div>
               </div>
@@ -248,10 +259,10 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
 
           {/* Visit specific fields with Combobox */}
           {selectedType === EventType.VISIT && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
-              <div className="space-y-2">
-                <label className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                  <User className="h-4 w-4 text-primary" /> Cliente
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="space-y-1.5">
+                <label className="text-xs md:text-sm font-semibold flex items-center gap-2 text-foreground">
+                  <User className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" /> Cliente
                 </label>
                 <Controller
                   control={form.control}
@@ -262,15 +273,15 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                       value={field.value}
                       onValueChange={field.onChange}
                       placeholder="Buscar cliente..."
-                      searchPlaceholder="Escribe el nombre..."
-                      emptyMessage="No se encontró el cliente."
+                      searchPlaceholder="Nombre..."
+                      emptyMessage="No encontrado."
                     />
                   )}
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                  <Building2 className="h-4 w-4 text-primary" /> Propiedad
+              <div className="space-y-1.5">
+                <label className="text-xs md:text-sm font-semibold flex items-center gap-2 text-foreground">
+                  <Building2 className="h-3.5 w-3.5 md:h-4 md:w-4 text-primary" /> Propiedad
                 </label>
                 <Controller
                   control={form.control}
@@ -281,8 +292,8 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
                       value={field.value}
                       onValueChange={field.onChange}
                       placeholder="Buscar propiedad..."
-                      searchPlaceholder="Escribe el título..."
-                      emptyMessage="No se encontró la propiedad."
+                      searchPlaceholder="Título..."
+                      emptyMessage="No encontrada."
                     />
                   )}
                 />
@@ -291,16 +302,17 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
           )}
 
           {/* Description */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-foreground">Notas / Descripción</label>
+          <div className="space-y-1.5">
+            <label className="text-xs md:text-sm font-semibold text-foreground">Notas / Descripción</label>
             <Textarea 
                 {...form.register("description")} 
-                placeholder="Detalles adicionales, instrucciones para el agente..." 
-                className="resize-none h-24 bg-background border-input focus:ring-primary shadow-sm"
+                placeholder="Detalles adicionales..." 
+                className="resize-none h-20 bg-background border-input focus:ring-primary shadow-sm text-sm"
             />
           </div>
+        </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
+        <DialogFooter className="p-4 md:p-6 bg-muted/20 border-t border-border/50 gap-2 sm:gap-0 shrink-0">
             <Button 
               type="button" 
               variant="ghost" 
@@ -313,7 +325,7 @@ export function CreateEventDialog({ isOpen, onClose, onSubmit, defaultDate }: Cr
             <Button 
               type="submit" 
               disabled={isSubmitting}
-              className="min-w-[140px] shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-bold"
+              className="min-w-[130px] h-9 md:h-10 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-bold"
             >
               {isSubmitting ? "Guardando..." : "Guardar Evento"}
             </Button>

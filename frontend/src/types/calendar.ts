@@ -54,3 +54,10 @@ export interface CalendarEventUpdate {
 }
 
 export type CalendarView = "month" | "week" | "day";
+
+export const EVENT_COLORS: Record<EventType, string> = {
+    [EventType.VISIT]: "bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200",
+    [EventType.NOTE]: "bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200",
+    [EventType.CAPTATION]: "bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200",
+    [EventType.REMINDER]: "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-200",
+};
