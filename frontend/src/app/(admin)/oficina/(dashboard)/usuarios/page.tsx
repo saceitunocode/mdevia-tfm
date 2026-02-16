@@ -12,6 +12,7 @@ interface User {
   id: string;
   email: string;
   full_name: string;
+  phone_number?: string;
   role: "ADMIN" | "AGENT";
   is_active: boolean;
 }
@@ -116,6 +117,7 @@ export default function AdminUsuariosPage() {
               <thead className="bg-muted/40 text-muted-foreground uppercase font-semibold text-xs border-b border-border">
                 <tr>
                   <th className="px-6 py-4">Usuario</th>
+                  <th className="px-6 py-4">Teléfono</th>
                   <th className="px-6 py-4">Rol</th>
                   <th className="px-6 py-4">Estado</th>
                   <th className="px-6 py-4 text-right">Acciones</th>
@@ -142,6 +144,9 @@ export default function AdminUsuariosPage() {
                           </div>
                         </div>
                       </div>
+                    </td>
+                    <td className="px-6 py-4">
+                       <span className="text-muted-foreground">{user.phone_number || "—"}</span>
                     </td>
                     <td className="px-6 py-4">
                        <span className={cn(

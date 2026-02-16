@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
-import { MapPin, Plus, Filter, Calendar, Building2, CheckCircle2, XCircle, Clock, Check } from "lucide-react";
+import { MapPin, Plus, Filter, Calendar, Building2, Check } from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { RegisterVisitDialog } from "@/components/visits/RegisterVisitDialog";
 import { CompleteVisitDialog } from "@/components/visits/CompleteVisitDialog";
@@ -12,6 +12,8 @@ import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
 import Link from "next/link";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { getStatusConfig } from "@/constants/status";
+import { cn } from "@/lib/utils";
 
 export default function VisitasPage() {
   const [visits, setVisits] = useState<Visit[]>([]);
@@ -77,26 +79,18 @@ export default function VisitasPage() {
   });
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "DONE": 
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/30">
-            <CheckCircle2 className="h-3 w-3" /> Realizada
-          </span>
-        );
-      case "CANCELLED": 
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-100 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/30">
-            <XCircle className="h-3 w-3" /> Cancelada
-          </span>
-        );
-      default: 
-        return (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/30">
-            <Clock className="h-3 w-3" /> Pendiente
-          </span>
-        );
-    }
+    const config = getStatusConfig('visit', status);
+    const Icon = config.icon;
+    return (
+      <span className={cn(
+        "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border",
+        config.bg,
+        config.color,
+        config.border
+      )}>
+        <Icon className="h-3 w-3" /> {config.label}
+      </span>
+    );
   };
 
   return (

@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict
 from app.domain.enums import OperationType, OperationStatus
 from app.domain.schemas.summaries import ClientSummary, PropertySummary, UserSummary
+from app.domain.schemas.user import User
 
 if TYPE_CHECKING:
     from app.domain.schemas.visit import VisitPublic
@@ -61,7 +62,7 @@ class OperationPublic(OperationBase):
     # Nested data
     client: Optional[ClientSummary] = None
     property: Optional[PropertySummary] = None
-    agent: Optional[UserSummary] = None
+    agent: Optional[User] = None
     status_history: List[OperationStatusHistoryPublic] = []
     notes: List[OperationNotePublic] = []
     visits: List["VisitPublic"] = []

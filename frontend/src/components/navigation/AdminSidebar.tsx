@@ -24,7 +24,7 @@ export function AdminSidebar() {
     <aside className="hidden md:flex flex-col w-64 bg-card border-r border-border h-screen sticky top-0 transition-colors duration-300 z-20">
       {/* Brand Header */}
       <div className="h-16 flex items-center px-6 border-b border-border">
-        <Link href="/oficina/dashboard" className="flex items-center gap-3">
+        <Link href="/oficina" className="flex items-center gap-3">
           <div className="relative w-8 h-8">
              <Image 
                src="/logo.png" 

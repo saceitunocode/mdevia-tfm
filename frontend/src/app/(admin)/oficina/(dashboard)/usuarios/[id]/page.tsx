@@ -17,6 +17,7 @@ interface User {
   id: string;
   email: string;
   full_name: string;
+  phone_number?: string;
   role: "ADMIN" | "AGENT";
   is_active: boolean;
 }
@@ -31,6 +32,7 @@ export default function DetalleUsuarioPage() {
   const [formData, setFormData] = useState({
     email: "",
     full_name: "",
+    phone_number: "",
     role: "AGENT",
     is_active: true,
   });
@@ -47,6 +49,7 @@ export default function DetalleUsuarioPage() {
         setFormData({
           email: data.email,
           full_name: data.full_name,
+          phone_number: data.phone_number || "",
           role: data.role,
           is_active: data.is_active,
         });
@@ -182,6 +185,14 @@ export default function DetalleUsuarioPage() {
                     type="email"
                     value={formData.email} 
                     onChange={(e) => setFormData(p => ({...p, email: e.target.value}))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone_number">Teléfono</Label>
+                  <Input 
+                    id="phone_number" 
+                    value={formData.phone_number} 
+                    onChange={(e) => setFormData(p => ({...p, phone_number: e.target.value}))}
                   />
                 </div>
                 <div className="space-y-2">

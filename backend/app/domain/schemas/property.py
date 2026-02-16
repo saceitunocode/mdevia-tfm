@@ -80,6 +80,14 @@ class PropertyUpdate(BaseModel):
     is_featured: Optional[bool] = None
     owner_client_id: Optional[uuid.UUID] = None
 
+class PropertyAgentPublic(BaseModel):
+    id: uuid.UUID
+    full_name: Optional[str] = None
+    email: str
+    phone_number: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
 class PropertyPublic(BaseModel):
     id: uuid.UUID
     title: str
@@ -97,6 +105,7 @@ class PropertyPublic(BaseModel):
     public_description: Optional[str] = None
     is_featured: bool = False
     images: List[PropertyImagePublic] = []
+    captor_agent: Optional[PropertyAgentPublic] = None
     created_at: datetime
     updated_at: datetime
 
@@ -115,6 +124,7 @@ class Property(PropertyBase):
     visits: List["VisitPublic"] = []
     operations: List["OperationPublic"] = []
     owner_client: Optional["Client"] = None
+    captor_agent: Optional["User"] = None
     status_history: List[PropertyStatusHistory] = []
     is_active: bool
     created_at: datetime

@@ -40,12 +40,12 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-muted/5">
+    <div className="flex h-screen bg-muted/5 overflow-hidden">
       <AdminSidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader />
         {/* pb-24 for mobile nav space, md:pb-8 for desktop */}
-        <main className="p-4 md:p-8 flex-1 pb-24 md:pb-8 overflow-x-hidden">
+        <main className="flex-1 flex flex-col p-4 md:p-6 pb-24 md:pb-6 overflow-hidden">
           {children}
         </main>
       </div>

@@ -34,58 +34,69 @@ def seed_stories(db: Session, agents: list, clients: list):
     }
 
     properties_data = [
+        # --- ANDÚJAR (Jaén) ---
         {
-            "title": "Piso Luminoso en el Centro", "city": "Madrid", "price": 250000, "rooms": 3, "sqm": 90, "type": OperationType.SALE, 
+            "title": "Piso Señorial en Plaza de España", "city": "Andújar", "price": 185000, "rooms": 4, "sqm": 120, "type": OperationType.SALE, 
             "images": [photos["living"][0], photos["kitchen"][0], photos["bedroom"][0], photos["bathroom"][0], photos["detail"][0], photos["living"][4]],
-            "notes": ["Reformado recientemente", "Comunidad: 50€/mes"]
+            "notes": ["Vistas a la Plaza del Ayuntamiento", "Edificio histórico rehabilitado"]
         },
         {
-            "title": "Casa con Jardín", "city": "Las Rozas", "price": 450000, "rooms": 5, "sqm": 250, "type": OperationType.SALE, 
-            "images": [photos["exterior"][0], photos["living"][1], photos["kitchen"][1], photos["bedroom"][1], photos["bathroom"][1], photos["exterior"][4], photos["detail"][1]],
-            "notes": ["Piscina climatizada", "Garaje para 2 coches"]
-        },
-        {
-            "title": "Estudio Moderno", "city": "Madrid", "price": 120000, "rooms": 1, "sqm": 35, "type": OperationType.SALE, 
+            "title": "Apartamento en Ollerías", "city": "Andújar", "price": 450, "rooms": 2, "sqm": 70, "type": OperationType.RENT, 
             "images": [photos["living"][2], photos["bedroom"][2], photos["kitchen"][2], photos["bathroom"][2], photos["detail"][2]],
-            "notes": ["Ideal inversores", "Alta rentabilidad alquiler"]
+            "notes": ["Ideal parejas", "Amueblado completo", "Junto a zona comercial"]
         },
         {
-            "title": "Ático con Vistas", "city": "Madrid", "price": 320000, "rooms": 3, "sqm": 110, "type": OperationType.SALE, 
-            "images": [photos["detail"][2], photos["living"][3], photos["kitchen"][3], photos["bedroom"][3], photos["exterior"][1], photos["detail"][0]],
-            "notes": ["Terraza 40m2", "Orientación Sur"]
+            "title": "Casa Adosada en Emperadores", "city": "Andújar", "price": 140000, "rooms": 3, "sqm": 110, "type": OperationType.SALE, 
+            "images": [photos["exterior"][0], photos["living"][1], photos["kitchen"][1], photos["bedroom"][1], photos["bathroom"][1], photos["detail"][1]],
+            "notes": ["Patio interior 20m2", "Zona tranquila", "Garaje incluido"]
         },
         {
-            "title": "Local Comercial", "city": "Alcorcón", "price": 1500, "rooms": 1, "sqm": 80, "type": OperationType.RENT, 
-            "images": [photos["commercial"][0], photos["office"][0], photos["exterior"][2], photos["bathroom"][0], photos["detail"][1]],
-            "notes": ["Salida de humos", "Licencia bar vigente"]
-        },
-        {
-            "title": "Apartamento en la Playa", "city": "Valencia", "price": 180000, "rooms": 2, "sqm": 65, "type": OperationType.SALE, 
-            "images": [photos["exterior"][3], photos["living"][0], photos["kitchen"][4], photos["bedroom"][4], photos["detail"][2], photos["living"][5]],
-            "notes": ["Primera línea de playa", "Vistas al mar"]
-        },
-        {
-            "title": "Casa de Campo", "city": "Chinchón", "price": 210000, "rooms": 4, "sqm": 150, "type": OperationType.SALE, 
-            "images": [photos["exterior"][2], photos["living"][1], photos["kitchen"][2], photos["bedroom"][0], photos["bathroom"][1], photos["detail"][1]],
-            "notes": ["Parcela 1000m2", "Pozo propio"]
-        },
-        {
-            "title": "Oficina Céntrica", "city": "Madrid", "price": 1200, "rooms": 4, "sqm": 120, "type": OperationType.RENT, 
-            "images": [photos["office"][1], photos["living"][2], photos["commercial"][1], photos["detail"][0], photos["exterior"][0]],
-            "notes": ["Fibra óptica instalada", "Portero físico"]
-        },
-        {
-            "title": "Duplex Exclusivo", "city": "Madrid", "price": 550000, "rooms": 4, "sqm": 180, "type": OperationType.SALE, 
-            "images": [photos["exterior"][3], photos["living"][3], photos["kitchen"][1], photos["bedroom"][2], photos["bathroom"][2], photos["detail"][2]],
-            "notes": ["Domótica integral", "Suelo radiante"]
-        },
-        {
-            "title": "Garaje Amplio", "city": "Madrid", "price": 15000, "rooms": 0, "sqm": 15, "type": OperationType.SALE, 
+            "title": "Nave Industrial Puerta Madrid", "city": "Andújar", "price": 800, "rooms": 0, "sqm": 300, "type": OperationType.RENT, 
             "images": [photos["garage"][0], photos["garage"][1], photos["exterior"][1]],
-            "notes": ["Fácil maniobra", "Vigilancia 24h"]
+            "notes": ["Ignifugada", "Oficina en altillo", "Fácil acceso camiones"]
+        },
+        {
+            "title": "Chalet en La Lagunilla", "city": "Andújar", "price": 295000, "rooms": 5, "sqm": 280, "type": OperationType.SALE, 
+            "images": [photos["exterior"][4], photos["living"][3], photos["kitchen"][3], photos["bedroom"][3], photos["bathroom"][2], photos["exterior"][1]],
+            "notes": ["Piscina propia", "Parcela 1500m2", "Huerto ecológico"]
+        },
+        
+        # --- CÓRDOBA ---
+        {
+            "title": "Ático en Gran Capitán", "city": "Córdoba", "price": 350000, "rooms": 3, "sqm": 105, "type": OperationType.SALE, 
+            "images": [photos["detail"][2], photos["living"][5], photos["kitchen"][4], photos["bedroom"][4], photos["exterior"][3], photos["detail"][0]],
+            "notes": ["Pleno centro", "Terraza 30m2", "Calidades de lujo"]
+        },
+        {
+            "title": "Piso Estudiantes Ciudad Jardín", "city": "Córdoba", "price": 750, "rooms": 3, "sqm": 85, "type": OperationType.RENT, 
+            "images": [photos["living"][1], photos["bedroom"][0], photos["kitchen"][1], photos["bathroom"][0], photos["detail"][1]],
+            "notes": ["Cerca de estación AVE", "Recién pintado"]
+        },
+        {
+            "title": "Villa Exclusiva El Brillante", "city": "Córdoba", "price": 850000, "rooms": 6, "sqm": 450, "type": OperationType.SALE, 
+            "images": [photos["exterior"][3], photos["living"][0], photos["kitchen"][0], photos["bedroom"][1], photos["bathroom"][1], photos["exterior"][0]],
+            "notes": ["Jardín consolidado", "Seguridad 24h", "Pista de pádel"]
+        },
+
+        # --- MARMOLEJO (Jaén) ---
+        {
+            "title": "Casa de Pueblo Reformada", "city": "Marmolejo", "price": 85000, "rooms": 3, "sqm": 120, "type": OperationType.SALE, 
+            "images": [photos["exterior"][2], photos["living"][2], photos["kitchen"][2], photos["bedroom"][3], photos["bathroom"][2], photos["detail"][1]],
+            "notes": ["Cerca del Balneario", "Tejado nuevo"]
+        },
+
+        # --- MAS ANDÚJAR ---
+        {
+            "title": "Local Comercial Corredera", "city": "Andújar", "price": 600, "rooms": 1, "sqm": 60, "type": OperationType.RENT, 
+            "images": [photos["commercial"][0], photos["office"][0], photos["exterior"][2], photos["detail"][2]],
+            "notes": ["Escaparate amplio", "Mucho paso de gente"]
+        },
+        {
+            "title": "Piso en Divina Pastora", "city": "Andújar", "price": 95000, "rooms": 3, "sqm": 85, "type": OperationType.SALE, 
+            "images": [photos["living"][3], photos["kitchen"][3], photos["bedroom"][2], photos["bathroom"][1], photos["detail"][0]],
+            "notes": ["Tercero sin ascensor", "Muy luminoso", "Oportunidad inversión"]
         }
     ]
-
     for i, p_info in enumerate(properties_data):
         agent = agents[i % len(agents)]
         owner = owners[i % len(owners)]

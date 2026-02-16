@@ -41,7 +41,8 @@ class PropertyRepository:
             joinedload(Property.owner_client),
             joinedload(Property.visits),
             joinedload(Property.operations),
-            joinedload(Property.status_history)
+            joinedload(Property.status_history),
+            joinedload(Property.captor_agent)
         ).filter(Property.id == property_id, Property.is_active == True).first()
 
     def list_all(

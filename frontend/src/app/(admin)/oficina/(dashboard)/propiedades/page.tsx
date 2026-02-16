@@ -5,51 +5,28 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { Plus, Building2, MapPin, Ruler, Home, LayoutGrid, List as ListIcon, ArrowUpRight, Bed, Bath, Filter } from "lucide-react";
+import { 
+  Plus, Building2, MapPin, Ruler, Home, 
+  LayoutGrid, List as ListIcon, ArrowUpRight, 
+  Bed, Bath
+} from "lucide-react";
 import { apiRequest } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { DashboardToolbar } from "@/components/dashboard/DashboardToolbar";
-
-interface PropertyImage {
-  id: string;
-  public_url: string;
-  is_cover: boolean;
-}
-
-interface Property {
-  id: string;
-  title: string;
-  address_line1: string;
-  city: string;
-  sqm: number;
-  rooms: number;
-  price_amount: number;
-  status: string;
-  images: PropertyImage[];
-}
-
-// --- Configuration ---
-const STATUS_STYLES: Record<string, string> = {
-  AVAILABLE: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
-  SOLD: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800",
-  RENTED: "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800",
-  PENDING: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800",
-  DEFAULT: "bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
-};
-
-const getStatusStyle = (status: string) => STATUS_STYLES[status] || STATUS_STYLES.DEFAULT;
+import { getStatusConfig } from "@/constants/status";
+import { Property } from "@/types/property";
 
 export default function AdminPropiedadesPage() {
   const [properties, setProperties] = useState<Property[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<string>("ALL");
+  const [filterStatus] = useState<string>("ALL");
 
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const data = await apiRequest("/properties/") as Property[];
+        const data = await apiRequest<Property[]>("/properties/");
         setProperties(data);
       } catch (error) {
         console.error("Error al cargar propiedades:", error);
@@ -57,64 +34,33 @@ export default function AdminPropiedadesPage() {
         setIsLoading(false);
       }
     };
-
     fetchProperties();
   }, []);
 
   const filteredProperties = properties.filter(prop => {
-    const matchesSearch = 
-      prop.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      prop.city.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Temporary heuristic: distinguish by price if no explicit type field
-    // In our seed data, rents are < 5000 and sales are usually > 20000
-    // We also consider RENTED status as RENT and SOLD as SALE
-    const isRent = prop.status === 'RENTED' || (prop.status === 'AVAILABLE' && prop.price_amount < 5000);
-    const propType = isRent ? 'RENT' : 'SALE';
-    
-    const matchesType = filterType === "ALL" || propType === filterType;
-    
-    return matchesSearch && matchesType;
+    const matchesSearch = prop.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          prop.city.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = filterStatus === "ALL" || prop.status === filterStatus;
+    return matchesSearch && matchesStatus;
   });
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Gestión de Propiedades</h1>
-          <p className="text-sm text-muted-foreground mt-1">Administra tu inventario de inmuebles.</p>
-        </div>
-        <Link href="/oficina/propiedades/nueva">
-          <Button className="shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
-            <Plus className="mr-2 h-4 w-4" /> Nueva Propiedad
-          </Button>
-        </Link>
-      </div>
-
-      {/* Controls */}
-      {/* Controls */}
+    <div className="space-y-6">
       <DashboardToolbar
+        title="Cartera de Inmuebles"
+        count={filteredProperties.length}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
-        placeholder="Buscar por título o ciudad..."
+        actions={
+          <Link href="/oficina/propiedades/nueva">
+            <Button className="font-bold flex items-center gap-2">
+              <Plus size={18} /> Nueva Propiedad
+            </Button>
+          </Link>
+        }
       >
         <div className="flex items-center gap-4">
-          <div className="relative w-full sm:w-auto">
-            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-            <select 
-              className="pl-9 pr-8 py-2 border border-input rounded-lg bg-background text-sm focus:ring-primary focus:border-primary appearance-none shadow-sm cursor-pointer hover:bg-muted/50 transition-colors w-full sm:w-48"
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value)}
-            >
-              <option value="ALL">Venta y Alquiler</option>
-              <option value="SALE">Sólo Venta</option>
-              <option value="RENT">Sólo Alquiler</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2 bg-muted/50 p-1 rounded-lg border border-border">
+          <div className="flex bg-muted p-1 rounded-lg border border-border shadow-inner">
             <button
               onClick={() => setViewMode("grid")}
               className={cn(
@@ -174,6 +120,7 @@ export default function AdminPropiedadesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredProperties.map((property) => {
                 const coverImage = property.images?.find(img => img.is_cover) || property.images?.[0];
+                const statusCfg = getStatusConfig('property', property.status);
                 
                 return (
                   <Card key={property.id} className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-border overflow-hidden flex flex-col h-full bg-card">
@@ -185,7 +132,7 @@ export default function AdminPropiedadesPage() {
                           fill
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                           className="object-cover transition-transform duration-700 group-hover:scale-110"
-                          unoptimized={coverImage.public_url.startsWith("http://localhost") || coverImage.public_url.startsWith("http://127.0.0.1")}
+                          unoptimized={coverImage.public_url.startsWith("http://")}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground/30">
@@ -193,8 +140,13 @@ export default function AdminPropiedadesPage() {
                         </div>
                       )}
                       
-                      <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md bg-background/90 backdrop-blur-md text-[10px] font-bold uppercase tracking-wider shadow-sm border border-border/50">
-                        {property.status}
+                      <div className={cn(
+                        "absolute top-3 right-3 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider shadow-sm border backdrop-blur-md",
+                        statusCfg.bg,
+                        statusCfg.color,
+                        statusCfg.border
+                      )}>
+                        {statusCfg.label}
                       </div>
 
                       <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-md bg-background/90 backdrop-blur-md text-xs font-bold text-foreground shadow-sm">
@@ -224,7 +176,7 @@ export default function AdminPropiedadesPage() {
                          </div>
                          <div className="flex flex-col items-center justify-center text-center border-l border-border/50">
                            <span className="text-xs text-muted-foreground flex items-center gap-1"><Bath size={10} /> Baños</span>
-                           <span className="text-sm font-semibold">-</span>
+                           <span className="text-sm font-semibold">{property.baths}</span>
                          </div>
                       </div>
 
@@ -254,11 +206,12 @@ export default function AdminPropiedadesPage() {
                    <tbody className="divide-y divide-border/50">
                      {filteredProperties.map((prop) => {
                         const coverImage = prop.images?.find(img => img.is_cover) || prop.images?.[0];
+                        const statusCfg = getStatusConfig('property', prop.status);
                         return (
                           <tr key={prop.id} className="hover:bg-muted/30 transition-colors group">
                              <td className="px-6 py-4">
                                 <div className="flex items-center gap-4">
-                                   <div className="h-14 w-20 rounded-lg bg-muted overflow-hidden shrink-0 relative">
+                                   <div className="h-14 w-20 rounded-lg bg-muted overflow-hidden shrink-0 relative border border-border/50">
                                       {coverImage ? (
                                          <Image 
                                             src={coverImage.public_url} 
@@ -283,6 +236,7 @@ export default function AdminPropiedadesPage() {
                                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                    <span className="flex items-center gap-1"><Ruler size={12} /> {prop.sqm}m²</span>
                                    <span className="flex items-center gap-1"><Bed size={12} /> {prop.rooms}</span>
+                                   <span className="flex items-center gap-1"><Bath size={12} /> {prop.baths}</span>
                                 </div>
                              </td>
                              <td className="px-6 py-4 font-bold text-foreground">
@@ -291,9 +245,11 @@ export default function AdminPropiedadesPage() {
                              <td className="px-6 py-4">
                                 <span className={cn(
                                    "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border",
-                                   getStatusStyle(prop.status)
+                                   statusCfg.bg,
+                                   statusCfg.color,
+                                   statusCfg.border
                                 )}>
-                                   {prop.status}
+                                   {statusCfg.label}
                                 </span>
                              </td>
                              <td className="px-6 py-4 text-right">

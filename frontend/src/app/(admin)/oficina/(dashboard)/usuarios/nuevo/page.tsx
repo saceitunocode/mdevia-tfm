@@ -29,6 +29,7 @@ export default function NuevoUsuarioPage() {
   const [formData, setFormData] = useState({
     email: "",
     full_name: "",
+    phone_number: "",
     password: "",
     confirmPassword: "",
   });
@@ -61,6 +62,7 @@ export default function NuevoUsuarioPage() {
         body: JSON.stringify({
           email: formData.email,
           full_name: formData.full_name,
+          phone_number: formData.phone_number,
           password: formData.password,
           is_active: true
         }),
@@ -127,6 +129,18 @@ export default function NuevoUsuarioPage() {
                 placeholder="juan.perez@mdevia.com"
                 required
                 value={formData.email}
+                onChange={handleChange}
+                className="bg-background/50"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone_number">Teléfono</Label>
+              <Input
+                id="phone_number"
+                name="phone_number"
+                placeholder="+34 600 000 000"
+                value={formData.phone_number}
                 onChange={handleChange}
                 className="bg-background/50"
               />

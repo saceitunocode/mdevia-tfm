@@ -17,6 +17,7 @@ import { OperationStatus, OperationType } from "@/types/operation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Briefcase, Home, Activity, ChevronRight } from "lucide-react";
+import { AgentCard } from "@/components/users/AgentCard";
 
 
 export default function ClienteDetallePage() {
@@ -157,7 +158,7 @@ export default function ClienteDetallePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column: Info & Notes */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="lg:col-span-6 space-y-6">
           {/* Info Card */}
           <Card>
             <CardHeader>
@@ -199,7 +200,7 @@ export default function ClienteDetallePage() {
               </div>
             </CardContent>
           </Card>
-
+          
           {/* Notes Card */}
           <Card>
             <CardHeader>
@@ -244,7 +245,14 @@ export default function ClienteDetallePage() {
         </div>
 
         {/* Right Column: History */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-6 space-y-6">
+          {/* Responsible Agent Section */}
+          <AgentCard 
+            agent={client.responsible_agent} 
+            title="Agente Responsable" 
+            emptyMessage="No se ha asignado un agente responsable."
+          />
+          
           {/* Properties Section (Optional) */}
           {client.type === "OWNER" && (
             <Card className="border-l-4 border-l-green-500">
