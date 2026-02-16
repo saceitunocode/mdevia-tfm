@@ -27,10 +27,10 @@ db-seed: ## Puebla la base de datos con datos maestro e iniciales
 check: ## Ejecuta comprobaciones de calidad (Solo Linting)
 	@echo "🧹 Ejecutando Linting Frontend..."
 	@cd frontend && pnpm lint --max-warnings 0
-#	@echo "🧪 Ejecutando Tests de Frontend..."
-#	@cd frontend && pnpm test
-#	@echo "🐍 Ejecutando Tests de Backend..."
-#	@cd backend && . venv/bin/activate && export PYTHONPATH=$$PYTHONPATH:. && pytest
+	@echo "🧪 Ejecutando Tests de Frontend..."
+	@cd frontend && pnpm test
+	@echo "🐍 Ejecutando Tests de Backend..."
+	@cd backend && . venv/bin/activate && export PYTHONPATH=$$PYTHONPATH:. && pytest
 
 test-e2e: ## Ejecuta tests E2E con Playwright
 	@echo "🎭 Ejecutando Tests E2E..."
