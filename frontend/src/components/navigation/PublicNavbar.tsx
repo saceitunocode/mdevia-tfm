@@ -13,7 +13,7 @@ export function PublicNavbar() {
   const navLinks = [
     { name: "Inicio", href: "/", icon: Home },
     { name: "Propiedades", href: "/propiedades", icon: Search },
-    { name: "Contacto", href: "/#contacto", icon: Phone },
+    { name: "Contacto", href: "/contacto", icon: Phone },
   ];
 
   return (

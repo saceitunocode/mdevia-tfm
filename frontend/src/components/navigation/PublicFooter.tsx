@@ -24,7 +24,7 @@ export function PublicFooter() {
             <ul className="space-y-4 text-sm text-zinc-400">
               <li><Link href="/" className="hover:text-primary transition-colors">Inicio</Link></li>
               <li><Link href="/propiedades" className="hover:text-primary transition-colors">Propiedades</Link></li>
-              <li><Link href="/#contacto" className="hover:text-primary transition-colors">Contacto</Link></li>
+              <li><Link href="/contacto" className="hover:text-primary transition-colors">Contacto</Link></li>
             </ul>
           </div>
 
@@ -34,7 +34,7 @@ export function PublicFooter() {
             <ul className="space-y-4 text-sm text-zinc-400">
               <li className="flex items-center gap-2">Andújar & Córdoba</li>
               <li>Email: info@frinmobiliarias.es</li>
-              <li>Tel: +34 953 50 XX XX</li>
+              <li>Tel: +34 953 00 00 00</li>
             </ul>
           </div>
         </div>

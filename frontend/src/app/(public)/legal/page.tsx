@@ -43,7 +43,7 @@ export default function LegalPage() {
                 <li><span className="font-bold">Nombre comercial:</span> FR Inmobiliarias</li>
                 <li><span className="font-bold">Denominación social:</span> FR Inmobiliarias.</li>
                 <li><span className="font-bold">Domicilio social:</span> C/ Emperador Trajano, 1 23740 ANDÚJAR (JAÉN)</li>
-                <li><span className="font-bold">Teléfono:</span> 633094135</li>
+                <li><span className="font-bold">Teléfono:</span> +34 953 00 00 00</li>
                 <li><span className="font-bold">E-mail:</span> frinmobiliarias2@hotmail.es</li>
               </ul>
             </div>
