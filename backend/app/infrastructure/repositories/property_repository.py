@@ -1,13 +1,14 @@
 from typing import List, Optional, Union, Dict, Any
 from decimal import Decimal
 import uuid
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload
 from app.infrastructure.database.models.property import Property
 from app.infrastructure.database.models.property_note import PropertyNote
 from app.infrastructure.database.models.property_status_history import PropertyStatusHistory
 from app.infrastructure.database.models import Visit, Operation, Client
 from app.domain.schemas.property import PropertyUpdate, PropertyNoteCreate
-from app.domain.enums import PropertyStatus
+from app.domain.enums import PropertyStatus, PropertyType, OperationType
 
 class PropertyRepository:
     def create(self, db: Session, property_obj: Property) -> Property:
@@ -40,7 +41,8 @@ class PropertyRepository:
             joinedload(Property.owner_client),
             joinedload(Property.visits),
             joinedload(Property.operations),
-            joinedload(Property.status_history)
+            joinedload(Property.status_history),
+            joinedload(Property.captor_agent)
         ).filter(Property.id == property_id, Property.is_active == True).first()
 
     def list_all(
@@ -65,9 +67,15 @@ class PropertyRepository:
         sqm_min: Optional[int] = None,
         sqm_max: Optional[int] = None,
         rooms: Optional[int] = None,
+        baths: Optional[int] = None,
+        property_type: Optional[List[PropertyType]] = None,
+        operation_type: Optional[OperationType] = None,
+        has_elevator: Optional[bool] = None,
+        is_featured: Optional[bool] = None,
         offset: int = 0,
         limit: int = 50,
-    ) -> List[Property]:
+        sort: Optional[str] = None,
+    ) -> Dict[str, Any]:
         query = (
             db.query(Property)
             .options(joinedload(Property.images))
@@ -79,7 +87,7 @@ class PropertyRepository:
         )
 
         if city is not None:
-            query = query.filter(Property.city.ilike(city))
+            query = query.filter(or_(Property.city.ilike(f"%{city}%"), Property.postal_code.ilike(f"%{city}%")))
         if price_min is not None:
             query = query.filter(Property.price_amount >= price_min)
         if price_max is not None:
@@ -89,9 +97,30 @@ class PropertyRepository:
         if sqm_max is not None:
             query = query.filter(Property.sqm <= sqm_max)
         if rooms is not None:
-            query = query.filter(Property.rooms == rooms)
+            query = query.filter(Property.rooms >= rooms) # 1+ logic
+        if baths is not None:
+            query = query.filter(Property.baths >= baths) # 1+ logic
+        if property_type:
+            query = query.filter(Property.property_type.in_(property_type))
+        if operation_type is not None:
+            query = query.filter(Property.operation_type == operation_type)
+        if has_elevator is not None:
+            query = query.filter(Property.has_elevator == has_elevator)
+        if is_featured is not None:
+            query = query.filter(Property.is_featured == is_featured)
 
-        return query.order_by(Property.created_at.desc()).offset(offset).limit(limit).all()
+        total = query.count()
+
+        # Sorting logic
+        if sort == "price_asc":
+            query = query.order_by(Property.price_amount.asc())
+        elif sort == "price_desc":
+            query = query.order_by(Property.price_amount.desc())
+        else:
+            query = query.order_by(Property.created_at.desc())
+
+        items = query.offset(offset).limit(limit).all()
+        return {"items": items, "total": total}
 
     def update(
         self,

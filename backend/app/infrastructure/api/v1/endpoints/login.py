@@ -1,6 +1,6 @@
 from datetime import timedelta
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -15,6 +15,7 @@ router = APIRouter()
 @router.post("/login/access-token", response_model=Token)
 def login_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    remember: Annotated[bool, Form()] = False,
     db: Session = Depends(get_db)
 ) -> Token:
     """
@@ -33,7 +34,11 @@ def login_access_token(
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
         
-    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    if remember:
+        access_token_expires = timedelta(days=7)
+    else:
+        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        
     access_token = security.create_access_token(
         subject=user.email, 
         role=user.role.value,

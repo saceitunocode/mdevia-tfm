@@ -1,13 +1,12 @@
 import { Visit } from "./visit";
 import { Operation } from "./operation";
 import { Client } from "./client";
+import { User } from "./user";
 
 export enum PropertyStatus {
   AVAILABLE = "AVAILABLE",
-  RESERVED = "RESERVED",
   SOLD = "SOLD",
   RENTED = "RENTED",
-  WITHDRAWN = "WITHDRAWN",
 }
 
 export interface PropertyImage {
@@ -38,6 +37,18 @@ export interface PropertyStatusHistory {
   note?: string;
 }
 
+export enum PropertyType {
+  HOUSE = "HOUSE",
+  APARTMENT = "APARTMENT",
+  OFFICE = "OFFICE",
+  LAND = "LAND",
+}
+
+export enum OperationType {
+  SALE = "SALE",
+  RENT = "RENT",
+}
+
 export interface Property {
   id: string;
   title: string;
@@ -47,11 +58,16 @@ export interface Property {
   postal_code?: string;
   sqm: number;
   rooms: number;
+  baths: number;
   floor?: number;
   has_elevator: boolean;
   status: PropertyStatus;
+  property_type: PropertyType;
+  operation_type: OperationType;
   price_amount: number;
   price_currency: string;
+  is_featured: boolean;
+  is_published: boolean;
   public_description?: string;
   internal_notes?: string;
   owner_client_id: string;
@@ -61,6 +77,7 @@ export interface Property {
   visits?: Visit[];
   operations?: Operation[];
   owner_client?: Client;
+  captor_agent?: User;
   status_history?: PropertyStatusHistory[];
   is_active: boolean;
   created_at: string;

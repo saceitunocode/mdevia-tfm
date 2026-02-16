@@ -7,6 +7,7 @@ from app.domain.enums import UserRole
 class UserBase(BaseModel):
     email: EmailStr
     full_name: Optional[str] = None
+    phone_number: Optional[str] = None
     is_active: bool = True
 
 class UserCreate(UserBase):
@@ -16,6 +17,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     full_name: Optional[str] = None
+    phone_number: Optional[str] = None
     password: Optional[str] = Field(None, min_length=8)
     role: Optional[UserRole] = None
     is_active: Optional[bool] = None

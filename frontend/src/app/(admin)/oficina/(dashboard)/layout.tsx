@@ -6,6 +6,8 @@ import { AdminSidebar } from "@/components/navigation/AdminSidebar";
 import { AdminHeader } from "@/components/navigation/AdminHeader";
 import { getAuthData } from "@/lib/auth";
 
+import { AdminMobileNav } from "@/components/navigation/AdminMobileNav";
+
 export default function DashboardLayout({
   children,
 }: {
@@ -38,12 +40,16 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen bg-muted/5 overflow-hidden">
       <AdminSidebar />
-      <div className="flex-1 flex flex-col bg-muted/5">
+      <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader />
-        <main className="p-8 flex-1">{children}</main>
+        {/* pb-24 for mobile nav space, md:pb-8 for desktop */}
+        <main className="flex-1 flex flex-col p-4 md:p-6 pb-24 md:pb-6 overflow-y-auto">
+          {children}
+        </main>
       </div>
+      <AdminMobileNav />
     </div>
   );
 }

@@ -18,8 +18,29 @@ import { OfflineBanner } from "@/components/common/OfflineBanner";
 import { Toaster } from "@/components/ui/Toaster";
 
 export const metadata: Metadata = {
-  title: "FR Inmobiliaria - Gestión Inmobiliaria",
-  description: "Portal de gestión y escaparate de FR Inmobiliaria",
+  title: {
+    default: "FR Inmobiliaria | Tu Inmobiliaria de Confianza en Andújar y Córdoba",
+    template: "%s | FR Inmobiliaria"
+  },
+  description: "Expertos en gestión inmobiliaria. Encuentra pisos, casas y locales en venta o alquiler en Andújar y Córdoba con el mejor servicio personalizado.",
+  openGraph: {
+    type: "website",
+    locale: "es_ES",
+    url: "https://frinmobiliaria.es",
+    siteName: "FR Inmobiliaria",
+    images: [{
+      url: "/og-image.png",
+      width: 1200,
+      height: 630,
+      alt: "FR Inmobiliaria"
+    }]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FR Inmobiliaria",
+    description: "Expertos en gestión inmobiliaria en Andújar y Córdoba.",
+    images: ["/og-image.png"]
+  }
 };
 
 export default function RootLayout({

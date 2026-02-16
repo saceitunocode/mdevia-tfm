@@ -4,28 +4,10 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { apiRequest } from "@/lib/api";
 import { PropertyForm, PropertyFormValues } from "@/components/properties/PropertyForm";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-
-interface Property {
-  id: string;
-  title: string;
-  address_line1: string;
-  city: string;
-  sqm: number;
-  rooms: number;
-  price_amount: number;
-  status: string;
-  public_description?: string;
-  internal_notes?: string;
-  owner_client_id: string;
-  images?: {
-    id: string;
-    public_url: string;
-    is_cover: boolean;
-    position: number;
-  }[];
-}
+import { Button } from "@/components/ui/Button";
+import { Property, PropertyStatus, PropertyType, OperationType } from "@/types/property";
 
 export default function EditPropertyPage() {
   const params = useParams();
@@ -75,9 +57,6 @@ export default function EditPropertyPage() {
         for (const imageFile of images) {
           const formData = new FormData();
           formData.append("file", imageFile);
-          // Only set as cover if there are no existing images? Or simple logic for now.
-          // Let's assume appended images are not cover by default unless specific logic.
-          // But the API requires is_cover.
           formData.append("is_cover", "false"); 
           
           await apiRequest(`/properties/${id}/images`, {
@@ -108,10 +87,15 @@ export default function EditPropertyPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-heading font-bold">Editar Propiedad</h1>
-        <p className="text-muted-foreground">Modifica los datos de la propiedad.</p>
+    <div className="space-y-4 md:space-y-6 pb-12">
+      <div className="flex items-center gap-4">
+        <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-heading font-bold">Editar Propiedad</h1>
+          <p className="text-muted-foreground">Modifica los datos de la propiedad.</p>
+        </div>
       </div>
       
       <PropertyForm 
@@ -122,14 +106,23 @@ export default function EditPropertyPage() {
         initialValues={{
             title: property.title,
             address_line1: property.address_line1,
+            address_line2: property.address_line2 ?? "",
             city: property.city,
+            postal_code: property.postal_code ?? "",
             sqm: property.sqm,
             rooms: property.rooms,
+            baths: property.baths ?? 1,
+            floor: property.floor,
+            has_elevator: property.has_elevator ?? false,
             price_amount: property.price_amount,
             owner_client_id: property.owner_client_id,
             public_description: property.public_description ?? "",
             internal_notes: property.internal_notes ?? "",
-            status: property.status as "AVAILABLE" | "SOLD" | "RENTED",
+            status: property.status as PropertyStatus,
+            property_type: property.property_type as PropertyType,
+            operation_type: property.operation_type as OperationType,
+            is_published: property.is_published,
+            is_featured: property.is_featured,
         }}
         initialImages={property.images?.map(img => ({ 
           id: img.id, 

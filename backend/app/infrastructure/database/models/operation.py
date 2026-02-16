@@ -33,3 +33,13 @@ class Operation(Base):
     status_history = relationship("OperationStatusHistory", back_populates="operation", cascade="all, delete-orphan", order_by="OperationStatusHistory.changed_at")
     notes = relationship("OperationNote", back_populates="operation", cascade="all, delete-orphan", order_by="OperationNote.created_at")
     calendar_events = relationship("CalendarEvent", back_populates="operation")
+    
+    # Virtual relationship to visits based on client and property
+    visits = relationship(
+        "Visit",
+        primaryjoin="and_(Operation.client_id == Visit.client_id, Operation.property_id == Visit.property_id)",
+        foreign_keys="[Visit.client_id, Visit.property_id]",
+        viewonly=True,
+        order_by="desc(Visit.scheduled_at)"
+    )
+

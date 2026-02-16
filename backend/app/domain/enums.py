@@ -14,6 +14,12 @@ class PropertyStatus(str, Enum):
     SOLD = "SOLD"
     RENTED = "RENTED"
 
+class PropertyType(str, Enum):
+    HOUSE = "HOUSE"
+    APARTMENT = "APARTMENT"
+    OFFICE = "OFFICE"
+    LAND = "LAND"
+
 class VisitStatus(str, Enum):
     PENDING = "PENDING"
     DONE = "DONE"

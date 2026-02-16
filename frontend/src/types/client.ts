@@ -1,5 +1,6 @@
 import { Visit } from "./visit";
 import { Operation } from "./operation";
+import { User } from "./user";
 
 export type ClientType = "BUYER" | "TENANT" | "OWNER";
 
@@ -36,4 +37,5 @@ export interface ClientDetail extends Client {
   visits: Visit[];
   operations: Operation[];
   owned_properties: OwnedProperty[];
+  responsible_agent?: User;
 }

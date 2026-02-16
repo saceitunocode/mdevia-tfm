@@ -32,6 +32,7 @@ export interface Visit {
   property?: {
     id: string;
     title: string;
+    city: string;
     address_line1: string;
   };
   agent?: {

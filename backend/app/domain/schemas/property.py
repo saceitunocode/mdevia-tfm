@@ -4,7 +4,7 @@ import uuid
 from decimal import Decimal
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from app.domain.enums import PropertyStatus
+from app.domain.enums import PropertyStatus, PropertyType, OperationType
 from app.domain.schemas.property_image import PropertyImage, PropertyImagePublic
 
 class PropertyNoteBase(BaseModel):
@@ -42,14 +42,18 @@ class PropertyBase(BaseModel):
     postal_code: Optional[str] = None
     sqm: int
     rooms: int
+    baths: int = 1
     floor: Optional[int] = None
     has_elevator: bool = False
     status: PropertyStatus = PropertyStatus.AVAILABLE
+    property_type: PropertyType = PropertyType.APARTMENT
+    operation_type: OperationType = OperationType.SALE
     price_amount: Optional[Decimal] = None
     price_currency: str = "EUR"
     public_description: Optional[str] = None
     internal_notes: Optional[str] = None
     is_published: bool = True
+    is_featured: bool = False
 
 class PropertyCreate(PropertyBase):
     owner_client_id: uuid.UUID
@@ -62,15 +66,27 @@ class PropertyUpdate(BaseModel):
     postal_code: Optional[str] = None
     sqm: Optional[int] = None
     rooms: Optional[int] = None
+    baths: Optional[int] = None
     floor: Optional[int] = None
     has_elevator: Optional[bool] = None
     status: Optional[PropertyStatus] = None
+    property_type: Optional[PropertyType] = None
+    operation_type: Optional[OperationType] = None
     price_amount: Optional[Decimal] = None
     price_currency: Optional[str] = None
     public_description: Optional[str] = None
     internal_notes: Optional[str] = None
     is_published: Optional[bool] = None
+    is_featured: Optional[bool] = None
     owner_client_id: Optional[uuid.UUID] = None
+
+class PropertyAgentPublic(BaseModel):
+    id: uuid.UUID
+    full_name: Optional[str] = None
+    email: str
+    phone_number: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
 
 class PropertyPublic(BaseModel):
     id: uuid.UUID
@@ -78,17 +94,26 @@ class PropertyPublic(BaseModel):
     city: str
     sqm: int
     rooms: int
+    baths: int
     floor: Optional[int] = None
     has_elevator: bool = False
     status: PropertyStatus
+    property_type: PropertyType
+    operation_type: OperationType
     price_amount: Optional[Decimal] = None
     price_currency: str
     public_description: Optional[str] = None
+    is_featured: bool = False
     images: List[PropertyImagePublic] = []
+    captor_agent: Optional[PropertyAgentPublic] = None
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+class PropertyPublicList(BaseModel):
+    items: List[PropertyPublic]
+    total: int
 
 class Property(PropertyBase):
     id: uuid.UUID
@@ -99,6 +124,7 @@ class Property(PropertyBase):
     visits: List["VisitPublic"] = []
     operations: List["OperationPublic"] = []
     owner_client: Optional["Client"] = None
+    captor_agent: Optional["User"] = None
     status_history: List[PropertyStatusHistory] = []
     is_active: bool
     created_at: datetime

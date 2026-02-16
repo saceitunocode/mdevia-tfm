@@ -5,7 +5,7 @@ import { useForm, FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Clock, Trash2 } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Trash2, User, Building2, Info, Lock } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
@@ -18,9 +18,7 @@ import {
     DialogTitle, 
     DialogFooter 
 } from "@/components/ui/Dialog";
-import { Select } from "@/components/ui/Select";
 import { apiRequest } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import { EventType, CalendarEvent, CalendarEventUpdate } from "@/types/calendar";
 import { Visit } from "@/types/visit";
 
@@ -40,7 +38,6 @@ const eventSchema = z.object({
   type: z.nativeEnum(EventType),
   date: z.string().min(1, "La fecha es obligatoria"), // YYYY-MM-DD
   startTime: z.string().min(1, "Hora de inicio obligatoria"), // HH:MM
-  endTime: z.string().min(1, "Hora de fin obligatoria"), // HH:MM
   description: z.string().optional(),
   client_id: z.string().optional(),
   property_id: z.string().optional(),
@@ -52,11 +49,6 @@ const eventSchema = z.object({
 }, {
     message: "El cliente y la propiedad son obligatorios para una visita",
     path: ["client_id"],
-}).refine((data) => {
-    return data.endTime > data.startTime;
-}, {
-    message: "La hora de fin debe ser posterior a la de inicio",
-    path: ["endTime"],
 });
 
 type EventFormValues = z.infer<typeof eventSchema>;
@@ -83,14 +75,12 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
       type: EventType.VISIT,
       date: format(new Date(), "yyyy-MM-dd"),
       startTime: "10:00",
-      endTime: "11:00",
       description: "",
       client_id: "",
       property_id: "",
     },
   });
 
-  const selectedType = form.watch("type");
 
   // Load event data when dialog opens
   React.useEffect(() => {
@@ -98,14 +88,12 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
         setIsSubmitting(false);
         setIsDeleting(false);
         const start = new Date(event.starts_at);
-        const end = new Date(event.ends_at);
         
         form.reset({
             title: event.title,
             type: event.type,
             date: format(start, "yyyy-MM-dd"),
             startTime: format(start, "HH:mm"),
-            endTime: format(end, "HH:mm"),
             description: event.description || "",
             client_id: event.client_id || "",
             property_id: event.property_id || "",
@@ -154,8 +142,9 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
     
     setIsSubmitting(true);
     try {
-        const startIso = new Date(`${values.date}T${values.startTime}:00`).toISOString();
-        const endIso = new Date(`${values.date}T${values.endTime}:00`).toISOString();
+        const startDate = new Date(`${values.date}T${values.startTime}:00`);
+        const startIso = startDate.toISOString();
+        const endIso = new Date(startDate.getTime() + 60 * 60 * 1000).toISOString();
 
         const updates: CalendarEventUpdate = {
             title: values.title,
@@ -213,156 +202,152 @@ export function EditEventDialog({ isOpen, onClose, onSubmit, onDelete, event }: 
 
   if (!event) return null;
 
-  const isLinkedVisit = !!event.visit_id;
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Editar Evento</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl flex flex-col max-h-[90vh]">
+        <div className="bg-primary/5 border-b border-primary/10 p-4 shrink-0">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                <CalendarIcon className="h-5 w-5" />
+              </div>
+              <div>
+                <DialogTitle className="text-lg font-bold tracking-tight">Editar Evento</DialogTitle>
+                <p className="text-[10px] text-muted-foreground mt-0.5 font-medium uppercase tracking-wider">Detalles de la Cita</p>
+              </div>
+            </div>
+          </DialogHeader>
+        </div>
 
-        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="space-y-4 py-4">
+        <form onSubmit={form.handleSubmit(handleSubmit, onError)} className="flex flex-col flex-1 min-h-0">
+          <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(90vh-140px)]">
           
-          {/* Title */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Título</label>
-            <Input 
-                {...form.register("title")} 
-                placeholder="Ej: Visita Calle Mayor" 
-            />
-          </div>
-
-          {/* Type */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Tipo de Evento</label>
-            <div className="grid grid-cols-2 gap-2">
-                {Object.values(EventType).map((type) => (
-                    <div key={type} className="flex items-center space-x-2">
-                        <input
-                            type="radio"
-                            value={type}
-                            id={`edit-type-${type}`}
-                            {...form.register("type")}
-                            className="text-primary focus:ring-primary"
-                        />
-                        <label htmlFor={`edit-type-${type}`} className="text-sm cursor-pointer capitalize">
-                            {type.toLowerCase()}
-                        </label>
+            <div className="space-y-3">
+              {/* Title & Type - Compact Row */}
+              <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2 space-y-1.5">
+                    <label className="text-xs font-semibold flex items-center gap-1.5 text-muted-foreground h-4">
+                      <Info className="h-3.5 w-3.5 text-primary" /> Título
+                    </label>
+                    <div className="h-9 px-3 flex items-center bg-muted/30 border border-border rounded-lg text-xs font-bold text-foreground/70 truncate shadow-sm" title={event.title}>
+                      {event.title}
+                      <Lock className="ml-auto h-3 w-3 opacity-30 shrink-0" />
                     </div>
-                ))}
-            </div>
-          </div>
+                  </div>
+                  
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold flex items-center gap-1.5 text-muted-foreground h-4">
+                       <span className="w-3.5 h-3.5 inline-block" /> Tipo
+                    </label>
+                    <div className="h-9 px-2 flex items-center justify-center bg-muted/30 border border-border rounded-lg text-[10px] font-bold uppercase tracking-wider text-primary/70 truncate shadow-sm">
+                      {event.type.toLowerCase()}
+                    </div>
+                  </div>
+              </div>
 
-          {/* Date & Time Row */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-                <label className="text-sm font-medium">Fecha</label>
-                <div className="relative">
-                    <CalendarIcon className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                        type="date" 
-                        {...form.register("date")} 
-                        className="pl-9" 
-                    />
+              {/* Linked Data - Read Only */}
+              {event.type === EventType.VISIT && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-muted/10 rounded-lg border border-border/30">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold flex items-center gap-1 text-muted-foreground uppercase tracking-wide">
+                      <User className="h-3 w-3" /> Cliente
+                    </label>
+                    <div className="text-xs font-medium truncate pl-4 text-foreground/80">
+                      {clients.find(c => c.id === form.watch("client_id"))?.full_name || "Vinculado"}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold flex items-center gap-1 text-muted-foreground uppercase tracking-wide">
+                      <Building2 className="h-3 w-3" /> Propiedad
+                    </label>
+                    <div className="text-xs font-medium truncate pl-4 text-foreground/80">
+                      {properties.find(p => p.id === form.watch("property_id"))?.title || "Vinculada"}
+                    </div>
+                  </div>
                 </div>
+              )}
             </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Inicio</label>
-                    <div className="relative">
-                        <Clock className="absolute left-2 top-2.5 h-3 w-3 text-muted-foreground" />
+
+            <div className="h-px bg-border/50" />
+
+            {/* Date & Time Section - EDITABLE */}
+            <div className="bg-primary/5 p-3 rounded-lg border border-primary/10 shadow-inner">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/60 mb-2 flex items-center gap-2">
+                <Clock className="w-3 h-3" /> Reprogramar Cita
+              </h4>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Nueva Fecha</label>
+                    <div className="relative group">
+                        <CalendarIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-primary group-focus-within:scale-110 transition-transform pointer-events-none" />
+                        <Input 
+                            type="date" 
+                            {...form.register("date")} 
+                            className="pl-8 h-9 bg-background border-primary/20 shadow-sm focus:ring-primary focus:border-primary rounded-lg text-xs" 
+                        />
+                    </div>
+                </div>
+                
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Hora Inicio</label>
+                    <div className="relative group">
+                        <Clock className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-primary group-focus-within:scale-110 transition-transform pointer-events-none" />
                         <Input 
                             type="time" 
                             {...form.register("startTime")} 
-                            className="pl-7" 
+                            className="pl-8 h-9 bg-background border-primary/20 shadow-sm focus:ring-primary focus:border-primary rounded-lg text-xs font-bold" 
                         />
                     </div>
                 </div>
-                <div className="space-y-2">
-                    <label className="text-sm font-medium">Fin</label>
-                    <div className="relative">
-                         <Clock className="absolute left-2 top-2.5 h-3 w-3 text-muted-foreground" />
-                        <Input 
-                            type="time" 
-                            {...form.register("endTime")} 
-                            className="pl-7" 
-                        />
-                    </div>
-                </div>
+              </div>
+            </div>
+
+            {/* Description - EDITABLE */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground flex items-center gap-2">
+                 Notas e Instrucciones
+              </label>
+              <Textarea 
+                  {...form.register("description")} 
+                  placeholder="Detalles adicionales..." 
+                  className="resize-none h-20 bg-background border-input focus:ring-primary shadow-sm rounded-lg p-3 text-sm"
+              />
             </div>
           </div>
 
-          {/* Description */}
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Notas / Descripción</label>
-            <Textarea 
-                {...form.register("description")} 
-                placeholder="Detalles adicionales..." 
-                className="resize-none h-20"
-            />
-          </div>
-
-          {/* Visit specific fields */}
-          {selectedType === EventType.VISIT && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-in slide-in-from-top-2 duration-300">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Cliente</label>
-                <Select 
-                  {...form.register("client_id")}
-                  className={cn(isLinkedVisit && "pointer-events-none opacity-50 bg-muted/50")}
-                  tabIndex={isLinkedVisit ? -1 : undefined}
-                  aria-disabled={isLinkedVisit}
-                >
-                  <option value="">Seleccionar...</option>
-                  {clients.map(c => (
-                    <option key={c.id} value={c.id}>{c.full_name}</option>
-                  ))}
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Propiedad</label>
-                <Select 
-                  {...form.register("property_id")}
-                  className={cn(isLinkedVisit && "pointer-events-none opacity-50 bg-muted/50")}
-                  tabIndex={isLinkedVisit ? -1 : undefined}
-                  aria-disabled={isLinkedVisit}
-                >
-                  <option value="">Seleccionar...</option>
-                  {properties.map(p => (
-                    <option key={p.id} value={p.id}>{p.title}</option>
-                  ))}
-                </Select>
-                {isLinkedVisit && (
-                   <p className="text-[10px] text-muted-foreground mt-1">
-                     No se puede cambiar el cliente o propiedad de una visita creada.
-                   </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          <DialogFooter className="gap-2 sm:gap-0">
+          <DialogFooter className="p-4 bg-muted/20 border-t border-border/50 gap-2 sm:gap-0 shrink-0">
             {onDelete && (
-                <Button 
-                    type="button" 
-                    variant="destructive" 
-                    onClick={handleDelete} 
-                    disabled={isDeleting || isSubmitting}
-                    className="mr-auto"
-                >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Eliminar
-                </Button>
+                <div className="flex-1 mr-auto">
+                    <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={handleDelete} 
+                        disabled={isDeleting || isSubmitting}
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 md:h-9 px-2 text-xs md:text-sm"
+                    >
+                        <Trash2 className="w-3.5 h-3.5 md:mr-2" />
+                        <span className="hidden md:inline">Eliminar</span>
+                    </Button>
+                </div>
             )}
             
-            <div className="flex gap-2">
-                <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
-                Cancelar
+            <div className="flex gap-3">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  onClick={onClose} 
+                  disabled={isSubmitting}
+                  className="rounded-xl"
+                >
+                  Cancelar
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Guardando..." : "Guardar Cambios"}
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  className="min-w-[150px] shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all font-bold rounded-xl"
+                >
+                  {isSubmitting ? "Guardando..." : "Guardar Cambios"}
                 </Button>
             </div>
           </DialogFooter>

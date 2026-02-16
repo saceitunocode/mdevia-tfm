@@ -13,17 +13,28 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { ImageUpload } from "./ImageUpload";
 import { PropertyGalleryManager } from "./PropertyGalleryManager";
 import { toast } from "sonner";
+import { Combobox } from "@/components/ui/Combobox";
+import { Controller } from "react-hook-form";
+import { PropertyStatus, PropertyType, OperationType } from "@/types/property";
 
 const propertySchema = z.object({
   title: z.string().min(5, "El título debe tener al menos 5 caracteres"),
   address_line1: z.string().min(1, "La dirección es obligatoria"),
+  address_line2: z.string().nullable().optional().transform(v => v ?? ""),
   city: z.string().min(1, "La ciudad es obligatoria"),
+  postal_code: z.string().nullable().optional().transform(v => v ?? ""),
   sqm: z.coerce.number().positive("Los metros cuadrados deben ser positivos"),
   rooms: z.coerce.number().int().nonnegative(),
+  baths: z.coerce.number().int().min(1, "Debe tener al menos 1 baño"),
+  floor: z.coerce.number().int().nullable().optional(),
+  has_elevator: z.boolean().default(false),
   price_amount: z.coerce.number().positive("El precio debe ser positivo"),
   owner_client_id: z.string().uuid("Debes seleccionar un propietario"),
-  status: z.enum(["AVAILABLE", "SOLD", "RENTED"]),
+  status: z.nativeEnum(PropertyStatus),
+  property_type: z.nativeEnum(PropertyType),
+  operation_type: z.nativeEnum(OperationType),
   is_published: z.boolean().default(true),
+  is_featured: z.boolean().default(false),
   public_description: z.string().nullable().optional().transform(v => v ?? ""),
   internal_notes: z.string().nullable().optional().transform(v => v ?? ""),
 });
@@ -46,19 +57,26 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
   const {
     register,
     handleSubmit,
+    control,
   } = useForm<PropertyFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(propertySchema) as any,
     defaultValues: {
       rooms: 1,
+      baths: 1,
       sqm: 0,
       price_amount: 0,
       title: "",
       address_line1: "",
+      address_line2: "",
       city: "",
+      postal_code: "",
       owner_client_id: "",
-      status: "AVAILABLE",
+      status: PropertyStatus.AVAILABLE,
+      property_type: PropertyType.APARTMENT,
+      operation_type: OperationType.SALE,
       is_published: true,
+      is_featured: false,
       public_description: "",
       internal_notes: "",
       ...initialValues,
@@ -67,7 +85,8 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
         public_description: initialValues.public_description ?? "",
         internal_notes: initialValues.internal_notes ?? "",
       }),
-    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any, 
   });
 
   const onFormSubmit = (values: PropertyFormValues) => {
@@ -88,151 +107,238 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
   };
 
   return (
-    <Card className="w-full max-w-6xl mx-auto shadow-xl border-none">
-      <CardHeader className="border-b border-border/50 bg-muted/5">
-        <CardTitle className="text-2xl font-heading">
+    <Card className="w-full shadow-lg md:shadow-xl border-none">
+      <CardHeader className="p-4 md:p-6 border-b border-border/50 bg-muted/5">
+        <CardTitle className="text-lg md:text-2xl font-heading">
           {isEditMode ? "Editar Propiedad" : "Datos de la Propiedad"}
         </CardTitle>
       </CardHeader>
       <form onSubmit={handleSubmit(onFormSubmit, onFormError)}>
-        <CardContent className="p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <CardContent className="p-3 md:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-10">
             {/* Columna Izquierda: Datos del Formulario */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Título Publicitario</Label>
+            <div className="lg:col-span-7 space-y-4 md:space-y-6">
+              <div className="space-y-3 md:space-y-4">
+                <div className="space-y-1.5 md:space-y-2">
+                  <Label htmlFor="title" className="text-xs md:text-sm">Título Publicitario</Label>
                   <Input
                     id="title"
                     placeholder="Ej: Piso luminoso en el centro"
-                    className="h-11"
+                    className="h-9 md:h-11 text-xs md:text-sm"
                     {...register("title")}
                   />
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="address_line1">Dirección</Label>
+ 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="property_type" className="text-xs md:text-sm">Tipo de Inmueble</Label>
+                    <Select id="property_type" className="h-9 md:h-11 text-xs md:text-sm" {...register("property_type")}>
+                      <option value="APARTMENT">Piso / Apartamento</option>
+                      <option value="HOUSE">Casa / Chalet</option>
+                      <option value="OFFICE">Oficina</option>
+                      <option value="LAND">Terreno</option>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="operation_type" className="text-xs md:text-sm">Tipo de Operación</Label>
+                    <Select id="operation_type" className="h-9 md:h-11 text-xs md:text-sm" {...register("operation_type")}>
+                      <option value="SALE">Venta</option>
+                      <option value="RENT">Alquiler</option>
+                    </Select>
+                  </div>
+                </div>
+ 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="address_line1" className="text-xs md:text-sm">Dirección (Línea 1)</Label>
                     <Input
                       id="address_line1"
                       placeholder="Calle, número, piso"
-                      className="h-11"
+                      className="h-9 md:h-11 text-xs md:text-sm"
                       {...register("address_line1")}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city">Ciudad</Label>
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="address_line2" className="text-xs md:text-sm">Dirección (Línea 2)</Label>
+                    <Input
+                      id="address_line2"
+                      placeholder="Bloque, puerta, etc. (opcional)"
+                      className="h-9 md:h-11 text-xs md:text-sm"
+                      {...register("address_line2")}
+                    />
+                  </div>
+                </div>
+ 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="city" className="text-xs md:text-sm">Ciudad</Label>
                     <Input
                       id="city"
-                      placeholder="Ej: Madrid"
-                      className="h-11"
+                      placeholder="Ej: Andújar"
+                      className="h-9 md:h-11 text-xs md:text-sm"
                       {...register("city")}
                     />
                   </div>
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="postal_code" className="text-xs md:text-sm">Código Postal</Label>
+                    <Input
+                      id="postal_code"
+                      placeholder="Ej: 23740"
+                      className="h-9 md:h-11 text-xs md:text-sm"
+                      {...register("postal_code")}
+                    />
+                  </div>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="sqm">Superficie (m²)</Label>
+ 
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="sqm" className="text-xs md:text-sm">Superficie (m²)</Label>
                     <Input
                       id="sqm"
                       type="number"
-                      className="h-11"
+                      className="h-9 md:h-11 text-xs md:text-sm"
                       {...register("sqm")}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="rooms">Habitaciones</Label>
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="rooms" className="text-xs md:text-sm">Habitaciones</Label>
                     <Input
                       id="rooms"
                       type="number"
-                      className="h-11"
+                      className="h-9 md:h-11 text-xs md:text-sm"
                       {...register("rooms")}
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="price_amount">Precio (€)</Label>
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="baths" className="text-xs md:text-sm">Baños</Label>
                     <Input
-                      id="price_amount"
+                      id="baths"
                       type="number"
-                      className="h-11 font-bold text-primary"
-                      {...register("price_amount")}
+                      className="h-9 md:h-11 text-xs md:text-sm"
+                      {...register("baths")}
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="floor" className="text-xs md:text-sm">Planta</Label>
+                    <Input
+                      id="floor"
+                      type="number"
+                      placeholder="0 para bajo"
+                      className="h-9 md:h-11 text-xs md:text-sm"
+                      {...register("floor")}
                     />
                   </div>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Estado</Label>
-                    <Select id="status" className="h-11" {...register("status")}>
+ 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="price_amount" className="text-xs md:text-sm">Precio (€)</Label>
+                    <Input
+                      id="price_amount"
+                      type="number"
+                      className="h-10 md:h-11 font-bold text-lg md:text-xl text-primary"
+                      {...register("price_amount")}
+                    />
+                  </div>
+                  <div className="space-y-1.5 md:space-y-2">
+                    <Label htmlFor="status" className="text-xs md:text-sm">Estado Comercial</Label>
+                    <Select id="status" className="h-9 md:h-11 text-xs md:text-sm" {...register("status")}>
                       <option value="AVAILABLE">Disponible</option>
                       <option value="SOLD">Vendido</option>
                       <option value="RENTED">Alquilado</option>
                     </Select>
                   </div>
-                  <div className="flex items-center space-x-2 pt-8">
+                </div>
+ 
+                <div className="grid grid-cols-3 gap-2 md:gap-4 border p-3 md:p-4 rounded-lg bg-muted/20">
+                    <div className="flex items-center space-x-1.5 md:space-x-2">
+                        <input
+                            type="checkbox"
+                            id="has_elevator"
+                            className="h-4 w-4 md:h-5 md:w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                            {...register("has_elevator")}
+                        />
+                        <Label htmlFor="has_elevator" className="cursor-pointer font-medium text-[10px] md:text-xs">
+                            Ascensor
+                        </Label>
+                    </div>
+                  <div className="flex items-center space-x-1.5 md:space-x-2">
                     <input
                         type="checkbox"
                         id="is_published"
-                        className="h-5 w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                        className="h-4 w-4 md:h-5 md:w-5 rounded border-gray-300 text-primary focus:ring-primary"
                         {...register("is_published")}
                     />
-                    <Label htmlFor="is_published" className="cursor-pointer font-medium">
-                        Publicar en el sitio web
+                    <Label htmlFor="is_published" className="cursor-pointer font-medium text-[10px] md:text-xs">
+                        Publicado
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-1.5 md:space-x-2">
+                    <input
+                        type="checkbox"
+                        id="is_featured"
+                        className="h-4 w-4 md:h-5 md:w-5 rounded border-gray-300 text-primary focus:ring-primary"
+                        {...register("is_featured")}
+                    />
+                    <Label htmlFor="is_featured" className="cursor-pointer font-medium text-[10px] md:text-xs">
+                        Destacado
                     </Label>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="owner_client_id">Propietario / Cliente</Label>
-                  <Select id="owner_client_id" className="h-11" {...register("owner_client_id")}>
-                    <option value="">Selecciona un cliente</option>
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.full_name}
-                      </option>
-                    ))}
-                  </Select>
+ 
+                <div className="space-y-1.5 md:space-y-2">
+                  <Label htmlFor="owner_client_id" className="text-xs md:text-sm">Propietario / Cliente</Label>
+                  <Controller
+                    name="owner_client_id"
+                    control={control}
+                    render={({ field }) => (
+                      <Combobox
+                        options={clients.map(c => ({ value: c.id, label: c.full_name }))}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Buscar propietario..."
+                        searchPlaceholder="Escribe el nombre del cliente..."
+                      />
+                    )}
+                  />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="public_description">Descripción Pública</Label>
-                  <Textarea
+ 
+                <div className="space-y-1.5 md:space-y-2">
+                  <Label htmlFor="public_description" className="text-xs md:text-sm">Descripción Pública</Label>
+                  <Textarea 
                     id="public_description"
-                    placeholder="Describe los puntos fuertes de la propiedad..."
-                    rows={5}
-                    className="resize-none"
+                    placeholder="Describe las características principales de la propiedad..."
+                    className="min-h-[100px] md:min-h-[120px] bg-muted/20 text-xs md:text-sm"
                     {...register("public_description")}
                   />
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="internal_notes">Notas Internas (Privado)</Label>
-                  <Textarea
+ 
+                <div className="space-y-1.5 md:space-y-2">
+                  <Label htmlFor="internal_notes" className="text-xs md:text-sm">Observaciones Internas (Solo Agentes)</Label>
+                  <Textarea 
                     id="internal_notes"
-                    placeholder="Información relevante para los agentes..."
-                    rows={2}
-                    className="resize-none bg-muted/30"
+                    placeholder="Notas privadas sobre llaves, disponibilidad, trato con el propietario..."
+                    className="min-h-[80px] md:min-h-[100px] bg-muted/20 border-primary/20 focus:border-primary/50 text-xs md:text-sm"
                     {...register("internal_notes")}
                   />
                 </div>
               </div>
             </div>
-
+ 
             {/* Columna Derecha: Imágenes */}
-            <div className="lg:col-span-5 space-y-6">
-              <div className="bg-muted/30 rounded-xl p-6 border border-border/50 h-full">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold flex items-center gap-2 text-foreground">
+            <div className="lg:col-span-5 space-y-4 md:space-y-6">
+              <div className="bg-muted/30 rounded-xl p-4 md:p-6 border border-border/50 h-full">
+                <div className="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 className="text-sm md:text-lg font-semibold flex items-center gap-2 text-foreground">
                     Galería de Fotos
                   </h3>
-                  <span className="text-xs text-muted-foreground bg-background px-2 py-1 rounded-full border border-border">
-                    Mín. 1 foto recomendada
+                  <span className="text-[10px] text-muted-foreground bg-background px-2 py-0.5 rounded-full border border-border">
+                    Mín. 1 foto recom.
                   </span>
                 </div>
                 
                 {isEditMode && propertyId && currentImages.length > 0 && (
-                  <div className="mb-8 p-4 bg-background/50 rounded-xl border border-border/50">
+                  <div className="mb-4 md:mb-8 p-3 md:p-4 bg-background/50 rounded-xl border border-border/50">
                     <PropertyGalleryManager 
                       propertyId={propertyId}
                       initialImages={currentImages.map(img => ({
@@ -245,10 +351,10 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                     />
                   </div>
                 )}
-
-                <div className="space-y-4">
+ 
+                <div className="space-y-3 md:space-y-4">
                   {isEditMode && (
-                    <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
+                    <h4 className="text-[10px] md:text-sm font-bold text-muted-foreground uppercase tracking-wider px-1">
                       Añadir Nuevas Fotos
                     </h4>
                   )}
@@ -257,8 +363,8 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
                     initialImages={isEditMode ? [] : initialImages.map(img => ({ id: img.id, url: img.url }))}
                   />
                 </div>
-                <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/10">
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                <div className="mt-3 md:mt-4 p-3 md:p-4 bg-primary/5 rounded-lg border border-primary/10">
+                  <p className="text-[10px] md:text-xs text-muted-foreground leading-relaxed">
                     <strong className="text-primary italic">Tip:</strong> La primera imagen que subas será utilizada como portada en el listado público.
                   </p>
                 </div>
@@ -266,19 +372,20 @@ export function PropertyForm({ propertyId, clients, onSubmit, isLoading, initial
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end space-x-3 border-t border-border/50 p-8 bg-muted/5">
+        <CardFooter className="flex flex-col-reverse md:flex-row justify-end gap-2 md:space-x-3 border-t border-border/50 p-4 md:p-8 bg-muted/5">
           <Button 
             type="button" 
             variant="ghost" 
             onClick={() => window.history.back()}
             disabled={isLoading}
+            className="w-full md:w-auto h-9 md:h-11 text-xs md:text-sm"
           >
             Cancelar y volver
           </Button>
           <Button 
             type="submit" 
             size="lg"
-            className="px-8 shadow-lg shadow-primary/20"
+            className="w-full md:w-auto h-10 md:h-11 px-8 shadow-lg shadow-primary/20 font-bold text-xs md:text-sm"
             isLoading={isLoading}
           >
             {isEditMode ? "Guardar Cambios" : "Dar de Alta Propiedad"}

@@ -29,6 +29,7 @@ export default function NuevoUsuarioPage() {
   const [formData, setFormData] = useState({
     email: "",
     full_name: "",
+    phone_number: "",
     password: "",
     confirmPassword: "",
   });
@@ -61,6 +62,7 @@ export default function NuevoUsuarioPage() {
         body: JSON.stringify({
           email: formData.email,
           full_name: formData.full_name,
+          phone_number: formData.phone_number,
           password: formData.password,
           is_active: true
         }),
@@ -82,31 +84,31 @@ export default function NuevoUsuarioPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
+    <div className="space-y-4 md:space-y-6">
+      <div className="flex items-center gap-3 md:gap-4">
         <Link href="/oficina/usuarios">
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10 rounded-full">
+            <ArrowLeft className="h-4 w-4 md:h-5 md:w-5" />
           </Button>
         </Link>
-        <h1 className="text-3xl font-heading font-bold">Alta de Nuevo Agente</h1>
+        <h1 className="text-2xl md:text-3xl font-heading font-bold">Alta de Nuevo Agente</h1>
       </div>
 
-      <Card className="border-none shadow-xl bg-card/50 backdrop-blur-sm">
-        <CardHeader>
-          <div className="flex items-center gap-3 text-primary mb-2">
-            <UserPlus className="h-6 w-6" />
-            <CardTitle>Credenciales de Acceso</CardTitle>
+      <Card className="border-none shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
+        <CardHeader className="p-4 md:p-6 pb-2 md:pb-4 border-b md:border-none bg-muted/10 md:bg-transparent">
+          <div className="flex items-center gap-2 md:gap-3 text-primary mb-1 md:mb-2">
+            <UserPlus className="h-5 w-5 md:h-6 md:w-6" />
+            <CardTitle className="text-lg md:text-2xl">Credenciales de Acceso</CardTitle>
           </div>
-          <CardDescription>
+          <CardDescription className="text-xs md:text-sm">
             Los agentes creados tendrán permisos estándar para gestionar clientes y propiedades.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardContent className="p-4 md:p-6">
+          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
 
-            <div className="space-y-2">
-              <Label htmlFor="full_name">Nombre Completo</Label>
+            <div className="space-y-1 md:space-y-2">
+              <Label htmlFor="full_name" className="text-xs md:text-sm font-bold md:font-medium">Nombre Completo</Label>
               <Input
                 id="full_name"
                 name="full_name"
@@ -118,8 +120,8 @@ export default function NuevoUsuarioPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Correo Electrónico</Label>
+            <div className="space-y-1 md:space-y-2">
+              <Label htmlFor="email" className="text-xs md:text-sm font-bold md:font-medium">Correo Electrónico</Label>
               <Input
                 id="email"
                 name="email"
@@ -132,9 +134,21 @@ export default function NuevoUsuarioPage() {
               />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-              <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
+            <div className="space-y-1 md:space-y-2">
+              <Label htmlFor="phone_number" className="text-xs md:text-sm font-bold md:font-medium">Teléfono</Label>
+              <Input
+                id="phone_number"
+                name="phone_number"
+                placeholder="+34 600 000 000"
+                value={formData.phone_number}
+                onChange={handleChange}
+                className="bg-background/50"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 pt-1 md:pt-2">
+              <div className="space-y-1 md:space-y-2">
+                <Label htmlFor="password" className="text-xs md:text-sm font-bold md:font-medium">Contraseña</Label>
                 <Input
                   id="password"
                   name="password"
@@ -145,8 +159,8 @@ export default function NuevoUsuarioPage() {
                   className="bg-background/50"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar Contraseña</Label>
+              <div className="space-y-1 md:space-y-2">
+                <Label htmlFor="confirmPassword" className="text-xs md:text-sm font-bold md:font-medium">Confirmar Contraseña</Label>
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
@@ -159,10 +173,10 @@ export default function NuevoUsuarioPage() {
               </div>
             </div>
 
-            <div className="pt-6 flex gap-3">
+            <div className="pt-4 md:pt-6 flex flex-col md:flex-row gap-3 md:gap-3">
               <Button 
                 type="submit" 
-                className="flex-1 shadow-lg hover:shadow-primary/20 transition-all font-bold"
+                className="w-full md:flex-1 shadow-lg hover:shadow-primary/20 transition-all font-bold h-11 md:h-10"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -174,8 +188,8 @@ export default function NuevoUsuarioPage() {
                   "Registrar Agente"
                 )}
               </Button>
-              <Link href="/oficina/usuarios" className="flex-1">
-                <Button variant="outline" type="button" className="w-full" disabled={isLoading}>
+              <Link href="/oficina/usuarios" className="w-full md:flex-1">
+                <Button variant="outline" type="button" className="w-full h-11 md:h-10" disabled={isLoading}>
                   Cancelar
                 </Button>
               </Link>

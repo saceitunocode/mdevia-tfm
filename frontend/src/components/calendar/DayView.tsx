@@ -4,7 +4,7 @@ import React from "react";
 import { format, isSameDay, isToday } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import { CalendarEvent, EventType } from "@/types/calendar";
+import { CalendarEvent, EventType, EVENT_COLORS } from "@/types/calendar";
 
 interface DayViewProps {
   currentDate: Date;
@@ -13,12 +13,6 @@ interface DayViewProps {
   onEventClick: (event: CalendarEvent) => void;
 }
 
-const EVENT_TYPE_COLORS: Record<EventType, string> = {
-  [EventType.VISIT]: "bg-blue-500/90 text-white border-blue-600",
-  [EventType.NOTE]: "bg-yellow-500/90 text-white border-yellow-600",
-  [EventType.CAPTATION]: "bg-indigo-500/90 text-white border-indigo-600",
-  [EventType.REMINDER]: "bg-gray-500/90 text-white border-gray-600",
-};
 
 const EVENT_TYPE_LABELS: Record<EventType, string> = {
   [EventType.VISIT]: "Visita",
@@ -48,39 +42,42 @@ export function DayView({ currentDate, events, onTimeSlotClick, onEventClick }: 
   };
 
   return (
-    <div className="flex flex-col h-full rounded-lg border overflow-hidden bg-background">
-      {/* Day Header */}
-      <div className="flex items-center justify-center gap-3 py-4 border-b bg-muted/30">
-        <div
-          className={cn(
-            "text-3xl font-bold w-14 h-14 flex items-center justify-center rounded-full",
-            isTodayDate
-              ? "bg-primary text-primary-foreground"
-              : "text-foreground"
-          )}
-        >
-          {format(currentDate, "d")}
+    <div className="flex flex-col h-full rounded-lg border border-border/50 overflow-hidden bg-background">
+      <div className="flex-1 overflow-y-auto relative scrollbar-hide">
+        {/* Sticky Header */}
+        <div className="grid grid-cols-[80px_1fr] border-b border-border/50 bg-muted/30 sticky top-0 z-30 shadow-sm backdrop-blur-sm">
+           <div className="border-r border-border/50 bg-background/50" /> {/* Spacer */}
+           <div className="flex items-center justify-center gap-3 py-4">
+            <div
+              className={cn(
+                "text-3xl font-bold w-14 h-14 flex items-center justify-center rounded-full transition-colors",
+                isTodayDate
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-foreground"
+              )}
+            >
+              {format(currentDate, "d")}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium capitalize">
+                {format(currentDate, "EEEE", { locale: es })}
+              </span>
+              <span className="text-xs text-muted-foreground capitalize">
+                {format(currentDate, "MMMM yyyy", { locale: es })}
+              </span>
+            </div>
+            {dayEvents.length > 0 && (
+              <span className="ml-3 text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">
+                {dayEvents.length} evento{dayEvents.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-medium capitalize">
-            {format(currentDate, "EEEE", { locale: es })}
-          </span>
-          <span className="text-xs text-muted-foreground capitalize">
-            {format(currentDate, "MMMM yyyy", { locale: es })}
-          </span>
-        </div>
-        {dayEvents.length > 0 && (
-          <span className="ml-3 text-xs bg-primary/10 text-primary px-2.5 py-1 rounded-full font-medium">
-            {dayEvents.length} evento{dayEvents.length !== 1 ? "s" : ""}
-          </span>
-        )}
-      </div>
 
-      {/* Time Grid */}
-      <div className="flex-1 overflow-y-auto">
+        {/* Time Grid Body */}
         <div className="grid grid-cols-[80px_1fr] min-h-[1440px] relative">
           {/* Time Labels Column */}
-          <div className="relative border-r bg-muted/10">
+          <div className="relative border-r border-border/50 bg-background/50">
             {HALF_HOURS.map((halfHour) => {
               const isFullHour = halfHour % 1 === 0;
               return (
@@ -100,7 +97,7 @@ export function DayView({ currentDate, events, onTimeSlotClick, onEventClick }: 
           </div>
 
           {/* Main Column */}
-          <div className={cn("relative", isTodayDate && "bg-primary/[0.02]")}>
+          <div className={cn("relative", isTodayDate && "bg-primary/5")}>
             {/* Half-hour grid lines */}
             {HALF_HOURS.map((halfHour) => {
               const isFullHour = halfHour % 1 === 0;
@@ -131,7 +128,7 @@ export function DayView({ currentDate, events, onTimeSlotClick, onEventClick }: 
                   key={event.id}
                   className={cn(
                     "absolute left-2 right-4 rounded-lg px-3 py-2 cursor-pointer border-l-4 shadow-md transition-all hover:scale-[1.01] hover:shadow-lg z-10 overflow-hidden",
-                    EVENT_TYPE_COLORS[event.type]
+                    EVENT_COLORS[event.type]
                   )}
                   style={{ top: pos.top, height: pos.height, minHeight: "36px" }}
                   onClick={(e) => {
@@ -148,7 +145,7 @@ export function DayView({ currentDate, events, onTimeSlotClick, onEventClick }: 
                         {format(new Date(event.starts_at), "HH:mm")} - {format(new Date(event.ends_at), "HH:mm")}
                       </div>
                     </div>
-                    <span className="text-[9px] opacity-70 bg-white/20 px-1.5 py-0.5 rounded shrink-0">
+                    <span className="text-[9px] font-bold opacity-70 bg-black/5 px-2 py-0.5 rounded-full shrink-0 border border-black/5">
                       {EVENT_TYPE_LABELS[event.type]}
                     </span>
                   </div>

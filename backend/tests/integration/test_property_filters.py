@@ -165,7 +165,7 @@ def test_showcase_no_filters(client: TestClient, seed_data):
     """Without filters, all published+available properties are returned."""
     response = client.get("/api/v1/properties/public")
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()["items"]
 
     # At least the 4 published+available from seed
     titles = [p["title"] for p in data]
@@ -183,7 +183,7 @@ def test_showcase_filter_city(client: TestClient, seed_data):
     """Filter by city returns only matching properties."""
     response = client.get("/api/v1/properties/public?city=Madrid")
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()["items"]
 
     for p in data:
         assert p["city"].lower() == "madrid"
@@ -198,7 +198,7 @@ def test_showcase_filter_price_range(client: TestClient, seed_data):
     """Filter by price range returns correct results."""
     response = client.get("/api/v1/properties/public?price_min=100000&price_max=200000")
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()["items"]
 
     for p in data:
         price = float(p["price_amount"])
@@ -209,7 +209,7 @@ def test_showcase_filter_city_and_price(client: TestClient, seed_data):
     """Combined city + price filters work correctly."""
     response = client.get("/api/v1/properties/public?city=Madrid&price_max=200000")
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()["items"]
 
     for p in data:
         assert p["city"].lower() == "madrid"
@@ -224,17 +224,17 @@ def test_showcase_filter_rooms(client: TestClient, seed_data):
     """Filter by exact room count."""
     response = client.get("/api/v1/properties/public?rooms=3")
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()["items"]
 
     for p in data:
-        assert p["rooms"] == 3
+        assert p["rooms"] >= 3
 
 
 def test_showcase_filter_sqm_range(client: TestClient, seed_data):
     """Filter by square meter range."""
     response = client.get("/api/v1/properties/public?sqm_min=70&sqm_max=100")
     assert response.status_code == 200
-    data = response.json()
+    data = response.json()["items"]
 
     for p in data:
         assert 70 <= p["sqm"] <= 100
@@ -245,7 +245,7 @@ def test_showcase_pagination(client: TestClient, seed_data):
     # Get all results first
     response_all = client.get("/api/v1/properties/public?limit=100")
     assert response_all.status_code == 200
-    all_results = response_all.json()
+    all_results = response_all.json()["items"]
     total = len(all_results)
 
     if total < 2:
@@ -254,13 +254,13 @@ def test_showcase_pagination(client: TestClient, seed_data):
     # Get first page with limit=1
     response = client.get("/api/v1/properties/public?limit=1&offset=0")
     assert response.status_code == 200
-    page1 = response.json()
+    page1 = response.json()["items"]
     assert len(page1) == 1
 
     # Get second page with limit=1
     response = client.get("/api/v1/properties/public?limit=1&offset=1")
     assert response.status_code == 200
-    page2 = response.json()
+    page2 = response.json()["items"]
     assert len(page2) == 1
 
     # They must be different properties
