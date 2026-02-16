@@ -87,7 +87,7 @@ export default function EditPropertyPage() {
   }
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-4 md:space-y-6 pb-12">
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon" className="rounded-full" onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5" />
