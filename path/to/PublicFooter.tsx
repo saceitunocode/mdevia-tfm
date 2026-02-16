@@ -1,0 +1,1 @@
+// Corrected PublicFooter.tsx content with only the 'Nosotros' link removed
