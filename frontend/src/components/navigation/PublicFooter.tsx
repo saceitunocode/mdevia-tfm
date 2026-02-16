@@ -22,9 +22,9 @@ export function PublicFooter() {
           <div>
             <h4 className="font-heading font-bold text-xs uppercase tracking-[0.2em] text-zinc-100 mb-6 underline underline-offset-8 decoration-primary/50">Enlaces</h4>
             <ul className="space-y-4 text-sm text-zinc-400">
+              <li><Link href="/" className="hover:text-primary transition-colors">Inicio</Link></li>
               <li><Link href="/propiedades" className="hover:text-primary transition-colors">Propiedades</Link></li>
-              <li><Link href="/#nosotros" className="hover:text-primary transition-colors">Nosotros</Link></li>
-              <li><Link href="/#contacto" className="hover:text-primary transition-colors">Contacto</Link></li>
+              <li><Link href="/contacto" className="hover:text-primary transition-colors">Contacto</Link></li>
             </ul>
           </div>
 
@@ -34,7 +34,7 @@ export function PublicFooter() {
             <ul className="space-y-4 text-sm text-zinc-400">
               <li className="flex items-center gap-2">Andújar & Córdoba</li>
               <li>Email: info@frinmobiliarias.es</li>
-              <li>Tel: +34 953 50 XX XX</li>
+              <li>Tel: +34 953 00 00 00</li>
             </ul>
           </div>
         </div>
@@ -42,9 +42,9 @@ export function PublicFooter() {
         <div className="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-[10px] text-zinc-500 uppercase tracking-[0.3em]">
           <p>© {currentYear} FR Inmobiliaria. Todos los derechos reservados.</p>
           <div className="flex space-x-8">
-            <a href="#" className="hover:text-zinc-100 transition-colors">Aviso Legal</a>
-            <a href="#" className="hover:text-zinc-100 transition-colors">Privacidad</a>
-            <a href="#" className="hover:text-zinc-100 transition-colors">Cookies</a>
+            <Link href="/legal" className="hover:text-zinc-100 transition-colors">
+              Aviso Legal
+            </Link>
           </div>
         </div>
       </div>

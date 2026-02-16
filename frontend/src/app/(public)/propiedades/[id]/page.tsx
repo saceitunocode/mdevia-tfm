@@ -11,8 +11,11 @@ import { Badge } from "@/components/ui/Badge";
 import { 
   MapPin, 
   BedDouble, 
-  Maximize, 
-  Info
+  Info,
+  Bath,
+  Layers,
+  Ruler,
+  ArrowUp
 } from "lucide-react";
 
 interface PropertyDetail {
@@ -156,45 +159,62 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
               </div>
             </div>
 
-            {/* Key Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-6 border-y border-border/50">
-               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-primary/10 rounded-xl text-primary">
+            {/* Horizontal Key Stats Cards */}
+            <div className="flex flex-row gap-4 overflow-x-auto pb-4 scrollbar-hide lg:overflow-visible lg:pb-0">
+               {/* SQM Card */}
+               <Card className="flex items-center gap-4 p-4 min-w-[160px] flex-1 border-border/50 shadow-sm">
+                 <div className="text-primary">
+                   <Ruler className="h-6 w-6" />
+                 </div>
+                 <div className="flex items-baseline gap-1.5">
+                   <span className="text-2xl font-bold text-foreground">{property.sqm}</span>
+                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Metros ²</span>
+                 </div>
+               </Card>
+
+               {/* Rooms Card */}
+               <Card className="flex items-center gap-4 p-4 min-w-[170px] flex-1 border-border/50 shadow-sm">
+                 <div className="text-primary">
                    <BedDouble className="h-6 w-6" />
                  </div>
-                 <div>
-                   <p className="text-sm text-muted-foreground">Habitaciones</p>
-                   <p className="font-bold text-lg">{property.rooms}</p>
+                 <div className="flex items-baseline gap-1.5">
+                   <span className="text-2xl font-bold text-foreground">{property.rooms}</span>
+                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Habitaciones</span>
                  </div>
-               </div>
-               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-primary/10 rounded-xl text-primary">
-                    {/* Lucide doesn't have a bathtub icon exactly like Material, sticking to BedDouble style or generic */}
-                   <span className="text-xl font-bold">🛁</span> 
+               </Card>
+
+               {/* Baths Card */}
+               <Card className="flex items-center gap-4 p-4 min-w-[150px] flex-1 border-border/50 shadow-sm">
+                 <div className="text-primary">
+                   <Bath className="h-6 w-6" />
                  </div>
-                 <div>
-                   <p className="text-sm text-muted-foreground">Baños</p>
-                   <p className="font-bold text-lg">{property.baths}</p>
+                 <div className="flex items-baseline gap-1.5">
+                   <span className="text-2xl font-bold text-foreground">{property.baths}</span>
+                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Baños</span>
                  </div>
-               </div>
-               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-primary/10 rounded-xl text-primary">
-                   <Maximize className="h-6 w-6" />
+               </Card>
+
+               {/* Floor Card with Elevator Badge */}
+               <Card className="flex items-center justify-between p-4 min-w-[200px] flex-1 border-border/50 shadow-sm">
+                 <div className="flex items-center gap-4">
+                    <div className="text-primary">
+                      <Layers className="h-6 w-6" />
+                    </div>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-2xl font-bold text-foreground">
+                        {property.floor !== null && property.floor !== undefined ? `${property.floor}ª` : "N/D"}
+                      </span>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Planta</span>
+                    </div>
                  </div>
-                 <div>
-                   <p className="text-sm text-muted-foreground">Superficie</p>
-                   <p className="font-bold text-lg">{property.sqm} m²</p>
-                 </div>
-               </div>
-               <div className="flex items-center gap-4">
-                 <div className="p-3 bg-primary/10 rounded-xl text-primary">
-                   <div className="h-6 w-6 flex items-center justify-center font-bold text-lg">P</div>
-                 </div>
-                 <div>
-                   <p className="text-sm text-muted-foreground">Planta</p>
-                   <p className="font-bold text-lg">{property.floor !== null && property.floor !== undefined ? (property.floor === 0 ? "Baja" : property.floor) : "N/A"}</p>
-                 </div>
-               </div>
+                 
+                 {property.has_elevator && (
+                   <div className="bg-emerald-500 text-white px-2.5 py-1.5 rounded-full flex items-center gap-1 shadow-sm transition-transform hover:scale-105">
+                     <ArrowUp className="h-3 w-3 stroke-3" />
+                     <span className="text-[9px] font-black uppercase tracking-tighter">Ascensor</span>
+                   </div>
+                 )}
+               </Card>
             </div>
 
             {/* Description */}
