@@ -1,11 +1,9 @@
-import Image from "next/image";
-import { Phone, Mail, MessageCircle, MapPin } from "lucide-react";
+import { Phone, Mail, MessageCircle, MapPin, User } from "lucide-react";
 
 const agents = [
   {
     name: "MIGUEL",
     location: "ANDÚJAR",
-    image: "/agent_miguel_andujar.png",
     phone: "+34 600 000 002",
     email: "mpoyatos@frinmobiliaria.com",
     whatsapp: "34600000002",
@@ -13,7 +11,6 @@ const agents = [
   {
     name: "FRAN",
     location: "CÓRDOBA",
-    image: "/agent_fran_cordoba.png",
     phone: "+34 600 000 001",
     email: "faceituno@frinmobiliaria.com",
     whatsapp: "34600000001",
@@ -48,13 +45,8 @@ export default function ContactPage() {
                 >
                   {/* Agent Profile Header */}
                   <div className="flex flex-col items-center space-y-6">
-                    <div className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-white shadow-2xl">
-                      <Image
-                        src={agent.image}
-                        alt={`${agent.name} - ${agent.location}`}
-                        fill
-                        className="object-cover"
-                      />
+                    <div className="relative w-48 h-48 rounded-full flex items-center justify-center bg-primary/5 border-4 border-white shadow-2xl text-primary/20">
+                      <User size={100} strokeWidth={1} />
                     </div>
                     <div className="text-center">
                       <h3 className="text-primary font-heading font-bold text-2xl tracking-widest uppercase">
