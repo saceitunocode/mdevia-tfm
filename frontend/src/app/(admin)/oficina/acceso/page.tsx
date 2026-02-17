@@ -80,6 +80,7 @@ export default function AccesoPage() {
       setIsLoading(false);
     }
   };
+  console.log(process.env.NEXT_PUBLIC_API_URL);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 animate-in fade-in duration-500">
