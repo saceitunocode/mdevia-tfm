@@ -27,12 +27,22 @@ def upgrade() -> None:
     inspector = sa.inspect(conn)
     columns = [c['name'] for c in inspector.get_columns('properties')]
     
-    # 1. Definir tipos Enum (si no existen se crearán automáticamente por SQLAlchemy o fallará con gracia)
-    # Nota: Alembic no soporta bien CREATE TYPE IF NOT EXISTS de forma nativa sin extensiones, 
-    # pero para PostgreSQL podemos usar SQL directo si es necesario.
+    # Crear tipos ENUM en PostgreSQL si no existen
+    # Esto es crítico para evitar el error "type does not exist"
+    if conn.dialect.name == 'postgresql':
+        # Verificar y crear 'propertytype'
+        type_exists = conn.execute(sa.text("SELECT 1 FROM pg_type WHERE typname = 'propertytype'")).scalar()
+        if not type_exists:
+            op.execute("CREATE TYPE propertytype AS ENUM ('HOUSE', 'APARTMENT', 'OFFICE', 'LAND')")
+            
+        # Verificar y crear 'operationtype'
+        type_exists = conn.execute(sa.text("SELECT 1 FROM pg_type WHERE typname = 'operationtype'")).scalar()
+        if not type_exists:
+            op.execute("CREATE TYPE operationtype AS ENUM ('SALE', 'RENT')")
     
     if 'property_type' not in columns:
-        op.add_column('properties', sa.Column('property_type', sa.Enum('APARTMENT', 'HOUSE', 'OFFICE', 'LAND', name='propertytype'), server_default='APARTMENT', nullable=False))
+        # Usamos el nombre del tipo creado arriba
+        op.add_column('properties', sa.Column('property_type', sa.Enum('HOUSE', 'APARTMENT', 'OFFICE', 'LAND', name='propertytype'), server_default='APARTMENT', nullable=False))
         op.create_index(op.f('ix_properties_property_type'), 'properties', ['property_type'], unique=False)
 
     if 'operation_type' not in columns:
