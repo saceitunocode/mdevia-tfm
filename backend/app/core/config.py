@@ -8,6 +8,18 @@ class Settings(BaseSettings):
     VERSION: str = "0.1.0"
     API_V1_STR: str = "/api/v1"
     
+    # CORS Settings
+    BACKEND_CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+    @model_validator(mode="before")
+    @classmethod
+    def assemble_cors_origins(cls, data: dict) -> dict:
+        if isinstance(data.get("BACKEND_CORS_ORIGINS"), str) and not data["BACKEND_CORS_ORIGINS"].startswith("["):
+            data["BACKEND_CORS_ORIGINS"] = [
+                i.strip() for i in data["BACKEND_CORS_ORIGINS"].split(",")
+            ]
+        return data
+    
     # Database Settings
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str = "postgres"
