@@ -11,6 +11,8 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
+print("CORS:", settings.BACKEND_CORS_ORIGINS)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
