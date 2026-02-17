@@ -33,7 +33,7 @@ class PropertyImageRepository:
         ).count()
 
     def delete(self, db: Session, image: PropertyImage):
-        image.is_active = False
+        db.delete(image)
         db.commit()
 
     def set_as_cover(self, db: Session, property_id: uuid.UUID, image_id: uuid.UUID):

@@ -56,27 +56,8 @@ export function FeaturedProperties() {
   }
 
   return (
-    <section className="py-24 bg-background overflow-hidden">
+    <section className="py-12 md:py-24 bg-background overflow-hidden">
       <div className="container px-4 mx-auto">
-        <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
-          <div className="space-y-4">
-            <h2 className="text-4xl font-heading font-bold tracking-tight text-foreground">
-              Propiedades Destacadas
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-xl font-light">
-              Descubre nuestra selección exclusiva de inmuebles. Calidad, ubicación y diseño en cada opción.
-            </p>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link href="/propiedades">
-              <Button variant="outline" className="group">
-                Ver Todo el Catálogo
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-
         <Carousel
           opts={{
             align: "start",
@@ -87,6 +68,33 @@ export function FeaturedProperties() {
           onMouseEnter={plugin.current.stop}
           onMouseLeave={plugin.current.reset}
         >
+          <div className="flex flex-col gap-6 mb-10">
+            <div className="space-y-3 md:space-y-4">
+              <h2 className="text-2xl md:text-4xl font-heading font-bold tracking-tight text-foreground">
+                Propiedades Destacadas
+              </h2>
+              <p className="text-base md:text-lg text-muted-foreground max-w-xl font-light">
+                Descubre nuestra selección exclusiva de inmuebles. Calidad, ubicación y diseño en cada opción.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              {/* Navigation Controls - Top Left */}
+              <div className="flex items-center gap-2">
+                <CarouselPrevious className="static translate-y-0 h-10 w-10 border-border/50 hover:bg-accent hover:text-white transition-colors" />
+                <CarouselNext className="static translate-y-0 h-10 w-10 border-border/50 hover:bg-accent hover:text-white transition-colors" />
+              </div>
+
+              {/* Action Button - Top Right */}
+              <Link href="/propiedades" className="shrink-0">
+                <Button variant="outline" className="group h-10">
+                  Ver Catálogo
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+
           <CarouselContent className="-ml-4 md:-ml-6">
             {properties.map((property) => (
               <CarouselItem key={property.id} className="pl-4 md:pl-6 md:basis-1/2 lg:basis-1/3">
@@ -94,15 +102,6 @@ export function FeaturedProperties() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          {/* Navigation Controls */}
-          <div className="flex justify-end gap-2 mt-8 md:hidden">
-            <CarouselPrevious className="relative left-0 translate-y-0" />
-            <CarouselNext className="relative right-0 translate-y-0" />
-          </div>
-          <div className="hidden md:block">
-            <CarouselPrevious />
-            <CarouselNext />
-          </div>
         </Carousel>
       </div>
     </section>

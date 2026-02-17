@@ -45,7 +45,7 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
       />
 
       {/* Image Container */}
-      <div className="relative h-60 overflow-hidden bg-muted">
+      <div className="relative h-48 md:h-60 overflow-hidden bg-muted">
         {coverImage ? (
           <Image
             src={coverImage.public_url}
@@ -61,24 +61,24 @@ export function PropertyCard({ property }: { property: PropertyCardData }) {
         )}
         
         {/* Status Badge */}
-        <div className="absolute top-4 left-4 z-20">
-          <span className={`px-3 py-1 text-xs font-bold uppercase rounded-md shadow-sm tracking-wide text-white ${isForRent ? 'bg-accent' : 'bg-primary'}`}>
+        <div className="absolute top-3 left-3 md:top-4 md:left-4 z-20">
+          <span className={`px-2 md:px-3 py-0.5 md:py-1 text-[10px] md:text-xs font-bold uppercase rounded-md shadow-sm tracking-wide text-white ${isForRent ? 'bg-accent' : 'bg-primary'}`}>
             {isForRent ? "Alquiler" : "Venta"}
           </span>
         </div>
 
         {/* Price Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-4 pt-12 z-20">
-           <span className="text-white font-bold text-2xl shadow-sm text-shadow">
+        <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/70 to-transparent p-3 md:p-4 pt-8 md:pt-12 z-20">
+           <span className="text-white font-bold text-xl md:text-2xl shadow-sm text-shadow">
              {formatPrice(property.price_amount, property.price_currency)}
-             {isForRent && <span className="text-sm font-bold opacity-100 text-white"> /mes</span>}
+             {isForRent && <span className="text-xs md:text-sm font-bold opacity-100 text-white"> /mes</span>}
            </span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-5 flex flex-col flex-1">
-        <h3 className="text-lg font-bold text-foreground mb-1 truncate group-hover:text-primary transition-colors">
+      <div className="p-4 md:p-5 flex flex-col flex-1">
+        <h3 className="text-base md:text-lg font-bold text-foreground mb-1 truncate group-hover:text-primary transition-colors">
           {property.title}
         </h3>
         
