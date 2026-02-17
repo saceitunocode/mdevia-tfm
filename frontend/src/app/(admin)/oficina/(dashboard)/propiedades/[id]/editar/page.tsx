@@ -8,6 +8,7 @@ import { Loader2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Property, PropertyStatus, PropertyType, OperationType } from "@/types/property";
+import { SupportedCity } from "@/constants/locations";
 
 export default function EditPropertyPage() {
   const params = useParams();
@@ -107,7 +108,7 @@ export default function EditPropertyPage() {
             title: property.title,
             address_line1: property.address_line1,
             address_line2: property.address_line2 ?? "",
-            city: property.city,
+            city: property.city as SupportedCity,
             postal_code: property.postal_code ?? "",
             sqm: property.sqm,
             rooms: property.rooms,
