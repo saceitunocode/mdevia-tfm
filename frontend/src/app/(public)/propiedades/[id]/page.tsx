@@ -122,8 +122,11 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
   return (
     <div className="min-h-screen bg-background pb-20">
       {/* Hero Gallery */}
-      <section className="relative h-[60vh] min-h-[500px] w-full bg-muted">
-        <PropertyGallery images={property.images} />
+      <section className="relative h-[35vh] md:h-[60vh] min-h-[300px] md:min-h-[500px] w-full bg-muted">
+        <PropertyGallery 
+          images={property.images} 
+          className="h-[35vh] md:h-[60vh] min-h-[300px] md:min-h-[500px]" 
+        />
       </section>
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 mt-8">

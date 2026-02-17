@@ -134,7 +134,7 @@ def test_property_gallery_flow(client: TestClient, db_session: Session):
     
     db_session.expire_all()
     img1_after = db_session.get(PropertyImage, uuid.UUID(img1_id) if isinstance(img1_id, str) else img1_id)
-    assert img1_after.is_active is False
+    assert img1_after is None
 
     # Cleanup
     db_session.query(PropertyImage).filter(PropertyImage.property_id == prop_id).delete()

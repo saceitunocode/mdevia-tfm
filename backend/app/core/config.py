@@ -29,11 +29,16 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: Optional[str] = None
     CLOUDINARY_API_SECRET: Optional[str] = None
     CLOUDINARY_FOLDER: str = "mdevia_tfm"
+    CLOUDINARY_WATERMARK_ID: Optional[str] = "My Brand/logoFR_wxpppf"
 
     @property
     def DATABASE_URL(self) -> str:
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
-    model_config = SettingsConfigDict(case_sensitive=True, env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        case_sensitive=True, 
+        env_file=(".env", "../.env"), 
+        extra="ignore"
+    )
 
 settings = Settings()

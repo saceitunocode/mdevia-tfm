@@ -64,9 +64,12 @@ from app.domain.services.storage_service import StorageService
 from app.infrastructure.storage.local_storage import LocalStorageService
 
 def get_storage_service() -> StorageService:
+    print(f"DEBUG: Initializing storage service. STORAGE_TYPE={settings.STORAGE_TYPE}")
     if settings.STORAGE_TYPE == "cloudinary":
+        print("DEBUG: Using CloudinaryStorageService")
         from app.infrastructure.storage.cloudinary_storage import CloudinaryStorageService
         return CloudinaryStorageService()
+    print("DEBUG: Using LocalStorageService")
     return LocalStorageService()
 
 CurrentUser = Annotated[User, Depends(get_current_user)]

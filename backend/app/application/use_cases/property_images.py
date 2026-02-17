@@ -53,11 +53,16 @@ class PropertyImageUseCase:
         if not image:
             return False
         
-        # Soft delete in DB
+        # 1. Delete from physical storage (Cloudinary or Local)
+        try:
+            await self.storage_service.delete(image.storage_key)
+        except Exception as e:
+            print(f"Error deleting file from storage: {e}")
+            # We continue to mark as inactive in DB even if file delete fails
+        
+        # 2. Physical delete in DB
         self.repository.delete(db, image)
         
-        # We might keep the file in storage for safety (soft-delete principle)
-        # or delete it. For now, let's keep the file but mark DB as inactive.
         return True
 
     async def set_cover_image(self, db: Session, property_id: uuid.UUID, image_id: uuid.UUID):
