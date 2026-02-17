@@ -16,12 +16,12 @@ export function HeroSection() {
       </div>
 
       {/* Main Grid Content */}
-      <div className="grid grid-cols-1 md:grid-cols-2 min-h-[750px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 min-h-[450px] md:min-h-[750px]">
         
         {/* Andujar Block */}
         <Link 
           href="/propiedades?city=Andújar"
-          className="group relative flex flex-col items-center justify-center overflow-hidden transition-all duration-700 hover:scale-[1.01]"
+          className="group relative flex flex-col items-center justify-center overflow-hidden transition-all duration-700 hover:scale-[1.01] py-16 md:py-0"
         >
           {/* Background Image */}
           <div 
@@ -33,13 +33,13 @@ export function HeroSection() {
           <div className="absolute inset-0 bg-linear-to-t from-emerald-900/80 via-transparent to-transparent" />
           
           {/* Text Content */}
-          <div className="relative z-20 text-center space-y-6 px-4">
+          <div className="relative z-20 text-center space-y-4 md:space-y-6 px-4">
             <h2 className="text-4xl md:text-7xl font-heading font-black text-white tracking-tighter drop-shadow-2xl">
               ANDÚJAR
             </h2>
-            <div className="inline-flex items-center gap-3 px-8 py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
+            <div className="inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-xs md:text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
               Ver inmuebles
-              <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
+              <ArrowRight size={18} className="md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
             </div>
           </div>
         </Link>
@@ -47,7 +47,7 @@ export function HeroSection() {
         {/* Cordoba Block */}
         <Link 
           href="/propiedades?city=Córdoba"
-          className="group relative flex flex-col items-center justify-center overflow-hidden transition-all duration-700 hover:scale-[1.01] z-10"
+          className="group relative flex flex-col items-center justify-center overflow-hidden transition-all duration-700 hover:scale-[1.01] z-10 py-16 md:py-0"
         >
           {/* Background Image */}
           <div 
@@ -59,13 +59,13 @@ export function HeroSection() {
           <div className="absolute inset-0 bg-linear-to-t from-primary/80 via-transparent to-transparent" />
           
           {/* Text Content */}
-          <div className="relative z-20 text-center space-y-6 px-4">
+          <div className="relative z-20 text-center space-y-4 md:space-y-6 px-4">
             <h2 className="text-4xl md:text-7xl font-heading font-black text-white tracking-tighter drop-shadow-2xl">
               CÓRDOBA
             </h2>
-            <div className="inline-flex items-center gap-3 px-8 py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
+            <div className="inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-xs md:text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
               Ver inmuebles
-              <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
+              <ArrowRight size={18} className="md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
             </div>
           </div>
         </Link>
