@@ -142,7 +142,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
               <div className="space-y-4 flex-1">
                 <Badge 
                   variant={property.operation_type === "SALE" ? "default" : "accent"} 
-                  className="uppercase tracking-[0.1em] text-[10px] font-black h-6 px-3"
+                  className="uppercase tracking-widest text-[10px] font-black h-6 px-3"
                 >
                   {property.operation_type === "SALE" ? "En Venta" : "Alquiler"}
                 </Badge>

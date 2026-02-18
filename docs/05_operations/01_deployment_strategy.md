@@ -1,109 +1,87 @@
-# 🚀 Estrategia de Despliegue — CRM Inmobiliario Familiar
+# 05 — Estrategia de Despliegue
 
-**Estado:** Aprobado  
-**Arquitectura base:** Monolito modular (Clean Architecture + Hexagonal)  
-**Stack:** Next.js (Frontend) · FastAPI (Backend) · PostgreSQL · Object Storage S3-compatible
-
----
-
-## 1. Objetivo
-
-Definir **cómo se despliega el sistema en producción** de forma:
-- Simple
-- Segura
-- Reproducible
-- Fácil de mantener por un equipo pequeño
-
-Este documento **no entra en detalle técnico**: solo fija el marco operativo.
+> **Propósito:** Cómo desplegar el sistema en local y en producción.
+> **Última actualización:** Febrero 2026.
+> **Fuente de verdad:** `docker-compose.yml`, `Makefile`, `config.py`, código actual.
 
 ---
 
-## 2. Enfoque general
+## Entorno local
 
-El sistema se despliega como:
-
-- Frontend y Backend **separados**
-- Todo en **contenedores Docker**
-- Sin microservicios
-- Sin Kubernetes
-
-Se prioriza **simplicidad consciente** sobre escalado prematuro.
+> Para arrancar el proyecto en local, ver [`docs/00_GUIA_COMPLETA.md`](../00_GUIA_COMPLETA.md).
 
 ---
 
-## 3. Entornos
 
-Se definen **tres entornos**:
+## Producción
 
-- **Local** → desarrollo (Docker Compose)
-- **Staging** → validación previa a producción
-- **Producción** → uso real del negocio
+### Arquitectura de producción
 
-Staging debe comportarse igual que Producción, con datos no reales.
+```
+GitHub (push a master)
+  ├── Vercel (frontend) — deploy automático
+  └── Render (backend + PostgreSQL) — deploy automático
+```
 
----
+### Frontend — Vercel
 
-## 4. Estrategia adoptada
+1. Conectar repositorio GitHub a Vercel.
+2. Configurar directorio raíz: `frontend/`.
+3. Framework: Next.js (detectado automáticamente).
+4. Variables de entorno en Vercel:
 
-> **Despliegue Simple (recomendado)**
+| Variable | Valor |
+|----------|-------|
+| `NEXT_PUBLIC_API_URL` | URL del backend en Render (ej: `https://tu-backend.onrender.com`) |
 
-- Un único servidor (VPS o cloud sencillo)
-- Docker + Docker Compose
-- Servicios desplegados:
-  - Frontend
-  - Backend
-  - PostgreSQL
+### Backend — Render
 
-Este enfoque es suficiente para el volumen esperado del negocio.
+1. Crear un nuevo **Web Service** en Render.
+2. Conectar repositorio GitHub.
+3. Directorio raíz: `backend/`.
+4. Comando de build: `pip install -r requirements.txt`
+5. Comando de start: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+6. Variables de entorno en Render:
 
----
+| Variable | Valor |
+|----------|-------|
+| `DATABASE_URL` | Proporcionada por Render (PostgreSQL) |
+| `SECRET_KEY` | Clave secreta segura (mínimo 32 chars) |
+| `BACKEND_CORS_ORIGINS` | `https://tu-dominio.vercel.app,http://localhost:3000` |
+| `STORAGE_TYPE` | `cloudinary` |
+| `CLOUDINARY_CLOUD_NAME` | Tu cloud name |
+| `CLOUDINARY_API_KEY` | Tu API key |
+| `CLOUDINARY_API_SECRET` | Tu API secret |
+| `CLOUDINARY_FOLDER` | `mdevia_tfm` |
+| `CLOUDINARY_WATERMARK_ID` | ID del watermark (opcional) |
 
-## 5. Qué se despliega en cada release
+> **Nota:** Render convierte automáticamente `postgres://` a `postgresql://`. El backend también lo hace en `config.py` como salvaguarda.
 
-- **Frontend**
-  - Imagen Docker versionada
-  - Build independiente
+### Base de datos — Render (PostgreSQL)
 
-- **Backend**
-  - Imagen Docker versionada
-  - Migraciones de base de datos controladas
+1. Crear un nuevo **PostgreSQL** en Render.
+2. Render proporciona `DATABASE_URL` automáticamente al Web Service.
+3. Aplicar migraciones tras el primer despliegue:
 
-- **Base de datos**
-  - PostgreSQL persistente
-  - Backups automáticos
-
-Las imágenes (fotos de propiedades) se almacenan fuera del sistema (S3-compatible).
-
----
-
-## 6. Flujo básico de despliegue
-
-1. Cambios validados en código
-2. Build de imágenes Docker
-3. Despliegue en Staging
-4. Validación manual
-5. Despliegue en Producción
-6. Verificación post-despliegue
-
----
-
-## 7. Rollback
-
-- Siempre se conserva la versión anterior
-- Volver atrás = redeploy de la imagen previa
-- Las migraciones deben ser **compatibles hacia atrás**
-
-Rollback debe poder ejecutarse en minutos.
+```bash
+# Desde el shell de Render o localmente con DATABASE_URL de producción
+alembic upgrade head
+```
 
 ---
 
-## 8. Riesgos asumidos
+## Flujo de despliegue (paso a paso)
 
-- Punto único de fallo (un servidor)
-- Escalado manual
-
-Estos riesgos son **aceptados conscientemente** y coherentes con el tamaño del negocio.
-
----
-
-**Fin del documento**
+```
+1. Desarrollar en rama feature/TFM-XX
+2. Pull Request a develop
+3. make check (ESLint + Vitest + pytest) — CI local
+4. Merge a develop
+5. Merge a master
+6. Vercel detecta push a master → build y deploy automático del frontend
+7. Render detecta push a master → build y deploy automático del backend
+8. Verificar en producción:
+   - Escaparate público accesible
+   - Login funciona
+   - Imágenes se suben a Cloudinary
+```
