@@ -28,6 +28,18 @@ El sistema tiene dos interfaces diferenciadas:
 
 ---
 
+## El origen del proyecto
+
+Mi familia lleva años gestionando una pequeña inmobiliaria con dos oficinas: una en **Andújar** y otra en **Córdoba**. Durante todo ese tiempo, el día a día se ha llevado con hojas de cálculo, notas en papel y llamadas entre oficinas para saber si una propiedad seguía disponible o si un cliente ya había sido atendido.
+
+El resultado: información duplicada, visitas sin registrar, operaciones que se perdían en el camino y ninguna forma de saber, de un vistazo, cómo estaba el negocio.
+
+Este proyecto nació de esa frustración. La idea era sencilla: **darles una herramienta hecha a medida** que centralizara toda la gestión, agilizara el trabajo de los agentes y les permitiera, por fin, tener el control real de su negocio desde cualquier dispositivo.
+
+El sistema está pensado para las ciudades donde opera la agencia — **Andújar y Córdoba** — por lo que el escaparate público y los filtros de búsqueda están orientados a esas dos plazas.
+
+
+
 ## Módulos implementados
 
 | Módulo | Descripción |
