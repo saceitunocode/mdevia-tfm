@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Percent } from "lucide-react";
+import { ShieldCheck, Percent } from "lucide-react";
 
 export function HeroSection() {
   return (
@@ -39,7 +39,6 @@ export function HeroSection() {
             </h2>
             <div className="inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-xs md:text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
               Ver inmuebles
-              <ArrowRight size={18} className="md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
             </div>
           </div>
         </Link>
@@ -65,7 +64,6 @@ export function HeroSection() {
             </h2>
             <div className="inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-xs md:text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
               Ver inmuebles
-              <ArrowRight size={18} className="md:w-5 md:h-5 transition-transform group-hover:translate-x-1" />
             </div>
           </div>
         </Link>

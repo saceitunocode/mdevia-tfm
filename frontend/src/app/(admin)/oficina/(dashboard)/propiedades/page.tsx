@@ -52,8 +52,8 @@ export default function AdminPropiedadesPage() {
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         actions={
-          <Link href="/oficina/propiedades/nueva">
-            <Button className="font-bold flex items-center gap-2">
+          <Link href="/oficina/propiedades/nueva" className="w-full sm:w-auto">
+            <Button className="w-full sm:w-auto font-bold flex items-center gap-2">
               <Plus size={18} /> Nueva Propiedad
             </Button>
           </Link>

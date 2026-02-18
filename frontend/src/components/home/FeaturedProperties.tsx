@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { ArrowRight } from "lucide-react";
 import { propertyService } from "@/services/propertyService";
 import { PropertyCard, type PropertyCardData } from "@/components/public/PropertyCard";
 
@@ -79,29 +78,34 @@ export function FeaturedProperties() {
             </div>
 
             <div className="flex items-center justify-between gap-4">
-              {/* Navigation Controls - Top Left */}
-              <div className="flex items-center gap-2">
+              {/* Navigation Controls - Top Left (MOBILE ONLY) - INTACT */}
+              <div className="flex items-center gap-2 md:hidden">
                 <CarouselPrevious className="static translate-y-0 h-10 w-10 border-border/50 hover:bg-accent hover:text-white transition-colors" />
                 <CarouselNext className="static translate-y-0 h-10 w-10 border-border/50 hover:bg-accent hover:text-white transition-colors" />
               </div>
 
-              {/* Action Button - Top Right */}
-              <Link href="/propiedades" className="shrink-0">
+              {/* Action Button - Top Right - RESTORED POSITION */}
+              <Link href="/propiedades" className="shrink-0 ml-auto">
                 <Button variant="outline" className="group h-10">
                   Ver Catálogo
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
             </div>
           </div>
 
-          <CarouselContent className="-ml-4 md:-ml-6">
-            {properties.map((property) => (
-              <CarouselItem key={property.id} className="pl-4 md:pl-6 md:basis-1/2 lg:basis-1/3">
-                <PropertyCard property={property} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
+          <div className="relative group/controls">
+            <CarouselContent className="-ml-4 md:-ml-6">
+              {properties.map((property) => (
+                <CarouselItem key={property.id} className="pl-4 md:pl-6 md:basis-1/2 lg:basis-1/3">
+                  <PropertyCard property={property} />
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            
+            {/* Side Navigation Controls (DESKTOP ONLY) - Centered to the card block */}
+            <CarouselPrevious className="hidden md:inline-flex -left-12 lg:-left-16 h-12 w-12 border-border/50 hover:bg-primary hover:text-white transition-colors shadow-lg" />
+            <CarouselNext className="hidden md:inline-flex -right-12 lg:-right-16 h-12 w-12 border-border/50 hover:bg-primary hover:text-white transition-colors shadow-lg" />
+          </div>
         </Carousel>
       </div>
     </section>
