@@ -6,7 +6,8 @@ import {
   DndContext, 
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent
@@ -40,11 +41,13 @@ interface GalleryManagerProps {
 
 interface SortableItemProps {
   image: GalleryImage;
+  isSelected?: boolean;
+  onSelect: (id: string | null) => void;
   onDelete: (id: string) => void;
   onSetMain: (id: string) => void;
 }
 
-function SortableImageCard({ image, onDelete, onSetMain }: SortableItemProps) {
+function SortableImageCard({ image, isSelected, onSelect, onDelete, onSetMain }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -64,9 +67,11 @@ function SortableImageCard({ image, onDelete, onSetMain }: SortableItemProps) {
     <div
       ref={setNodeRef}
       style={style}
+      onClick={() => onSelect(isSelected ? null : image.id)}
       className={cn(
-        "relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 group",
+        "relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 group cursor-pointer",
         image.is_cover ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/50",
+        isSelected && "border-primary ring-4 ring-primary/20 scale-[0.98]",
         isDragging ? "opacity-50 scale-105 shadow-2xl" : "shadow-sm hover:shadow-lg"
       )}
     >
@@ -92,44 +97,49 @@ function SortableImageCard({ image, onDelete, onSetMain }: SortableItemProps) {
           <motion.div 
             initial={{ scale: 0 }} 
             animate={{ scale: 1 }}
-            className="bg-primary text-primary-foreground px-2 py-1 rounded-full text-[10px] font-bold flex items-center gap-1 shadow-lg"
+            className="bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-[10px] font-black flex items-center gap-1.5 shadow-xl border border-white/20"
           >
-            <Star className="h-3 w-3 fill-current" /> PORTADA
+            <Star className="h-3 w-3 fill-amber-300 text-amber-300" /> PORTADA
           </motion.div>
         )}
       </div>
 
-      <div className="absolute top-2 right-2 flex gap-1 z-20 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
+      <div className={cn(
+        "absolute top-2 right-2 flex gap-2 z-30 transition-all duration-300 md:opacity-0 md:group-hover:opacity-100 md:translate-y-2 md:group-hover:translate-y-0",
+        isSelected ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none md:pointer-events-auto"
+      )}>
         {!image.is_cover && (
           <Button
             type="button"
             size="icon"
-            variant="secondary"
-            className="h-8 w-8 rounded-full bg-background/80 backdrop-blur-md border-none shadow-md hover:bg-primary hover:text-white"
-            onClick={() => onSetMain(image.id)}
+            className="h-10 w-10 md:h-8 md:w-8 rounded-full bg-white text-amber-500 border border-border shadow-xl hover:bg-amber-500 hover:text-white active:scale-90 transition-all"
+            onClick={(e) => {
+              e.stopPropagation();
+              onSetMain(image.id);
+            }}
             title="Marcar como portada"
           >
-            <Star className="h-4 w-4" />
+            <Star className="h-5 w-5 md:h-4 md:w-4 fill-current" />
           </Button>
         )}
         <Button
           type="button"
           size="icon"
-          variant="destructive"
-          className="h-8 w-8 rounded-full bg-destructive/80 backdrop-blur-md border-none shadow-md hover:bg-destructive hover:scale-110 transition-all font-bold"
-          onClick={() => onDelete(image.id)}
+          className="h-10 w-10 md:h-8 md:w-8 rounded-full bg-white text-destructive border border-border shadow-xl hover:bg-destructive hover:text-white hover:scale-110 active:scale-95 transition-all"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(image.id);
+          }}
           title="Eliminar imagen"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-5 w-5 md:h-4 md:w-4" />
         </Button>
       </div>
 
-
-      
       {/* Selection Overlay */}
       <div className={cn(
         "absolute inset-0 bg-primary/10 pointer-events-none transition-opacity duration-300",
-        image.is_cover ? "opacity-100" : "opacity-0"
+        (image.is_cover || isSelected) ? "opacity-100" : "opacity-0"
       )} />
     </div>
   );
@@ -140,12 +150,19 @@ export function PropertyGalleryManager({ propertyId, initialImages, onImagesChan
     [...initialImages].sort((a, b) => a.position - b.position)
   );
   const [isUpdating, setIsUpdating] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
         activationConstraint: {
-            distance: 8,
+            distance: 10,
         },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 300,
+        tolerance: 6,
+      },
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
@@ -174,7 +191,6 @@ export function PropertyGalleryManager({ propertyId, initialImages, onImagesChan
         onImagesChange?.(newOrder);
       } catch (error) {
         console.error("Error reordering images:", error);
-        // Rollback? or just alert
       } finally {
         setIsUpdating(false);
       }
@@ -192,6 +208,7 @@ export function PropertyGalleryManager({ propertyId, initialImages, onImagesChan
       const filtered = images.filter(img => img.id !== imageId);
       setImages(filtered);
       onImagesChange?.(filtered);
+      if (selectedId === imageId) setSelectedId(null);
     } catch (error) {
       console.error("Error deleting image:", error);
     } finally {
@@ -212,6 +229,7 @@ export function PropertyGalleryManager({ propertyId, initialImages, onImagesChan
       }));
       setImages(updated);
       onImagesChange?.(updated);
+      setSelectedId(null);
     } catch (error) {
       console.error("Error setting main image:", error);
     } finally {
@@ -227,7 +245,7 @@ export function PropertyGalleryManager({ propertyId, initialImages, onImagesChan
                 Orden de la Galería
             </h4>
             <span className="text-[10px] text-muted-foreground/60 font-medium normal-case">
-                (Arrastra las fotos para cambiar el orden)
+                (Toca para gestionar, mantén pulsado para mover)
             </span>
         </div>
         {isUpdating && (
@@ -241,6 +259,7 @@ export function PropertyGalleryManager({ propertyId, initialImages, onImagesChan
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
+        onDragStart={() => setSelectedId(null)}
       >
         <SortableContext
           items={images.map(img => img.id)}
@@ -252,6 +271,8 @@ export function PropertyGalleryManager({ propertyId, initialImages, onImagesChan
                 <SortableImageCard
                   key={image.id}
                   image={image}
+                  isSelected={selectedId === image.id}
+                  onSelect={setSelectedId}
                   onDelete={handleDelete}
                   onSetMain={handleSetMain}
                 />
