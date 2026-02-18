@@ -103,7 +103,7 @@ export default function VisitasPage() {
         </div>
         <Button 
           onClick={() => setIsVisitDialogOpen(true)} 
-          className="w-full md:w-auto font-bold h-10 md:h-11 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300"
+          className="w-full sm:w-auto font-bold h-10 md:h-11 shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300"
         >
           <Plus className="mr-2 h-4 w-4" /> Nueva Visita
         </Button>

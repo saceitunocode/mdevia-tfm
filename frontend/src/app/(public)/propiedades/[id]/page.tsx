@@ -15,13 +15,17 @@ import {
   Bath,
   Layers,
   Ruler,
-  ArrowUp
+  ArrowUp,
+  TrendingUp
 } from "lucide-react";
 
 interface PropertyDetail {
   id: string;
   title: string;
+  address_line1: string;
+  address_line2?: string | null;
   city: string;
+  postal_code?: string | null;
   sqm: number;
   rooms: number;
   baths: number;
@@ -134,31 +138,55 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
           {/* Main Content */}
           <div className="lg:col-span-8 space-y-10">
             {/* Header Info */}
-            <div className="flex flex-col md:flex-row justify-between items-start gap-4 border-b border-border/50 pb-8">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <Badge variant={property.status === "SALE" ? "default" : "secondary"} className="uppercase tracking-wider">
-                    {property.status === "SALE" ? "En Venta" : "Alquiler"}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground flex items-center">
-                    <MapPin className="h-4 w-4 mr-1" />
-                    {property.city}
-                  </span>
-                </div>
-                <h1 className="text-3xl md:text-4xl font-heading font-bold text-foreground">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-6 border-b border-border/50 pb-10">
+              <div className="space-y-4 flex-1">
+                <Badge 
+                  variant={property.operation_type === "SALE" ? "default" : "accent"} 
+                  className="uppercase tracking-[0.1em] text-[10px] font-black h-6 px-3"
+                >
+                  {property.operation_type === "SALE" ? "En Venta" : "Alquiler"}
+                </Badge>
+
+                <h1 className="text-3xl md:text-5xl font-heading font-bold text-foreground leading-[1.1] tracking-tight">
                   {property.title}
                 </h1>
+
+                <div className="flex flex-wrap items-center gap-y-3 gap-x-4">
+                  <div className="flex items-center gap-2.5 bg-primary/5 dark:bg-primary/10 px-3.5 py-2 rounded-xl border border-primary/10 shadow-sm transition-all hover:bg-primary/10">
+                    <MapPin className="h-4 w-4 text-primary shrink-0" />
+                    <span className="text-sm font-bold text-foreground/90">
+                      {property.address_line1}
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 text-muted-foreground pl-1">
+                    <div className="flex items-center gap-1.5 bg-muted/40 px-2.5 py-1.5 rounded-lg border border-border/40">
+                      <span className="text-[11px] font-black uppercase tracking-tighter opacity-40">CP</span>
+                      <span className="text-sm font-bold text-foreground/70">{property.postal_code || "---"}</span>
+                    </div>
+                    
+                    <span className="h-1 w-1 rounded-full bg-primary/30" />
+                    
+                    <span className="text-sm font-black uppercase tracking-[0.15em] text-muted-foreground/80">
+                      {property.city}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-primary flex items-baseline gap-1">
+
+              <div className="flex flex-col items-start md:items-end gap-1 shrink-0 bg-primary/5 md:bg-transparent p-4 md:p-0 rounded-2xl w-full md:w-auto border border-primary/10 md:border-none shadow-sm md:shadow-none">
+                <div className="text-3xl md:text-5xl font-black text-primary flex items-baseline gap-1 tracking-tighter">
                   {formatPrice(property.price_amount, property.price_currency)}
                   {property.operation_type === "RENT" && (
-                    <span className="text-lg font-bold"> /mes</span>
+                    <span className="text-xl md:text-2xl font-bold opacity-80">/mes</span>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {property.sqm > 0 ? formatPrice(parseInt(property.price_amount) / property.sqm, property.price_currency).replace(",00", "") + "/m²" : ""}
-                </p>
+                <div className="flex items-center gap-2 md:justify-end w-full">
+                  <p className="text-xs md:text-sm font-bold text-muted-foreground/80 uppercase tracking-widest">
+                    {property.sqm > 0 ? formatPrice(parseInt(property.price_amount) / property.sqm, property.price_currency).replace(",00", "") + "/m²" : ""}
+                  </p>
+                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+                </div>
               </div>
             </div>
 
@@ -198,9 +226,9 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                </Card>
 
                {/* Floor Card with Elevator Badge */}
-               <Card className="flex items-center justify-between p-4 min-w-[200px] flex-1 border-border/50 shadow-sm">
+               <Card className="flex items-start sm:items-center justify-between p-4 min-w-[200px] flex-1 border-border/50 shadow-sm relative overflow-hidden">
                  <div className="flex items-center gap-4">
-                    <div className="text-primary">
+                    <div className="text-primary mt-0.5 sm:mt-0">
                       <Layers className="h-6 w-6" />
                     </div>
                     <div className="flex items-baseline gap-1.5">
@@ -212,9 +240,9 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                  </div>
                  
                  {property.has_elevator && (
-                   <div className="bg-emerald-500 text-white px-2.5 py-1.5 rounded-full flex items-center gap-1 shadow-sm transition-transform hover:scale-105">
-                     <ArrowUp className="h-3 w-3 stroke-3" />
-                     <span className="text-[9px] font-black uppercase tracking-tighter">Ascensor</span>
+                   <div className="bg-emerald-500 text-white px-2 py-0.5 rounded-t-md flex items-center gap-1 shadow-sm transition-transform hover:scale-105 md:static md:rounded-full md:px-2.5 md:py-1.5 absolute bottom-0 left-[56px] md:left-auto">
+                     <ArrowUp className="h-2.5 w-2.5 stroke-3" />
+                     <span className="text-[8px] font-black uppercase tracking-tighter">Ascensor</span>
                    </div>
                  )}
                </Card>

@@ -40,25 +40,49 @@ export function PropertyFilters() {
   const [isOpen, setIsOpen] = useState(false);
 
   const applyFilters = useCallback(() => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams.toString());
 
-    // Collect values from CURRENT state
-    if (city) params.set("city", city);
-    if (priceMin) params.set("price_min", priceMin);
-    if (priceMax) params.set("price_max", priceMax);
-    if (operationType) params.set("operation_type", operationType);
-    if (rooms) params.set("rooms", rooms);
-    if (baths) params.set("baths", baths);
-    if (hasElevator !== null) params.set("has_elevator", hasElevator.toString());
-    propertyTypes.forEach(t => params.append("property_type", t));
-
-    const newQuery = params.toString();
+    // Check if any filter actually changed compared to the URL
+    // We only want to trigger a router update if the USER changed a local state filter
+    const currentCity = searchParams.get("city") || "";
+    const currentPriceMin = searchParams.get("price_min") || "";
+    const currentPriceMax = searchParams.get("price_max") || "";
+    const currentOp = searchParams.get("operation_type") || "";
+    const currentRooms = searchParams.get("rooms") || "";
+    const currentBaths = searchParams.get("baths") || "";
+    const currentElevator = searchParams.get("has_elevator");
+    const currentTypes = searchParams.getAll("property_type").sort();
     
-    // Check if what we have in state actually differs from the URL
-    // This is the most robust way to prevent double-firing
-    if (newQuery !== searchParams.toString() && newQuery !== paramsRef.current) {
-      paramsRef.current = newQuery;
-      router.replace(`/propiedades?${newQuery}`, { scroll: false });
+    const filtersChanged = 
+      city !== currentCity ||
+      priceMin !== currentPriceMin ||
+      priceMax !== currentPriceMax ||
+      operationType !== currentOp ||
+      rooms !== currentRooms ||
+      baths !== currentBaths ||
+      String(hasElevator) !== (currentElevator === null ? "null" : currentElevator) ||
+      JSON.stringify([...propertyTypes].sort()) !== JSON.stringify(currentTypes);
+
+    if (filtersChanged) {
+      // Update params with local state
+      if (city) params.set("city", city); else params.delete("city");
+      if (priceMin) params.set("price_min", priceMin); else params.delete("price_min");
+      if (priceMax) params.set("price_max", priceMax); else params.delete("price_max");
+      if (operationType) params.set("operation_type", operationType); else params.delete("operation_type");
+      if (rooms) params.set("rooms", rooms); else params.delete("rooms");
+      if (baths) params.set("baths", baths); else params.delete("baths");
+      if (hasElevator !== null) params.set("has_elevator", hasElevator.toString()); else params.delete("has_elevator");
+      
+      params.delete("property_type");
+      propertyTypes.forEach(t => params.append("property_type", t));
+
+      // Reset page when filters change
+      params.set("page", "1");
+      
+      const newQuery = params.toString();
+      if (newQuery !== searchParams.toString()) {
+        router.replace(`/propiedades?${newQuery}`, { scroll: false });
+      }
     }
   }, [router, searchParams, city, priceMin, priceMax, operationType, propertyTypes, rooms, baths, hasElevator]);
 

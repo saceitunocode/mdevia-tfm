@@ -57,8 +57,8 @@ export default function AdminUsuariosPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Gestión de Usuarios</h1>
           <p className="text-sm text-muted-foreground mt-1">Administra el equipo de agentes y sus permisos.</p>
         </div>
-        <Link href="/oficina/usuarios/nuevo">
-          <Button className="shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
+        <Link href="/oficina/usuarios/nuevo" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
             <Plus className="mr-2 h-4 w-4" /> Nuevo Agente
           </Button>
         </Link>

@@ -94,8 +94,8 @@ export default function AdminClientesPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Gestión de Clientes</h1>
           <p className="text-sm text-muted-foreground mt-1">Administra tu base de datos de compradores, vendedores e inquilinos.</p>
         </div>
-        <Link href="/oficina/clientes/nuevo">
-          <Button className="shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
+        <Link href="/oficina/clientes/nuevo" className="w-full sm:w-auto">
+          <Button className="w-full sm:w-auto shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
             <Plus className="mr-2 h-4 w-4" /> Nuevo Cliente
           </Button>
         </Link>
