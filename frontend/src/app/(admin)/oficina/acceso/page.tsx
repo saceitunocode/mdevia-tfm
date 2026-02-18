@@ -45,7 +45,8 @@ export default function AccesoPage() {
       body.append("password", password);
       body.append("remember", remember.toString());
 
-      const response = await fetch("http://localhost:8000/api/v1/login/access-token", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+      const response = await fetch(`${API_URL}/login/access-token`, {
         method: "POST",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
@@ -80,7 +81,6 @@ export default function AccesoPage() {
       setIsLoading(false);
     }
   };
-  console.log(process.env.NEXT_PUBLIC_API_URL);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4 animate-in fade-in duration-500">
