@@ -71,9 +71,10 @@ def test_public_endpoints_unauthenticated(client: TestClient, db: Session):
     data = response.json()["items"]
     assert any(p["id"] == str(test_prop.id) for p in data)
     
-    # 2. Test data filtering (No sensitive data in list)
+    # 2. Test data filtering (No sensitive data in list, but address is intentional)
     prop_in_list = next(p for p in data if p["id"] == str(test_prop.id))
-    assert "address_line1" not in prop_in_list
+    assert "address_line1" in prop_in_list
+    assert prop_in_list["address_line1"] == "Secret Address 1"
     assert "internal_notes" not in prop_in_list
     assert "owner_client_id" not in prop_in_list
     
@@ -82,7 +83,8 @@ def test_public_endpoints_unauthenticated(client: TestClient, db: Session):
     assert response.status_code == 200
     detail = response.json()
     assert detail["title"] == "Public Property Security Test"
-    assert "address_line1" not in detail
+    assert "address_line1" in detail
+    assert detail["address_line1"] == "Secret Address 1"
     assert "internal_notes" not in detail
     assert "owner_client_id" not in detail
     

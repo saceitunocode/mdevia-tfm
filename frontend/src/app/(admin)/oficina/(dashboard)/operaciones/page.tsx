@@ -81,9 +81,9 @@ export default function AdminOperacionesPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Operaciones</h1>
           <p className="text-sm text-muted-foreground mt-1">Seguimiento de ventas y alquileres en curso.</p>
         </div>
-        <div className="flex items-center gap-2">
-           <Link href="/oficina/operaciones/nueva">
-             <Button className="shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+           <Link href="/oficina/operaciones/nueva" className="w-full sm:w-auto">
+             <Button className="w-full sm:w-auto shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all duration-300">
                <Plus className="mr-2 h-4 w-4" /> Nueva Operación
              </Button>
            </Link>

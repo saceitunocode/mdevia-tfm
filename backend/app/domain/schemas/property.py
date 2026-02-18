@@ -91,7 +91,10 @@ class PropertyAgentPublic(BaseModel):
 class PropertyPublic(BaseModel):
     id: uuid.UUID
     title: str
+    address_line1: str
+    address_line2: Optional[str] = None
     city: str
+    postal_code: Optional[str] = None
     sqm: int
     rooms: int
     baths: int

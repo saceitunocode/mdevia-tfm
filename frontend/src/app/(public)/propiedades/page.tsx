@@ -98,12 +98,14 @@ function ShowcaseContent() {
     }
     params.set("page", "1"); // Reset context
     router.push(`/propiedades?${params.toString()}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handlePageChange = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", newPage.toString());
     router.push(`/propiedades?${params.toString()}`);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -268,8 +270,8 @@ function ShowcaseContent() {
                                        {isForRent && <span className="text-xs opacity-60"> /mes</span>}
                                      </span>
                                   </div>
-                                  <div className="flex items-center text-muted-foreground text-sm gap-1 mb-4">
-                                     <MapPin size={14} className="text-primary" /> {property.city}
+                                  <div className="flex items-center text-muted-foreground text-sm gap-1 mb-4 truncate">
+                                     <MapPin size={14} className="text-primary" /> {property.address_line1}{property.city ? `, ${property.city}` : ""}
                                   </div>
                                 </div>
 
