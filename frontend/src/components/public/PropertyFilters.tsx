@@ -288,7 +288,7 @@ function FilterContent({
             <div className="grid grid-cols-2 gap-2">
                 <button
                     onClick={() => setCity("Andújar")}
-                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2 ${city === "Andújar" ? 'border-primary bg-primary/5 text-primary' : 'border-transparent bg-muted/30 text-muted-foreground hover:bg-muted/50'}`}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all gap-2 ${city === "Andújar" ? 'border-accent bg-accent/5 text-accent' : 'border-transparent bg-muted/30 text-muted-foreground hover:bg-muted/50'}`}
                 >
                     <MapPin className="h-5 w-5" />
                     <span className="font-bold uppercase tracking-tighter text-xs">Andújar</span>
