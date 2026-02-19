@@ -66,7 +66,7 @@ export default function EditarClientePage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 max-w-5xl mx-auto">
+      <div className="w-full md:max-w-6xl md:mx-auto space-y-6">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-muted rounded w-1/3" />
           <div className="h-64 bg-muted rounded" />
@@ -87,7 +87,7 @@ export default function EditarClientePage() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 pb-8 md:pb-12">
+    <div className="w-full md:max-w-6xl md:mx-auto space-y-4 md:space-y-6 pb-8 md:pb-12">
       <div className="flex items-center gap-3 md:gap-4">
         <Link href={`/oficina/clientes/${clientId}`}>
           <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10 rounded-full">

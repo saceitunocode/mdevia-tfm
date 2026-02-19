@@ -1,24 +1,21 @@
 # Backlog del Producto
-## Sistema Web / CRM para Inmobiliaria Familiar
+## Sistema CRM Inmobiliario — mdevia-tfm
+
+> **Estado:** ✅ Todas las épicas implementadas.  
+> **Última actualización:** Febrero 2026.
 
 ---
 
 ## Índice de Épicas
 
-- [EP-0 — Fundaciones del sistema](./EP_00_fundaciones.md)
-- [EP-1 — Gestión de usuarios y roles](./EP_01_usuarios_roles.md)
-- [EP-2 — Módulo Clientes](./EP_02_clientes.md)
-- [EP-3 — Módulo Propiedades](./EP_03_propiedades.md)
-- [EP-4 — Módulo Visitas](./EP_04_visitas.md)
-- [EP-5 — Agenda (Calendario)](./EP_05_agenda.md)
-- [EP-6 — Módulo Operaciones](./EP_06_operaciones.md)
-- [EP-7 — Movilidad, usabilidad y calidad](./EP_07_movilidad_calidad.md)
-- [EP-8 — Escaparate Público de Propiedades](./EP_08_escaparate.md)
-
----
-
-## Resumen
-
-Este backlog deriva directamente del PRD y representa la traducción exacta de requisitos a desarrollo.
-
-Cada épica está documentada en su propio archivo para facilitar la navegación y el mantenimiento.
+| Épica | Descripción | Estado |
+|-------|-------------|--------|
+| [EP-0](./EP_00_fundaciones.md) | Fundaciones del sistema (auth, seed, dashboard) | ✅ Done |
+| [EP-1](./EP_01_usuarios_roles.md) | Gestión de usuarios y roles | ✅ Done |
+| [EP-2](./EP_02_clientes.md) | Módulo Clientes | ✅ Done |
+| [EP-3](./EP_03_propiedades.md) | Módulo Propiedades + Imágenes Cloudinary | ✅ Done |
+| [EP-4](./EP_04_visitas.md) | Módulo Visitas (con sync calendario) | ✅ Done |
+| [EP-5](./EP_05_agenda.md) | Agenda (Calendario) | ✅ Done |
+| [EP-6](./EP_06_operaciones.md) | Módulo Operaciones | ✅ Done |
+| [EP-7](./EP_07_movilidad_calidad.md) | Movilidad, usabilidad y calidad | ✅ Done |
+| [EP-8](./EP_08_escaparate.md) | Escaparate Público de Propiedades | ✅ Done |
