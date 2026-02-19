@@ -164,7 +164,7 @@ mdevia-tfm/
 | 🌐 **Aplicación en producción** | [frinmobiliaria.vercel.app](https://frinmobiliaria.vercel.app) |
 | 🔌 **API REST (Swagger)** | [mdevia-tfm-backend.onrender.com/docs](https://mdevia-tfm-backend.onrender.com/docs) |
 | 📦 **Repositorio GitHub** | [github.com/saceitunocode/mdevia-tfm](https://github.com/saceitunocode/mdevia-tfm) |
-| 🎞️ **Presentación (slides)** | *(próximamente)* |
+| 🎞️ **Presentación (slides)** | [FRInmobiliaria-CRM-Inmobiliario-TFM](https://gamma.app/docs/FRInmobiliaria-CRM-Inmobiliario-TFM-7330j882biqbfrx) |
 
 > ⚠️ **Nota sobre el backend (Render plan gratuito):** el servicio entra en hibernación tras un periodo de inactividad. Al acceder por primera vez, puede tardar entre **40 y 50 segundos** en arrancar. Una vez activo, **todas las peticiones posteriores son instantáneas** y el rendimiento es normal.
 
