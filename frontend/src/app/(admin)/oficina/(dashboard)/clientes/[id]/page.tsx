@@ -128,7 +128,7 @@ export default function ClienteDetallePage() {
   }
 
   return (
-    <div className="w-full md:max-w-6xl md:mx-auto space-y-4 md:space-y-6 pb-8 md:pb-12">
+    <div className="w-full space-y-4 md:space-y-6 pb-8 md:pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 md:gap-4">
@@ -156,11 +156,11 @@ export default function ClienteDetallePage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
-        {/* Left Column: Info & Notes */}
-        <div className="lg:col-span-5 xl:col-span-4 space-y-4 md:space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {/* Columna 1: Contacto y Notas */}
+        <div className="space-y-4 md:space-y-6">
           {/* Info Card */}
-          <Card className="shadow-sm">
+          <Card className="shadow-sm h-fit">
             <CardHeader className="p-4 pb-2 border-b md:border-none">
               <CardTitle className="text-base md:text-lg flex items-center gap-2">
                 <User className="h-4 w-4 md:h-5 md:w-5" /> Contacto
@@ -202,7 +202,7 @@ export default function ClienteDetallePage() {
           </Card>
           
           {/* Notes Card */}
-          <Card className="shadow-sm">
+          <Card className="shadow-sm h-fit">
             <CardHeader className="p-4 pb-2 border-b md:border-none">
               <CardTitle className="text-base md:text-lg flex items-center gap-2">
                 <StickyNote className="h-4 w-4 md:h-5 md:w-5" /> Notas
@@ -244,8 +244,8 @@ export default function ClienteDetallePage() {
           </Card>
         </div>
 
-        {/* Right Column: History */}
-        <div className="lg:col-span-7 xl:col-span-8 space-y-4 md:space-y-6">
+        {/* Columna 2: Agente y Propiedades */}
+        <div className="space-y-4 md:space-y-6">
           {/* Responsible Agent Section */}
           <AgentCard 
             agent={client.responsible_agent} 
@@ -253,9 +253,9 @@ export default function ClienteDetallePage() {
             emptyMessage="No asignado."
           />
           
-          {/* Properties Section (Optional) */}
+          {/* Properties Section */}
           {client.type === "OWNER" && (
-            <Card className="border-l-4 border-l-green-500 shadow-sm overflow-hidden">
+            <Card className="border-l-4 border-l-green-500 shadow-sm overflow-hidden h-fit">
               <CardHeader className="flex flex-row items-center justify-between p-4 pb-2 bg-green-50/50">
                 <CardTitle className="text-base md:text-lg flex items-center gap-2">
                   <Home className="h-4 w-4 md:h-5 md:w-5 text-green-600" /> Propiedades
@@ -290,9 +290,12 @@ export default function ClienteDetallePage() {
               </CardContent>
             </Card>
           )}
+        </div>
 
+        {/* Columna 3: Operaciones y Visitas */}
+        <div className="space-y-4 md:space-y-6">
           {/* Operations Section */}
-          <Card className="border-l-4 border-l-blue-500 shadow-sm overflow-hidden">
+          <Card className="border-l-4 border-l-blue-500 shadow-sm overflow-hidden h-fit">
              <CardHeader className="flex flex-row items-center justify-between p-4 pb-2 bg-blue-50/50">
                 <CardTitle className="text-base md:text-lg flex items-center gap-2">
                   <Briefcase className="h-4 w-4 md:h-5 md:w-5 text-blue-600" /> Operaciones
@@ -333,7 +336,7 @@ export default function ClienteDetallePage() {
           </Card>
 
           {/* Visits Section */}
-          <Card className="border-l-4 border-l-primary shadow-sm overflow-hidden">
+          <Card className="border-l-4 border-l-primary shadow-sm overflow-hidden h-fit">
             <CardHeader className="flex flex-row items-center justify-between p-4 pb-2 bg-muted/5">
                 <CardTitle className="text-base md:text-lg flex items-center gap-2">
                     <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary" /> Visitas
