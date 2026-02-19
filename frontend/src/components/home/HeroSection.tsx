@@ -37,7 +37,7 @@ export function HeroSection() {
             <h2 className="text-4xl md:text-7xl font-heading font-black text-white tracking-tighter drop-shadow-2xl">
               ANDÚJAR
             </h2>
-            <div className="inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-xs md:text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
+            <div className="inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-white text-primary rounded-lg font-bold uppercase tracking-widest text-xs md:text-sm shadow-xl group-hover:bg-accent group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
               Ver inmuebles
             </div>
           </div>
@@ -62,7 +62,7 @@ export function HeroSection() {
             <h2 className="text-4xl md:text-7xl font-heading font-black text-white tracking-tighter drop-shadow-2xl">
               CÓRDOBA
             </h2>
-            <div className="inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-white text-primary rounded-full font-bold uppercase tracking-widest text-xs md:text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
+            <div className="inline-flex items-center gap-2 md:gap-3 px-6 md:px-8 py-3 md:py-4 bg-white text-primary rounded-lg font-bold uppercase tracking-widest text-xs md:text-sm shadow-xl group-hover:bg-primary group-hover:text-white transition-all duration-300 transform group-hover:-translate-y-1">
               Ver inmuebles
             </div>
           </div>

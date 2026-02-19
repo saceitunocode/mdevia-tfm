@@ -68,7 +68,7 @@ export function ClientForm({ initialValues, onSubmit, isLoading, isEditMode = fa
 
   return (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    <form onSubmit={handleSubmit(onSubmit as any, onError)}>
+    <form onSubmit={handleSubmit(onSubmit as any, onError)} className="w-full">
       <Card className="border-none shadow-xl bg-card/50 backdrop-blur-sm overflow-hidden">
         <CardHeader className="p-4 md:p-6 pb-2 md:pb-4 border-b md:border-none bg-muted/10 md:bg-transparent">
           <CardTitle className="text-lg md:text-2xl">{isEditMode ? "Editar Cliente" : "Datos del Cliente"}</CardTitle>

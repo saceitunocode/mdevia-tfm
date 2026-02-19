@@ -147,7 +147,7 @@ export default function DetalleUsuarioPage() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 pb-8 md:pb-12">
+    <div className="w-full md:max-w-6xl md:mx-auto space-y-4 md:space-y-6 pb-8 md:pb-12">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/oficina/usuarios">
