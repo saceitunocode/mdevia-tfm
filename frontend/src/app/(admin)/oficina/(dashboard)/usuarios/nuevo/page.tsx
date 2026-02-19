@@ -84,7 +84,7 @@ export default function NuevoUsuarioPage() {
   };
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="w-full md:max-w-6xl md:mx-auto space-y-4 md:space-y-6">
       <div className="flex items-center gap-3 md:gap-4">
         <Link href="/oficina/usuarios">
           <Button variant="ghost" size="icon" className="h-8 w-8 md:h-10 md:w-10 rounded-full">

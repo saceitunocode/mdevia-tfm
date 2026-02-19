@@ -104,7 +104,7 @@ export default function ClienteDetallePage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6 pb-12">
+      <div className="w-full md:max-w-6xl md:mx-auto space-y-6 pb-12">
         <div className="animate-pulse space-y-4">
           <div className="h-8 bg-muted rounded w-1/3" />
           <div className="h-48 bg-muted rounded" />
@@ -128,7 +128,7 @@ export default function ClienteDetallePage() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 pb-8 md:pb-12">
+    <div className="w-full md:max-w-6xl md:mx-auto space-y-4 md:space-y-6 pb-8 md:pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 md:gap-4">
