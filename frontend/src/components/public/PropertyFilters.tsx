@@ -340,7 +340,6 @@ function FilterContent({
                 className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-1.5 ${propertyTypes.includes(type.id) ? 'border-primary bg-primary/5 text-primary' : 'border-transparent bg-muted/30 text-muted-foreground hover:bg-muted/50'}`}
               >
                 <span className="text-[10px] uppercase font-black tracking-tighter">{type.label}</span>
-                {propertyTypes.includes(type.id) && <div className="w-1.5 h-1.5 rounded-full bg-primary" />}
               </button>
             ))}
           </div>
